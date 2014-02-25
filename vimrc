@@ -7,7 +7,7 @@ set noeb vb
 set t_vb=
 set incsearch hlsearch
 filetype plugin indent on
-colors slate
+colors github
 
 if exists('+colorcolumn')
   set colorcolumn=81
