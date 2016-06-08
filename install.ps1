@@ -7,19 +7,19 @@ if ($hasGit -ne "y") {
   exit
 }
 
-copy gitconfig ~\.gitconfig
-copy gvimrc ~\_gvimrc
-copy vimrc ~\_vimrc
-mkdir ~\.vim\colors -erroraction ignore
+copy gitconfig $home\.gitconfig
+copy gvimrc $home\_gvimrc
+copy vimrc $home\_vimrc
+mkdir $home\.vim\colors -erroraction ignore
 cmd /c mklink /d %USERPROFILE%\vimfiles %USERPROFILE%\.vim
-copy github.vim ~\.vim\colors
-mkdir ~\Documents\WindowsPowerShell -erroraction ignore
+copy github.vim $home\.vim\colors
+mkdir $home\Documents\WindowsPowerShell -erroraction ignore
 copy profile.ps1 $PROFILE
 
 . $PROFILE
 
-mkdir ~\.vim\autoload -erroraction ignore
-mkdir ~\.vim\bundle -erroraction ignore
-download https://tpo.pe/pathogen.vim ~\.vim\autoload\pathogen.vim
+mkdir $home\.vim\autoload -erroraction ignore
+mkdir $home\.vim\bundle -erroraction ignore
+download https://tpo.pe/pathogen.vim $home\.vim\autoload\pathogen.vim
 
 .\gitcommands.sh.ps1

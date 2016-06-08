@@ -4,3 +4,6 @@ function download {
 }
 
 function c { cmd /c @args }
+
+function exit { exit }
+set-alias  exit

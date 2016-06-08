@@ -7,8 +7,6 @@ set noeb vb
 set t_vb=
 set incsearch hlsearch
 filetype plugin indent on
-set bg=dark
-colors syntastic
 
 if exists('+colorcolumn')
   set colorcolumn=81
@@ -19,3 +17,6 @@ endif
 au BufRead,BufNewFile *.ts set filetype=typescript
 
 call pathogen#infect()
+
+colors syntastic
+set bg=dark
