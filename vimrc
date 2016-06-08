@@ -18,5 +18,5 @@ au BufRead,BufNewFile *.ts set filetype=typescript
 
 call pathogen#infect()
 
-colors syntastic
+colors solarized
 set bg=dark
