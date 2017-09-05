@@ -1,25 +1,18 @@
-echo "if you are not admin, this will not end well."
+echo "this needs admin. also Set-ExecutionPolicy Unrestricted now."
 if ((read-host -prompt "are you admin? y/n") -ne "y") {
   exit
 }
-$hasGit = read-host -prompt "is git installed and in $env:PATH? y/n"
-if ($hasGit -ne "y") {
-  exit
-}
 
-copy gitconfig $home\.gitconfig
-copy gvimrc $home\_gvimrc
-copy vimrc $home\_vimrc
-mkdir $home\.vim\colors -erroraction ignore
-cmd /c mklink /d %USERPROFILE%\vimfiles %USERPROFILE%\.vim
-copy github.vim $home\.vim\colors
-mkdir $home\Documents\WindowsPowerShell -erroraction ignore
-copy profile.ps1 $PROFILE
+.\install-apps.ps1
+
+copy .\.gitconfig $home\.gitconfig
+copy .\.gvimrc $home\_gvimrc
+copy .\.vimrc $home\_vimrc
+expand-archive $home\OneDrive\Documents\Utils\vimfiles.zip -DestinationPath $home
+mkdir $home\Documents\WindowsPowerShell
+copy .\profile.ps1 $PROFILE
+
+mkdir $home\bin
+cp .\with.ps1,.\Remove-RustFmtBk.ps1 $home\bin
 
 . $PROFILE
-
-mkdir $home\.vim\autoload -erroraction ignore
-mkdir $home\.vim\bundle -erroraction ignore
-download https://tpo.pe/pathogen.vim $home\.vim\autoload\pathogen.vim
-
-.\gitcommands.sh.ps1
