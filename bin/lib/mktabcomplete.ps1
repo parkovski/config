@@ -1,4 +1,4 @@
-param([string]$name, [bool]$mandatory, [string]$help, [string[]]$values)
+param([string]$name, [switch]$mandatory, [string]$help, [string[]]$values)
 
 $attrs = new-object -type System.Collections.ObjectModel.Collection[System.Attribute]
 $pattr = new-object -type System.Management.Automation.ParameterAttribute
