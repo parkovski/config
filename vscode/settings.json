@@ -1,0 +1,33 @@
+{
+  "workbench.colorTheme": "One Monokai",
+  "workbench.iconTheme": "vscode-icons",
+  "editor.tabSize": 2,
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "editor.rulers": [
+    80, 100
+  ],
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.codeLens": false,
+  "editor.folding": false,
+  "editor.minimap.enabled": false,
+  "diffEditor.renderSideBySide": false,
+  "vim.useCtrlKeys": true,
+  "vim.leader": "<space>",
+  "vim.otherModesKeyBindings": [
+    {
+      "before": ["leader", "T"],
+      "after": ["<C-pageup>"]
+    },
+    {
+      "before": ["leader", "t"],
+      "after": ["<C-pagedown>"]
+    }
+  ],
+  "vim.ignorecase": false,
+  "vim.smartcase": false,
+  "vim.disableAnnoyingNeovimMessage": true,
+  "vsicons.dontShowNewVersionMessage": true,
+  "files.trimTrailingWhitespace": true
+}

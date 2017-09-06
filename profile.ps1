@@ -75,14 +75,21 @@ function cd {
   }
 }
 
-$GH = $home\Documents\GitHub
+$GH = "$home\Documents\GitHub"
 function gh {
-  param([string]$project)
-  cd $home\Documents\GitHub\$project
+  [CmdletBinding()]
+  param()
+  dynamicparam {
+    $projects = $(ls "$home\Documents\GitHub" | %{$_.name})
+    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "project" -mandatory $false -help "Project name" -values $projects)
+  }
+  process {
+    cd $home\Documents\GitHub\$project
+  }
 }
 
 $env:EDITOR='vim'
-$env:PATH=$env:PATH+";C:\Program Files\doxygen\bin;C:\Program Files\PostgreSQL\9.6\bin\;C:\Users\parke\AppData\Roaming\nvm;C:\Program Files\OpenSSH-Win32"
+$env:PATH=$env:PATH+";$HOME\Downloads\OpenSSH-Win64"
 Set-PSReadlineOption -EditMode vi
 Set-PSReadlineOption -BellStyle None
 Set-PSReadlineKeyHandler -Key Tab -Function Complete
