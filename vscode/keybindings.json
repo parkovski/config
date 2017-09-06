@@ -23,5 +23,15 @@
   {
     "key": "ctrl+numpad_subtract",
     "command": "-workbench.action.zoomOut"
+  },
+  {
+    "key": "alt+`",
+    "command": "workbench.action.terminal.focus",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "alt+`",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "terminalFocus"
   }
 ]
