@@ -29,5 +29,7 @@
   "vim.smartcase": false,
   "vim.disableAnnoyingNeovimMessage": true,
   "vsicons.dontShowNewVersionMessage": true,
-  "files.trimTrailingWhitespace": true
+  "files.trimTrailingWhitespace": true,
+  "git.confirmSync": false,
+  "powershell.integratedConsole.showOnStartup": false
 }
