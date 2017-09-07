@@ -124,6 +124,17 @@ function prompt {
   if ($isgit) {
     $branch = $(git branch --format "%(refname:short)")
     $gitfiles = Get-GitStatusMap
+    if ($PromptShowGitRemote) {
+      $remote = $(git remote show)
+      $ahead = 0
+      $behind = 0
+      if ($remote) {
+        $ahead_str = $(git rev-list --count $remote/HEAD..HEAD)
+        $_ = [int]::TryParse($ahead_str, [ref]$ahead)
+        $behind_str = $(git rev-list --count HEAD..$remote/HEAD)
+        $_ = [int]::TryParse($behind_str, [ref]$behind)
+      }
+    }
   }
 
   if ($admin) {
@@ -141,6 +152,17 @@ function prompt {
   if ($isgit) {
     Write-Host " git:(" -ForegroundColor Blue -NoNewLine
     Write-Host $branch -ForegroundColor DarkYellow -NoNewLine
+    if ($PromptShowGitRemote) {
+      if ($ahead -gt 0) {
+        Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
+        if ($behind -gt 0) {
+          Write-Host "/" -ForegroundColor DarkYellow -NoNewLine
+        }
+      }
+      if ($behind -gt 0) {
+        Write-Host "-$behind" -ForegroundColor DarkMagenta -NoNewLine
+      }
+    }
     foreach ($k in $gitfiles.keys) {
       if ($k[1] -eq "+") {
         $c = "Cyan"
@@ -181,6 +203,9 @@ function = {
     return $out
   }
 }
+
+$PromptShowGitRemote = $false
+
 Set-PSReadlineOption -EditMode vi
 Set-PSReadlineOption -BellStyle None
 Set-PSReadlineKeyHandler -Chord 'Shift+Tab' -Function Complete
