@@ -13,6 +13,9 @@ copy .\profile.ps1 $PROFILE
 mkdir $home\bin -ErrorAction Ignore
 cp .\bin\* $home\bin
 
+$userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+[System.Environment]::SetEnvironmentVariable("Path", $userenv + ";$Home\bin", "User")
+
 .\install-apps.ps1
 
 cp $HOME\OneDrive\Documents\Utils\ConEmu.xml $HOME\AppData\Roaming
