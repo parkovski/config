@@ -64,24 +64,13 @@ function in {
   popd
 }
 
-if (test-path Alias:cd) {
-  rm -force Alias:cd
-}
-function cd {
-  if ($args.Length -eq 0) {
-    Set-Location ~
-  } else {
-    Set-Location @args
-  }
-}
-
 $GH = "$home\Documents\GitHub"
 function gh {
   [CmdletBinding()]
   param()
   dynamicparam {
     $projects = $(ls "$home\Documents\GitHub" | %{$_.name})
-    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "project" -mandatory -help "Project name" -values $projects)
+    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "project" -help "Project name" -values $projects)
   }
   begin {
     $project = $PSBoundParameters.project
@@ -138,11 +127,11 @@ function prompt {
   }
 
   if ($admin) {
-    Write-Host "+A" -ForegroundColor Yellow -NoNewLine
+    Write-Host "A " -ForegroundColor Yellow -NoNewLine
   }
   Write-Host "[$drive]" -ForegroundColor Blue -NoNewLine
   if ($path -ieq $home) {
-    $folder = " ~"
+    $folder = "~"
   } elseif ($matches[3]) {
     $folder = $matches[3]
   } else {
@@ -178,7 +167,7 @@ function prompt {
 }
 
 $env:EDITOR='vim'
-$env:PATH=$env:PATH+";$HOME\Downloads\OpenSSH-Win64"
+$env:PATH=$env:PATH+";C:\Program Files\OpenSSH"
 function = {
   param(
     [Parameter(ValueFromPipeline=$true, Mandatory=$true)]
@@ -204,11 +193,45 @@ function = {
   }
 }
 
-$PromptShowGitRemote = $false
+if (-not ($PSVersionTable.PSCompatibleVersions | = major).Contains(6)) {
+  if (test-path Alias:cd) {
+    rm -force Alias:cd
+  }
+  function cd {
+    if ($args.Length -eq 0) {
+      Set-Location ~
+    } else {
+      Set-Location @args
+    }
+  }
+}
+
+
+$PowerShell = (Get-Process -Id $PID).MainModule.FileName
+function Open-AdminWindow {
+  Start-Process $PowerShell -Verb Runas
+}
+
+$vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+function vcvars {
+  cmd /c "`"$vcvars`" & set" | ?{$_ -match "^[A-Za-z_0-9]+="} | %{
+    $var = $_
+    $eq = $var.IndexOf('=');
+    $key = $var.Substring(0, $eq);
+    $val = $var.Substring($eq + 1);
+    sc "Env:\$key" "$val"
+  }
+}
+
+$PromptShowGitRemote = $true
 
 Set-PSReadlineOption -EditMode vi
 Set-PSReadlineOption -BellStyle None
+Set-PSReadlineOption -ViModeIndicator Cursor
 Set-PSReadlineKeyHandler -Chord 'Shift+Tab' -Function Complete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadlineKeyHandler -Key Ctrl+[ -Function ViCommandMode
 
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+
+. $HOME\bin\lib\rustup-completions.ps1
