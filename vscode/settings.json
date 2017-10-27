@@ -1,8 +1,23 @@
 {
-  "workbench.colorTheme": "One Monokai",
-  "workbench.iconTheme": "vscode-icons",
+  "workbench.colorTheme": "Base16 Leaf Tomorrow",
+  /*"editor.tokenColorCustomizations": {
+    "comments":{
+      "foreground": "#9FA8A0"
+      //"fontStyle": ""
+    }
+  },*/
+  /*"workbench.colorCustomizations": {
+    "editorCursor.foreground": "#A8C3D6",
+    "editorCursor.background": "#46382B",
+    "editorIndentGuide.background": "#665018"
+  },*/
+  "workbench.editor.labelFormat": "medium",
+  "terminal.integrated.fontFamily": "Fira Code Light",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.cursorStyle": "line",
   "editor.tabSize": 2,
   "editor.fontFamily": "Fira Code",
+  "editor.fontSize": 14,
   "editor.fontLigatures": true,
   "editor.rulers": [
     80, 100
@@ -12,6 +27,7 @@
   "editor.codeLens": false,
   "editor.folding": false,
   "editor.minimap.enabled": false,
+  "editor.smoothScrolling": true,
   "diffEditor.renderSideBySide": false,
   "vim.useCtrlKeys": true,
   "vim.leader": "<space>",
@@ -23,6 +39,42 @@
     {
       "before": ["leader", "t"],
       "after": ["<C-pagedown>"]
+    },
+    {
+      "before": ["leader", "s"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.gotoSymbol"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "S"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.showAllSymbols"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "R"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.rename"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "r"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.referenceSearch.trigger"
+        }
+      ]
     }
   ],
   "vim.ignorecase": false,
@@ -31,5 +83,17 @@
   "vsicons.dontShowNewVersionMessage": true,
   "files.trimTrailingWhitespace": true,
   "git.confirmSync": false,
-  "powershell.integratedConsole.showOnStartup": false
+  "powershell.integratedConsole.showOnStartup": false,
+  "search.useIgnoreFilesByDefault": true,
+  "C_Cpp.intelliSenseEngine": "Default",
+  "C_Cpp.formatting": "Disabled",
+  "editor.accessibilitySupport": "off",
+  "rust.unstable_features": true,
+  "rust.workspace_mode": true,
+  "material-icon-theme.showWelcomeMessage": false,
+  "materialTheme.cache.workbench.settings": {
+    "themeColours": "Default"
+  },
+  "julia.executablePath": "C:\\Users\\parke\\AppData\\Local\\Julia-0.6.0\\bin\\julia.exe",
+  "workbench.iconTheme": "file-icons"
 }

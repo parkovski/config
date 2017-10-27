@@ -27,11 +27,11 @@
   {
     "key": "alt+`",
     "command": "workbench.action.terminal.focus",
-    "when": "!terminalFocus"
+    "when": "editorTextFocus"
   },
   {
     "key": "alt+`",
     "command": "workbench.action.focusActiveEditorGroup",
-    "when": "terminalFocus"
+    "when": "!editorTextFocus"
   }
 ]

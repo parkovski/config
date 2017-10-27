@@ -54,7 +54,7 @@ function z {
 }
 
 function zsh {
-  bash -c zsh
+  ubuntu.exe
 }
 
 function in {
@@ -111,7 +111,7 @@ function prompt {
   if (-not $drive) { $drive = $matches[2] }
   $isgit = Test-Path ".git" -PathType Container
   if ($isgit) {
-    $branch = $(git branch --format "%(refname:short)")
+    $branch = $(git rev-parse --abbrev-ref HEAD)
     $gitfiles = Get-GitStatusMap
     if ($PromptShowGitRemote) {
       $remote = $(git remote show)
@@ -230,7 +230,11 @@ Set-PSReadlineOption -BellStyle None
 Set-PSReadlineOption -ViModeIndicator Cursor
 Set-PSReadlineKeyHandler -Chord 'Shift+Tab' -Function Complete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadlineKeyHandler -Key Ctrl+[ -Function ViCommandMode
+Set-PSReadlineKeyHandler -Chord 'Ctrl+[' -Function ViCommandMode
+Set-PSReadlineKeyHandler -Chord 'Ctrl+B' -ViMode Command -Function ScrollDisplayUp
+Set-PSReadlineKeyHandler -Chord 'Ctrl+F' -ViMode Command -Function ScrollDisplayDown
+Set-PSReadlineKeyHandler -Chord 'Ctrl+Y' -ViMode Command -Function ScrollDisplayUpLine
+Set-PSReadlineKeyHandler -Chord 'Ctrl+E' -ViMode Command -Function ScrollDisplayDownLine
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 
