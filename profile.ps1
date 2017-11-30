@@ -116,13 +116,8 @@ function prompt {
     $path = '~' + $path.Substring($HOME.Length)
   }
   $components = $path -split [regex]'[/\\]'
-  $path = ''
-  for ($i = 0; $i -le $components.Length - 1; $i++) {
-    $path += $components[$i][0] + [System.IO.Path]::DirectorySeparatorChar
-  }
-  $path += $components[-1]
 
-  $branch = git symbolic-ref --short HEAD
+  $branch = git symbolic-ref --short HEAD 2> $null
   $isgit = $LASTEXITCODE -eq 0
   if ($isgit) {
     $gitfiles = Get-GitStatusMap
@@ -181,7 +176,7 @@ function prompt {
     Write-Host ") " -ForegroundColor DarkGray -NoNewLine
   }
 
-  for ($i = 0; $i -le $components.Length - 1; $i++) {
+  for ($i = 0; $i -lt $components.Length - 1; $i++) {
     Write-Host $components[$i][0] -ForegroundColor DarkBlue -NoNewLine
     Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor DarkBlue -NoNewLine
   }
