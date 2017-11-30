@@ -76,19 +76,22 @@ function gh {
 }
 
 if ([System.Environment]::OSVersion.Platform -eq "Win32NT") {
-  $ProVar.user = [Security.Principal.WindowsIdentity]::GetCurrent();
-  $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $ProVar.user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-  $ProVar.admin_letter = "A"
+  $user = [Security.Principal.WindowsIdentity]::GetCurrent();
+  $ProVar.os = 'Windows'
+  $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+  # This has the right capitalization
+  $ProVar.hostname = (Get-CimInstance -ClassName Win32_ComputerSystem).DNSHostName
 } else {
+  $ProVar.os = uname -s
   $ProVar.admin = $(id -u) -eq "0"
-  $ProVar.admin_letter = "R"
+  $ProVar.hostname = hostname
 }
 
 function prompt {
   $exitCode = $LastExitCode
 
   function Get-GitStatusMap {
-    $status = $(git status --porcelain=1)
+    $status = git status --porcelain=1
     $map = @{}
     if ($status) {
       $status = $status.Split("`n")
@@ -109,9 +112,17 @@ function prompt {
   }
 
   $path = $ExecutionContext.SessionState.Path.CurrentLocation.Path
-  $_ = $path -match "^([A-Za-z]+:)?([\\/])(?:(?:.+[\\/])?([^\\/]+)[\\/]?)?$"
-  $drive = $matches[1]
-  $branch = $(git symbolic-ref --short HEAD)
+  if ($path.StartsWith($HOME)) {
+    $path = '~' + $path.Substring($HOME.Length)
+  }
+  $components = $path -split [regex]'[/\\]'
+  $path = ''
+  for ($i = 0; $i -le $components.Length - 1; $i++) {
+    $path += $components[$i][0] + [System.IO.Path]::DirectorySeparatorChar
+  }
+  $path += $components[-1]
+
+  $branch = git symbolic-ref --short HEAD
   $isgit = $LASTEXITCODE -eq 0
   if ($isgit) {
     $gitfiles = Get-GitStatusMap
@@ -120,61 +131,61 @@ function prompt {
       $ahead = 0
       $behind = 0
       if ($remote) {
-        $ahead_str = $(git rev-list --count $remote..HEAD)
+        $ahead_str = git rev-list --count $remote..HEAD
         $_ = [int]::TryParse($ahead_str, [ref]$ahead)
-        $behind_str = $(git rev-list --count HEAD..$remote)
+        $behind_str = git rev-list --count HEAD..$remote
         $_ = [int]::TryParse($behind_str, [ref]$behind)
       }
     }
   }
 
-  # Admin
   if ($ProVar.admin) {
-    Write-Host "($($ProVar.admin_letter)) " -ForegroundColor Yellow -NoNewLine
+    Write-Host $env:USERNAME -ForegroundColor Red -NoNewLine
+    Write-Host "@" -ForegroundColor DarkGray -NoNewLine
+    Write-Host $ProVar.hostname -ForegroundColor Red -NoNewLine
+  } else {
+    Write-Host $env:USERNAME -ForegroundColor DarkGreen -NoNewLine
+    Write-Host "@" -ForegroundColor DarkGray -NoNewLine
+    Write-Host $ProVar.hostname -ForegroundColor DarkGreen -NoNewLine
   }
-
-  # Current drive
-  if ($drive -ne "") {
-    Write-Host "[" -ForegroundColor Blue -NoNewLine
-    Write-Host $drive -ForegroundColor DarkBlue -NoNewLine
-    Write-Host "] " -ForegroundColor Blue -NoNewLine
-  }
+  Write-Host " " -NoNewLine
 
   # Git
   if ($isgit) {
-    Write-Host "git:(" -ForegroundColor Blue -NoNewLine
-    Write-Host $branch -ForegroundColor DarkYellow -NoNewLine
+    #Write-Host "git:(" -ForegroundColor Blue -NoNewLine
+    $gitspace = ''
+    Write-Host "$branch" -ForegroundColor DarkYellow -NoNewLine
+    Write-Host "(" -ForegroundColor DarkGray -NoNewLine
     if ($ProVar.PromptShowGitRemote) {
       if ($ahead -gt 0) {
         Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
         if ($behind -gt 0) {
           Write-Host "/" -ForegroundColor DarkYellow -NoNewLine
         }
+        $gitspace = ' '
       }
       if ($behind -gt 0) {
         Write-Host "-$behind" -ForegroundColor DarkMagenta -NoNewLine
+        $gitspace = ' '
       }
     }
     foreach ($k in $gitfiles.keys) {
       if ($k[1] -eq "+") {
-        $c = "Cyan"
+        $c = "Green"
       } else {
         $c = "Red"
       }
-      Write-Host " $($k[0])$($gitfiles[$k])" -ForegroundColor $c -NoNewLine
+      Write-Host "$gitspace$($k[0])$($gitfiles[$k])" -ForegroundColor $c -NoNewLine
+      $gitspace = ' '
     }
-    Write-Host ") " -ForegroundColor Blue -NoNewLine
+    Write-Host ") " -ForegroundColor DarkGray -NoNewLine
   }
 
-  # Current folder
-  if ($path -ieq $home) {
-    $folder = "~"
-  } elseif ($matches[3]) {
-    $folder = $matches[3]
-  } else {
-    $folder = $matches[2]
+  for ($i = 0; $i -le $components.Length - 1; $i++) {
+    Write-Host $components[$i][0] -ForegroundColor DarkBlue -NoNewLine
+    Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor DarkBlue -NoNewLine
   }
-  Write-Host "$folder " -ForegroundColor Cyan -NoNewLine
+  Write-Host $components[-1] -ForegroundColor DarkBlue -NoNewLine
 
   $LastExitCode = $exitCode
   "$('>' * ($NestedPromptLevel + 1)) "

@@ -1,20 +1,16 @@
 {
   "workbench.colorTheme": "Base16 Leaf Tomorrow",
-  /*"editor.tokenColorCustomizations": {
-    "comments":{
-      "foreground": "#9FA8A0"
-      //"fontStyle": ""
-    }
-  },*/
-  /*"workbench.colorCustomizations": {
-    "editorCursor.foreground": "#A8C3D6",
-    "editorCursor.background": "#46382B",
-    "editorIndentGuide.background": "#665018"
-  },*/
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#1a1f1c",
+    "editor.background": "#121312",
+    "editorCursor.foreground": "#90b3b0",
+    "editorCursor.background": "#221d18"
+  },
   "workbench.editor.labelFormat": "medium",
   "terminal.integrated.fontFamily": "Fira Code Light",
   "terminal.integrated.fontSize": 14,
   "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.shell.windows": "C:\\Program Files\\PowerShell\\6.0.0-rc\\pwsh.exe",
   "editor.tabSize": 2,
   "editor.fontFamily": "Fira Code",
   "editor.fontSize": 14,
@@ -75,11 +71,70 @@
           "command": "editor.action.referenceSearch.trigger"
         }
       ]
+    },
+    {
+      "before": ["leader", "H"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.moveEditorToPreviousGroup"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "L"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.moveEditorToNextGroup"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "b"],
+      "after": [],
+      "commands": [
+        {
+          "command": "workbench.action.toggleSidebarVisibility"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "e"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.marker.next"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "E"],
+      "after": [],
+      "commands": [
+        {
+          "command": "editor.action.marker.prev"
+        }
+      ]
+    },
+    {
+      "before": ["leader", "h"],
+      "after": [],
+      "commands": [
+        {
+          "command": "C_Cpp.SwitchHeaderSource",
+          "when": "editorTextFocus && editorLangId == 'c'"
+        },
+        {
+          "command": "C_Cpp.SwitchHeaderSource",
+          "when": "editorTextFocus && editorLangId == 'cpp'"
+        }
+      ]
     }
   ],
   "vim.ignorecase": false,
   "vim.smartcase": false,
-  "vim.disableAnnoyingNeovimMessage": true,
+  "vim.visualstar": true,
   "vsicons.dontShowNewVersionMessage": true,
   "files.trimTrailingWhitespace": true,
   "git.confirmSync": false,
@@ -88,12 +143,17 @@
   "C_Cpp.intelliSenseEngine": "Default",
   "C_Cpp.formatting": "Disabled",
   "editor.accessibilitySupport": "off",
-  "rust.unstable_features": true,
-  "rust.workspace_mode": true,
+  "rust-client.channel": "nightly",
   "material-icon-theme.showWelcomeMessage": false,
   "materialTheme.cache.workbench.settings": {
     "themeColours": "Default"
   },
   "julia.executablePath": "C:\\Users\\parke\\AppData\\Local\\Julia-0.6.0\\bin\\julia.exe",
-  "workbench.iconTheme": "file-icons"
+  "workbench.iconTheme": "material-icon-theme",
+  "material-icon-theme.showUpdateMessage": false,
+  "workbench.panel.location": "bottom",
+  "cmake.generator": "Visual Studio 15 2017",
+  "cmake.platform": "x64",
+  "cmake.toolset": "host=x64",
+  "cmake-tools-helper.cmake_download_path": "C:\\Users\\parke\\.vscode\\extensions\\maddouri.cmake-tools-helper-0.1.1\\cmake_download"
 }
