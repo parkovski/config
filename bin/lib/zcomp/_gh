@@ -1,0 +1,14 @@
+#compdef gh
+
+_gh() {
+  local state
+
+  _arguments \
+    '*: :->project'
+
+  #case $state in
+  # (arg_value) ... ;;
+  # (*) ... ;;
+  #esac
+  compadd "$@" $(/usr/bin/ls $HOME/Documents/GitHub)
+}
