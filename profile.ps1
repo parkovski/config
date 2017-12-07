@@ -116,11 +116,11 @@ function prompt {
   }
 
   if ($ProVar.admin) {
-    Write-Host [System.Environment]::UserName -ForegroundColor Red -NoNewLine
+    Write-Host ([System.Environment]::UserName) -ForegroundColor Red -NoNewLine
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
     Write-Host $ProVar.hostname -ForegroundColor Red -NoNewLine
   } else {
-    Write-Host [System.Environment]::UserName -ForegroundColor DarkGreen -NoNewLine
+    Write-Host ([System.Environment]::UserName) -ForegroundColor DarkGreen -NoNewLine
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
     Write-Host $ProVar.hostname -ForegroundColor DarkGreen -NoNewLine
   }
