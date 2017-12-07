@@ -39,9 +39,14 @@ if has('win32')
   set t_8b="\e[48;2;%lu;%lu;%lum"
 endif
 
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+let &t_SI = "\<Esc>[5 q"
+let &t_SR = "\<Esc>[3 q"
+let &t_EI = "\<Esc>[1 q"
 noremap! <Char-0x7F> <BS>
 set cm=blowfish2
 
-silent! colors antares
 set bg=dark
 set tgc
+silent! colors ayu

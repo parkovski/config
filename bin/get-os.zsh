@@ -1,5 +1,5 @@
 OS_BASE=$(uname -s)
-if [[ "$OS_BASE" -eq "Darwin" ]]; then
+if [[ "$OS_BASE" == "Darwin" ]]; then
   OS_BASE="macOS"
 fi
 if [[ -f /etc/os-release ]]; then
@@ -7,3 +7,5 @@ if [[ -f /etc/os-release ]]; then
 else
   OS=$OS_BASE
 fi
+export OS_BASE
+export OS
