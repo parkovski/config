@@ -69,7 +69,7 @@ function precmd() {
 }
 
 if [ -f /etc/os-release ]; then
-  OS=$(cat /etc/os-release | sed "s/^NAME=\\\"\\(.\\+\\)\\\"/\\1/;tx;d;:x")
+  OS=$(cat /etc/os-release | sed -n "s/^NAME=\\\"\\(.\\+\\)\\\"/\\1/p")
 else
   OS=$(uname -s)
 fi
