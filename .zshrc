@@ -6,7 +6,12 @@ antibody bundle ael-code/zsh-colored-man-pages
 antibody bundle chrissicool/zsh-256color
 antibody bundle zdharma/fast-syntax-highlighting
 
-alias ls='ls --color'
+ls --color / &>/dev/null
+if [[ "$?" -eq "0" ]]; then
+  alias ls='ls --color'
+else
+  alias ls='ls -G'
+fi
 
 export fpath=($HOME/bin/lib/zcomp $fpath)
 autoload -U compinit && compinit
@@ -48,7 +53,7 @@ function precmd() {
   local prompt_gitstr=
   local branch
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-  if [[ $? -eq "0" ]]; then
+  if [[ "$?" -eq "0" ]]; then
     local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
     local ahead_str=$(git rev-list --count $remote..HEAD 2>/dev/null)
     local behind_str=$(git rev-list --count HEAD..$remote 2>/dev/null)
@@ -68,11 +73,7 @@ function precmd() {
   PS1="%F{green}%n%F{gray}@%F{green}%m%f $prompt_gitstr%F{blue}%~%f %% "
 }
 
-if [[ -f /etc/os-release ]]; then
-  OS=$(cat /etc/os-release | sed -n "s/^NAME=\\\"\\(.\\+\\)\\\"/\\1/p")
-else
-  OS=$(uname -s)
-fi
+. ~/bin/get-os.zsh
 
 if [[ "$OS" == "Arch Linux" ]]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
@@ -83,7 +84,7 @@ function gh() {
   local dir=$1
   if [[ "$1" == "-t" ]]; then
     dir="3rd-party/$2"
-  elif [[ "$1" == "-aur" ]]; then
+  elif [[ "$AUR" != "" && "$1" == "-aur" ]]; then
     dir="3rd-party/aur/$2"
   elif [[ "$1" == "-n" ]]; then
     mkdir "$GH/$2"
@@ -100,6 +101,4 @@ function gh() {
 
 export PATH="$HOME/bin:$PATH"
 
-if [[ -f /usr/share/nvm/init-nvm.sh ]]; then
-  source /usr/share/nvm/init-nvm.sh
-fi
+[[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh

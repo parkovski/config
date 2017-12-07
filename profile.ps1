@@ -56,14 +56,13 @@ function gh {
   }
 }
 
-if ([System.Environment]::OSVersion.Platform -eq "Win32NT") {
+. ~/bin/Get-OS.ps1
+if ($OS -eq "Windows") {
   $user = [Security.Principal.WindowsIdentity]::GetCurrent();
-  $ProVar.os = 'Windows'
   $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
   # This has the right capitalization
   $ProVar.hostname = (Get-CimInstance -ClassName Win32_ComputerSystem).DNSHostName
 } else {
-  $ProVar.os = uname -s
   $ProVar.admin = $(id -u) -eq "0"
   $ProVar.hostname = hostname
 }
@@ -209,8 +208,11 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
 }
 
 $PowerShell = (Get-Process -Id $PID).MainModule.FileName
-if (Test-Path "$GH/config/Profile.${$ProVar.os}.ps1") {
-  . "$GH/config/Profile.${$ProVar.os}.ps1"
+if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
+  . "$GH/config/Profile.$OS_BASE.ps1"
+}
+if ($OS -ne $OS_BASE -and Test-Path "$GH/config/Profile.$OS.ps1") {
+  . "$GH/config/Profile.$OS.ps1"
 }
 
 $ProVar.PromptShowGitRemote = $true
