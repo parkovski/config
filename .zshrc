@@ -74,7 +74,7 @@ else
   OS=$(uname -s)
 fi
 
-if [ "$OS" -eq "Arch Linux" ]; then
+if [ "$OS" == "Arch Linux" ]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
 fi
 
