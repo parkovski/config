@@ -4,11 +4,16 @@ _gh() {
   local state
 
   _arguments \
+    '-t[3rd party repo]: :->third' \
+    '-aur[AUR repo]: :->aur' \
+    '-n[New project]: :->new' \
     '*: :->project'
 
-  #case $state in
-  # (arg_value) ... ;;
-  # (*) ... ;;
-  #esac
-  compadd "$@" $(/usr/bin/ls $HOME/Documents/GitHub)
+  local dir=$HOME/Documents/GitHub
+  case $state in
+   (third) dir="$dir/3rd-party" ;;
+   (aur) dir="$dir/3rd-party/aur" ;;
+   (new) return ;;
+  esac
+  compadd "$@" $(/usr/bin/ls $dir)
 }

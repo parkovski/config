@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+const EventEmitter = require('events');
+
+function getstdin() {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', d => data += d);
+    process.stdin.on('end', () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (synErr) {
+        reject(synErr);
+      }
+    });
+    process.stdin.on('error', e => reject(e));
+  });
+}
+
+function divider() {
+  console.log(`\n^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v\n`);
+}
+
+function printresultline(r) {
+  console.log(`\u{001b}[1;4;34m${r.Name}\u{001b}[m`);
+  console.log(`\u{001b}[33m${r.Description}\u{001b}[m`);
+  console.log(`Modified ${Date(r.LastModified)}`);
+  divider();
+}
+
+async function main() {
+  process.stdin.resume();
+  try {
+    let info = await getstdin();
+    divider();
+    info.results.forEach(printresultline);
+  } catch (e) {
+    console.log('\u{001b}[31mBad format:\u{001b}[m');
+    console.log(e);
+  }
+}
+
+let program = main();
