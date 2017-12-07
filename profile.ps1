@@ -13,45 +13,6 @@ function Download-TextFile {
     | Out-File -Encoding "utf8" -NoNewLine $To
 }
 
-function linux_shell_escape {
-  param($str)
-  $out = ""
-  foreach ($c in $str.ToCharArray()) {
-    if ($c -eq "\") {
-      $out += "\\"
-    } elseif ($c -eq "`"") {
-      $out += "\`""
-    } elseif ($c -eq " ") {
-      $out += "\ "
-    } else {
-      $out += $c
-    }
-  }
-  return $out
-}
-
-function linux_shell_args {
-  $args | ForEach-Object {
-    if (Test-Path $_) {
-      $_
-    } else {
-      linux_shell_escape $_
-    }
-  }
-}
-
-function c { cmd /c @args }
-function b {
-  $s = linux_shell_args @args
-  ubuntu run bash -c @s
-}
-function z {
-  $s = linux_shell_args @args
-  ubuntu run zsh -c @s
-}
-
-Set-Alias zsh ubuntu.exe
-
 function in {
   param($dir, $cmd)
   pushd $dir
@@ -59,19 +20,39 @@ function in {
   popd
 }
 
-$GH = "$home\Documents\GitHub"
+$GH = "$HOME\Documents\GitHub"
 function gh {
   [CmdletBinding()]
-  param()
+  param(
+    [Alias('t')][switch]$ThirdParty=$false,
+    [Alias('n')][switch]$NewProject=$false
+  )
   dynamicparam {
-    $projects = $(ls "$home\Documents\GitHub" | %{$_.name})
-    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "project" -help "Project name" -values $projects)
+    $d = "$HOME\Documents\GitHub"
+    if ($ThirdParty) {
+      $d += "\3rd-party"
+    }
+    if ($NewProject) {
+      $projects = ""
+    } else {
+      $projects = $(Get-ChildItem $d | % Name)
+    }
+    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "Project" -help "Project name" -values $projects -position 0)
   }
   begin {
-    $project = $PSBoundParameters.project
+    $Project = $PSBoundParameters.Project
+    if ($ThirdParty) {
+      $Project = "3rd-party\$Project"
+    }
   }
   process {
-    cd "$home\Documents\GitHub\$project"
+    if ($NewProject) {
+      mkdir "$GH\$Project"
+      cd "$GH\$Project"
+      git init
+    } else {
+      cd "$GH\$Project"
+    }
   }
 }
 
@@ -116,13 +97,8 @@ function prompt {
     $path = '~' + $path.Substring($HOME.Length)
   }
   $components = $path -split [regex]'[/\\]'
-  $path = ''
-  for ($i = 0; $i -le $components.Length - 1; $i++) {
-    $path += $components[$i][0] + [System.IO.Path]::DirectorySeparatorChar
-  }
-  $path += $components[-1]
 
-  $branch = git symbolic-ref --short HEAD
+  $branch = git symbolic-ref --short HEAD 2> $null
   $isgit = $LASTEXITCODE -eq 0
   if ($isgit) {
     $gitfiles = Get-GitStatusMap
@@ -140,11 +116,11 @@ function prompt {
   }
 
   if ($ProVar.admin) {
-    Write-Host $env:USERNAME -ForegroundColor Red -NoNewLine
+    Write-Host ([System.Environment]::UserName) -ForegroundColor Red -NoNewLine
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
     Write-Host $ProVar.hostname -ForegroundColor Red -NoNewLine
   } else {
-    Write-Host $env:USERNAME -ForegroundColor DarkGreen -NoNewLine
+    Write-Host ([System.Environment]::UserName) -ForegroundColor DarkGreen -NoNewLine
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
     Write-Host $ProVar.hostname -ForegroundColor DarkGreen -NoNewLine
   }
@@ -181,7 +157,18 @@ function prompt {
     Write-Host ") " -ForegroundColor DarkGray -NoNewLine
   }
 
-  for ($i = 0; $i -le $components.Length - 1; $i++) {
+  if ($components[0] -eq "~" -or $components[0] -eq "") {
+  } elseif ($components[0] -ieq $env:SystemDrive) {
+    $components[0] = ""
+  } elseif ($components[0] -match ':$') {
+    $drv = $components[0].Substring(0, $components[0].Length - 1)
+    #$components = $components[1..$components.Length]
+    $components[0] = ""
+    Write-Host '[' -ForegroundColor Gray -NoNewLine
+    Write-Host $drv -ForegroundColor DarkBlue -NoNewLine
+    Write-Host '] ' -ForegroundColor Gray -NoNewLine
+  }
+  for ($i = 0; $i -lt $components.Length - 1; $i++) {
     Write-Host $components[$i][0] -ForegroundColor DarkBlue -NoNewLine
     Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor DarkBlue -NoNewLine
   }
@@ -221,29 +208,9 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
   }
 }
 
-
 $PowerShell = (Get-Process -Id $PID).MainModule.FileName
-function Open-AdminWindow {
-  Start-Process $PowerShell -Verb Runas
-}
-
-$ProVar.vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-function vcvars {
-  param([bool]$Force = $false)
-
-  if ($ProVar.vcvars_set -and -not $Force) {
-    Write-Host "Aw dawg you savin like 3 to 4 seconds cuz its already set!"
-    return;
-  }
-  cmd /c "`"$($ProVar.vcvars)`" & set" | ?{$_ -match "^[A-Za-z_0-9]+="} | %{
-    $var = $_
-    $eq = $var.IndexOf('=');
-    $key = $var.Substring(0, $eq);
-    $val = $var.Substring($eq + 1);
-    sc "Env:\$key" "$val"
-  }
-  $ProVar.vcvars_set = $true
-  Write-Host "Dawg, vcvars is r-r-r-ready to roll"
+if (Test-Path "$GH/config/Profile.${$ProVar.os}.ps1") {
+  . "$GH/config/Profile.${$ProVar.os}.ps1"
 }
 
 $ProVar.PromptShowGitRemote = $true
@@ -284,5 +251,3 @@ try {
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
-
-. $HOME\bin\lib\rustup-completions.ps1
