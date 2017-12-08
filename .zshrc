@@ -71,7 +71,7 @@ function precmd() {
   fi
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1="%F{green}%n%F{gray}@%F{green}%m%f $prompt_gitstr%F{blue}$piznath%f %% "
+  PS1="%F{green}%n%F{37}@%F{green}%m%f $prompt_gitstr%F{blue}$piznath%f %% "
 }
 
 . ~/bin/get-os.zsh

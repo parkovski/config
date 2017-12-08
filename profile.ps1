@@ -211,7 +211,7 @@ $PowerShell = (Get-Process -Id $PID).MainModule.FileName
 if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
   . "$GH/config/Profile.$OS_BASE.ps1"
 }
-if ($OS -ne $OS_BASE -and Test-Path "$GH/config/Profile.$OS.ps1") {
+if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
   . "$GH/config/Profile.$OS.ps1"
 }
 
