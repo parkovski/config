@@ -57,7 +57,7 @@ function precmd() {
     local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
     local ahead_str=$(git rev-list --count $remote..HEAD 2>/dev/null)
     local behind_str=$(git rev-list --count HEAD..$remote 2>/dev/null)
-    prompt_gitstr="%F{yellow}$branch(%f"
+    prompt_gitstr=$(printf "%%F{yellow}$branch\e[90m(%%f")
     if [[ "$ahead_str" -gt "0" ]]; then
       prompt_gitstr+="%F{green}+$ahead_str%f"
       if [[ "$behind_str" -gt "0" ]]; then
@@ -67,11 +67,12 @@ function precmd() {
     if [[ "$behind_str" -gt "0" ]]; then
       prompt_gitstr+="%F{magenta}-$behind_str%f"
     fi
-    prompt_gitstr+="%F{yellow})%f "
+    prompt_gitstr+=$(printf "\e[90m)\e[m ")
   fi
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1="%F{green}%n%F{37}@%F{green}%m%f $prompt_gitstr%F{blue}$piznath%f %% "
+  PS1=$'%F{green}%n\e[90m@%F{green}%m%f'
+  PS1+=" $prompt_gitstr%F{blue}$piznath%f%% "
 }
 
 . ~/bin/get-os.zsh
