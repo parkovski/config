@@ -145,9 +145,9 @@ function prompt {
     }
     foreach ($k in $gitfiles.keys) {
       if ($k[1] -eq "+") {
-        $c = "Green"
+        $c = "DarkGreen"
       } else {
-        $c = "Red"
+        $c = "DarkRed"
       }
       Write-Host "$gitspace$($k[0])$($gitfiles[$k])" -ForegroundColor $c -NoNewLine
       $gitspace = ' '
