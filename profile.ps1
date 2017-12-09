@@ -99,17 +99,17 @@ function prompt {
 
   $branch = git symbolic-ref --short HEAD 2> $null
   $isgit = $LASTEXITCODE -eq 0
+  $ahead = 0
+  $behind = 0
   if ($isgit) {
     $gitfiles = Get-GitStatusMap
     if ($ProVar.PromptShowGitRemote) {
-      $remote = $(git rev-parse --abbrev-ref --symbolic-full-name `@`{u`})
-      $ahead = 0
-      $behind = 0
+      $remote = $(git rev-parse --abbrev-ref --symbolic-full-name '@{u}')
       if ($remote) {
-        $ahead_str = git rev-list --count $remote..HEAD
-        $_ = [int]::TryParse($ahead_str, [ref]$ahead)
-        $behind_str = git rev-list --count HEAD..$remote
-        $_ = [int]::TryParse($behind_str, [ref]$behind)
+        $ahead_str = git rev-list --count "$remote..HEAD"
+        $_ = [int]::TryParse($ahead_str.Trim(), [ref]$ahead)
+        $behind_str = git rev-list --count "HEAD..$remote"
+        $_ = [int]::TryParse($behind_str.Trim(), [ref]$behind)
       }
     }
   }
@@ -130,18 +130,16 @@ function prompt {
     $gitspace = ''
     Write-Host "$branch" -ForegroundColor DarkYellow -NoNewLine
     Write-Host "(" -ForegroundColor DarkGray -NoNewLine
-    if ($ProVar.PromptShowGitRemote) {
-      if ($ahead -gt 0) {
-        Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
-        if ($behind -gt 0) {
-          Write-Host "/" -ForegroundColor DarkYellow -NoNewLine
-        }
-        $gitspace = ' '
-      }
+    if ($ahead -gt 0) {
+      Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
       if ($behind -gt 0) {
-        Write-Host "-$behind" -ForegroundColor DarkMagenta -NoNewLine
-        $gitspace = ' '
+        Write-Host "/" -ForegroundColor DarkYellow -NoNewLine
       }
+      $gitspace = ' '
+    }
+    if ($behind -gt 0) {
+      Write-Host "-$behind" -ForegroundColor DarkMagenta -NoNewLine
+      $gitspace = ' '
     }
     foreach ($k in $gitfiles.keys) {
       if ($k[1] -eq "+") {
@@ -235,17 +233,19 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Insert -Function ScrollDisplayUpL
 Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Insert -Function ScrollDisplayDownLine
 
 try {
-  Set-PSReadlineOption -TokenKind Comment   -Color DarkBlue
-  Set-PSReadlineOption -TokenKind Keyword   -Color Green
-  Set-PSReadlineOption -TokenKind String    -Color Magenta
-  Set-PSReadlineOption -TokenKind Operator  -Color Red
-  Set-PSReadlineOption -TokenKind Variable  -Color Yellow
-  Set-PSReadlineOption -TokenKind Command   -Color Blue
-  Set-PSReadlineOption -TokenKind Parameter -Color DarkCyan
-  Set-PSReadlineOption -TokenKind Type      -Color DarkGreen
-  Set-PSReadlineOption -TokenKind Number    -Color Magenta
-  Set-PSReadlineOption -TokenKind Member    -Color Gray
-  Set-PSReadlineOption -ErrorForegroundColor DarkRed
+  Set-PSReadlineOption -Colors @{
+    Comment = "DarkGray";
+    Keyword = "DarkBlue";
+    String = "Yellow";
+    Operator = "DarkMagenta";
+    Variable = "DarkYellow";
+    Command = "DarkGreen";
+    Parameter = "DarkCyan";
+    Type = "Blue";
+    Number = "Red";
+    Member = "DarkMagenta";
+    Error = "DarkRed"
+  }
 } catch {
 }
 
