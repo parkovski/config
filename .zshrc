@@ -48,31 +48,60 @@ bindkey '^r' history-incremental-search-backward
 bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 
+# https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 setopt prompt_subst
 function precmd() {
   local prompt_gitstr=
   local branch
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
   if [[ "$?" -eq "0" ]]; then
+    local gitstatus=$(git status --porcelain=1)
+    local -A map
+    local gitspace=
     local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
     local ahead_str=$(git rev-list --count $remote..HEAD 2>/dev/null)
     local behind_str=$(git rev-list --count HEAD..$remote 2>/dev/null)
-    prompt_gitstr=$(printf "%%F{yellow}$branch\e[90m(%%f")
+    prompt_gitstr="%F{3}$branch%F{8}(%f"
     if [[ "$ahead_str" -gt "0" ]]; then
-      prompt_gitstr+="%F{green}+$ahead_str%f"
+      prompt_gitstr+="%F{4}+$ahead_str%f"
       if [[ "$behind_str" -gt "0" ]]; then
-        prompt_gitstr+="%F{yellow}/%f"
+        prompt_gitstr+="%F{11}/%f"
       fi
+      gitspace=' '
     fi
     if [[ "$behind_str" -gt "0" ]]; then
-      prompt_gitstr+="%F{magenta}-$behind_str%f"
+      prompt_gitstr+="%F{5}-$behind_str%f"
+      gitspace=' '
     fi
-    prompt_gitstr+=$(printf "\e[90m)\e[m ")
+    local -a items
+    items=(${(f)gitstatus})
+    local key
+    for ((i=1; i <= $#items; i++)); do
+      if [[ "${items[$i][2]}" != " " ]]; then
+        key="${items[$i][2]}-"
+      else
+        key="${items[$i][1]}+"
+      fi
+      map[$key]=$[map[$key]+1]
+    done
+    local keys=(${(k)map})
+    local gs
+    local gcol
+    for ((i=1; i <= $#keys; i++)); do
+      key=$keys[$i]
+      if [[ "${key[2]}" == "+" ]]; then
+        gcol="%F{2}"
+      else
+        gcol="%F{1}"
+      fi
+      gs+="$gitspace$gcol${key[1]}${map[$key]}"
+      gitspace=' '
+    done
+    prompt_gitstr+="$gs%F{8})%f "
   fi
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1=$'%F{green}%n\e[90m@%F{green}%m%f'
-  PS1+=" $prompt_gitstr%F{blue}$piznath%f%% "
+  PS1="%F{10}%n%F{8}@%F{10}%m%f $prompt_gitstr%F{12}$piznath%f%% "
 }
 
 . ~/bin/get-os.zsh

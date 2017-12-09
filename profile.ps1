@@ -119,15 +119,14 @@ function prompt {
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
     Write-Host $ProVar.hostname -ForegroundColor Red -NoNewLine
   } else {
-    Write-Host ([System.Environment]::UserName) -ForegroundColor DarkGreen -NoNewLine
+    Write-Host ([System.Environment]::UserName) -ForegroundColor Green -NoNewLine
     Write-Host "@" -ForegroundColor DarkGray -NoNewLine
-    Write-Host $ProVar.hostname -ForegroundColor DarkGreen -NoNewLine
+    Write-Host $ProVar.hostname -ForegroundColor Green -NoNewLine
   }
   Write-Host " " -NoNewLine
 
   # Git
   if ($isgit) {
-    #Write-Host "git:(" -ForegroundColor Blue -NoNewLine
     $gitspace = ''
     Write-Host "$branch" -ForegroundColor DarkYellow -NoNewLine
     Write-Host "(" -ForegroundColor DarkGray -NoNewLine
@@ -161,17 +160,16 @@ function prompt {
     $components[0] = ""
   } elseif ($components[0] -match ':$') {
     $drv = $components[0].Substring(0, $components[0].Length - 1)
-    #$components = $components[1..$components.Length]
     $components[0] = ""
     Write-Host '[' -ForegroundColor Gray -NoNewLine
     Write-Host $drv -ForegroundColor DarkBlue -NoNewLine
     Write-Host '] ' -ForegroundColor Gray -NoNewLine
   }
   for ($i = 0; $i -lt $components.Length - 1; $i++) {
-    Write-Host $components[$i][0] -ForegroundColor DarkBlue -NoNewLine
-    Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor DarkBlue -NoNewLine
+    Write-Host $components[$i][0] -ForegroundColor Blue -NoNewLine
+    Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor Blue -NoNewLine
   }
-  Write-Host $components[-1] -ForegroundColor DarkBlue -NoNewLine
+  Write-Host $components[-1] -ForegroundColor Blue -NoNewLine
 
   $LastExitCode = $exitCode
   "$('>' * ($NestedPromptLevel + 1)) "
