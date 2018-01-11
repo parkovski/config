@@ -6,13 +6,6 @@ antibody bundle ael-code/zsh-colored-man-pages
 antibody bundle chrissicool/zsh-256color
 antibody bundle zdharma/fast-syntax-highlighting
 
-ls --color / &>/dev/null
-if [[ "$?" -eq "0" ]]; then
-  alias ls='ls --color'
-else
-  alias ls='ls -G'
-fi
-
 export fpath=($HOME/bin/lib/zcomp $fpath)
 setopt histignorealldups sharehistory
 HISTSIZE=1000
@@ -67,8 +60,15 @@ setopt prompt_subst
 function precmd() {
   local prompt_gitstr=
   local branch
-  branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-  if [[ "$?" -eq "0" ]]; then
+  local nogit
+  if [[ -d ./.git ]]; then
+    branch=$(git symbolic-ref --short HEAD >/dev/null 2>&1)
+    nogit=$?
+  else
+    branch=
+    nogit=1
+  fi
+  if [[ "$nogit" -eq "0" ]]; then
     local gitstatus=$(git status --porcelain=1)
     local -A map
     local gitspace=
@@ -115,13 +115,18 @@ function precmd() {
   fi
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1="%F{10}%n%F{8}@%F{10}%m%f $prompt_gitstr%F{12}$piznath%f%% "
+  PS1="%F{10}%n%F{8}@%F{10}%m%f $prompt_gitstr%F{12}$piznath%f %% "
 }
 
 . ~/bin/get-os.zsh
 
 if [[ "$OS" == "Arch Linux" ]]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
+fi
+if [[ "$OS_BASE" -eq "Linux" ]]; then
+  alias ls='ls --color'
+else
+  alias ls='ls -G'
 fi
 
 export GH=$HOME/Documents/GitHub
