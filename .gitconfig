@@ -10,3 +10,5 @@
 	process = git-lfs filter-process
 [core]
 	symlinks = true
+[pull]
+  rebase = true

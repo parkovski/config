@@ -167,7 +167,7 @@ function prompt {
     Write-Host $components[$i][0] -ForegroundColor Blue -NoNewLine
     Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor Blue -NoNewLine
   }
-  Write-Host $components[-1] -ForegroundColor Blue -NoNewLine
+  Write-Host "$($components[-1]) " -ForegroundColor Blue -NoNewLine
 
   $LastExitCode = $exitCode
   "$('>' * ($NestedPromptLevel + 1)) "
@@ -251,3 +251,5 @@ try {
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
+
+Set-Alias ^ Invoke-History

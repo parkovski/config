@@ -15,8 +15,14 @@ function vcvars {
     $eq = $var.IndexOf('=');
     $key = $var.Substring(0, $eq);
     $val = $var.Substring($eq + 1);
-    sc "Env:\$key" "$val"
+    Set-Content "Env:\$key" "$val"
   }
   $ProVar.vcvars_set = $true
   Write-Host "Dawg, vcvars is r-r-r-ready to roll"
+}
+
+Set-Alias which where.exe
+
+if (Test-Path "$GH\3rd-party\vcpkg") {
+  Import-Module "$GH\3rd-party\vcpkg\scripts\posh-vcpkg"
 }
