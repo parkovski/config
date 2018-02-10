@@ -1,6 +1,11 @@
+chcp 65001 | Out-Null
+
 function Open-AdminWindow {
   Start-Process $PowerShell -Verb Runas
 }
+
+$global:DDev = "D:\dev"
+$global:LocalPrograms = "$HOME\AppData\Local\Programs"
 
 $ProVar.vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 function vcvars {
@@ -23,6 +28,7 @@ function vcvars {
 
 Set-Alias which where.exe
 
-if (Test-Path "$GH\3rd-party\vcpkg") {
-  Import-Module "$GH\3rd-party\vcpkg\scripts\posh-vcpkg"
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+  Import-Module "$ChocolateyProfile"
 }

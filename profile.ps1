@@ -1,5 +1,40 @@
 $ProVar = @{}
 
+$GH = "$HOME\Documents\GitHub"
+
+. ~/bin/Get-OS.ps1
+if ($OS -eq "Windows") {
+  $user = [Security.Principal.WindowsIdentity]::GetCurrent();
+  $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+  # This has the right capitalization
+  $ProVar.hostname = (Get-CimInstance -ClassName Win32_ComputerSystem).DNSHostName
+} else {
+  $ProVar.admin = $(id -u) -eq "0"
+  $ProVar.hostname = hostname
+}
+
+$PowerShell = (Get-Process -Id $PID).MainModule.FileName
+if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
+  . "$GH/config/Profile.$OS_BASE.ps1"
+}
+if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
+  . "$GH/config/Profile.$OS.ps1"
+}
+
+function New-SymLink {
+  param([string]$Target, [string]$Link, [Alias('d')][switch]$Dir)
+
+  if ($OS -eq "Windows") {
+    if ((Test-Path -Container $Target) -or $Dir) {
+      cmd /c mklink /D $Link $Target
+    } else {
+      cmd /c mklink $Link $Target
+    }
+  } else {
+    ln -s $Target $Link
+  }
+}
+
 function Download-TextFile {
   param([string]$From, [string]$To)
   if (Test-Path -PathType Container $To) {
@@ -13,62 +48,83 @@ function Download-TextFile {
     | Out-File -Encoding "utf8" -NoNewLine $To
 }
 
-function in {
-  param($dir, $cmd)
-  pushd $dir
-  & $cmd $args[-2..-1]
-  popd
-}
+. $HOME\bin\lib\dynparams.ps1
 
-$GH = "$HOME\Documents\GitHub"
 function gh {
   [CmdletBinding()]
   param(
-    [Alias('t')][switch]$ThirdParty=$false,
-    [Alias('n')][switch]$NewProject=$false
+    [Alias('t')][switch]$ThirdParty,
+    [Alias('n')][switch]$NewProject,
+    [Alias('d')][switch]$DevExternal,
+    [Alias('c')][switch]$Clone
   )
   dynamicparam {
-    $d = "$HOME\Documents\GitHub"
-    if ($ThirdParty) {
-      $d += "\3rd-party"
+    $Projects = $null
+    if ((-not $NewProject) -and (-not $Clone)) {
+      $Dir = $GH
+      if ($DevExternal -and [bool]$DDev) {
+        $Dir = $DDev
+      } elseif ($ThirdParty) {
+        $Dir = "$GH\3rd-party"
+      }
+      $Projects = $(Get-ChildItem $Dir | % Name)
     }
-    if ($NewProject) {
-      $projects = ""
-    } else {
-      $projects = $(Get-ChildItem $d | % Name)
+    $p = New-DynamicParams | `
+      Add-DynamicParam Project -Type:([String]) -HelpMessage:"Project Name" `
+        -Position:0 -NotNullOrEmpty:$NewProject -Values:$Projects
+    if ($Clone) {
+      $p | Add-DynamicParam LocalDir -Type:([String]) `
+        -HelpMessage:"Local clone dir"  -Position:1
     }
-    return $(&"$HOME\bin\lib\mktabcomplete.ps1" -name "Project" -help "Project name" -values $projects -position 0)
+    return $p
   }
   begin {
+    if ($DevExternal) {
+      if (-not $DDev) {
+        Write-Output "External dev directory is not set up."
+        return
+      }
+      $Dir = $DDev
+    } elseif ($ThirdParty) {
+      $Dir = "$GH\3rd-party"
+    } else {
+      $Dir = $GH
+    }
+
     $Project = $PSBoundParameters.Project
-    if ($ThirdParty) {
-      $Project = "3rd-party\$Project"
+    if ($Clone) {
+      if ($Project.StartsWith('parkovski/')) {
+        $Repo = "git@github.com:$Project"
+      } else {
+        $Repo = "https://github.com/$Project"
+      }
+      if (-not $LocalDir) {
+        $LocalDir = $Project.Substring($Project.IndexOf('/') + 1)
+      }
     }
   }
   process {
     if ($NewProject) {
-      mkdir "$GH\$Project"
-      cd "$GH\$Project"
+      cd $Dir
+      mkdir $Project
+      cd $Project
       git init
+    } elseif ($Clone) {
+      if (-not ($Project -match "[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+")) {
+        echo "Repo name is invalid."
+        return
+      }
+      cd $Dir
+      git clone $Repo $LocalDir
+      cd $LocalDir
     } else {
-      cd "$GH\$Project"
+      cd "$Dir\$Project"
     }
   }
 }
 
-. ~/bin/Get-OS.ps1
-if ($OS -eq "Windows") {
-  $user = [Security.Principal.WindowsIdentity]::GetCurrent();
-  $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-  # This has the right capitalization
-  $ProVar.hostname = (Get-CimInstance -ClassName Win32_ComputerSystem).DNSHostName
-} else {
-  $ProVar.admin = $(id -u) -eq "0"
-  $ProVar.hostname = hostname
-}
-
 function prompt {
-  $exitCode = $LastExitCode
+  $exitCode = $global:LastExitCode
 
   function Get-GitStatusMap {
     $status = git status --porcelain=1
@@ -167,13 +223,14 @@ function prompt {
     Write-Host $components[$i][0] -ForegroundColor Blue -NoNewLine
     Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor Blue -NoNewLine
   }
-  Write-Host "$($components[-1]) " -ForegroundColor Blue -NoNewLine
+  Write-Host "$($components[-1])" -ForegroundColor Blue -NoNewLine
 
-  $LastExitCode = $exitCode
-  "$('>' * ($NestedPromptLevel + 1)) "
+  $global:LastExitCode = $exitCode
+  "`n$('>' * ($NestedPromptLevel + 1)) "
 }
 
 $env:EDITOR='vim'
+$env:VISUAL='vim'
 & {
   if (Test-Path "$HOME\bin\lib\paths.txt") {
     $fpaths = (gc "$HOME\bin\lib\paths.txt") -split "`n"
@@ -203,36 +260,28 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
   }
 }
 
-$PowerShell = (Get-Process -Id $PID).MainModule.FileName
-if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
-  . "$GH/config/Profile.$OS_BASE.ps1"
-}
-if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
-  . "$GH/config/Profile.$OS.ps1"
-}
-
 $ProVar.PromptShowGitRemote = $true
 
-Set-PSReadlineOption -EditMode vi
-Set-PSReadlineOption -BellStyle None
-Set-PSReadlineOption -ViModeIndicator Cursor
-Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
-Set-PSReadlineKeyHandler -Key 'Alt+c' -Function Complete
-Set-PSReadlineKeyHandler -Key 'Alt+q' -Function TabCompletePrevious
-Set-PSReadlineKeyHandler -Key 'Alt+w' -Function TabCompleteNext
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
-
-Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Command -Function ScrollDisplayUp
-Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Command -Function ScrollDisplayDown
-Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Command -Function ScrollDisplayUpLine
-Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Command -Function ScrollDisplayDownLine
-Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Insert -Function ScrollDisplayUp
-Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Insert -Function ScrollDisplayDown
-Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Insert -Function ScrollDisplayUpLine
-Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Insert -Function ScrollDisplayDownLine
-
 try {
+  Set-PSReadlineOption -EditMode vi
+  Set-PSReadlineOption -BellStyle None
+  Set-PSReadlineOption -ViModeIndicator Cursor
+  Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
+  Set-PSReadlineKeyHandler -Key 'Alt+c' -Function Complete
+  Set-PSReadlineKeyHandler -Key 'Alt+q' -Function TabCompletePrevious
+  Set-PSReadlineKeyHandler -Key 'Alt+w' -Function TabCompleteNext
+  Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+  Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
+
+  Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Command -Function ScrollDisplayUp
+  Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Command -Function ScrollDisplayDown
+  Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Command -Function ScrollDisplayUpLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Command -Function ScrollDisplayDownLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Insert -Function ScrollDisplayUp
+  Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Insert -Function ScrollDisplayDown
+  Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Insert -Function ScrollDisplayUpLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Insert -Function ScrollDisplayDownLine
+
   Set-PSReadlineOption -Colors @{
     Comment = "DarkGray";
     Keyword = "DarkBlue";
@@ -247,6 +296,7 @@ try {
     Error = "DarkRed"
   }
 } catch {
+  echo Error setting PSReadLine options.
 }
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
