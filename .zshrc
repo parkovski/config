@@ -62,7 +62,7 @@ function precmd() {
   local branch
   local nogit
   if [[ -d ./.git ]]; then
-    branch=$(git symbolic-ref --short HEAD >/dev/null 2>&1)
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null)
     nogit=$?
   else
     branch=
@@ -115,7 +115,8 @@ function precmd() {
   fi
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1="%F{10}%n%F{8}@%F{10}%m%f $prompt_gitstr%F{12}$piznath%f %% "
+  PS1="%F{10}%n%F{8}@%F{10}%m%f $prompt_gitstr%F{12}$piznath%f
+%F{8}zsh%%%f "
 }
 
 . ~/bin/get-os.zsh
