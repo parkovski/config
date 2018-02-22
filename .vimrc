@@ -9,6 +9,10 @@ set incsearch hlsearch
 set colorcolumn=81
 let &sts=&tabstop
 
+if !empty($VIMTERM)
+  let &term=$VIMTERM
+endif
+
 if has('win32')
   let &shell = "pwsh.exe"
   if empty(glob('~/vimfiles/autoload/plug.vim'))

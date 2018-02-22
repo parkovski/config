@@ -60,15 +60,8 @@ setopt prompt_subst
 function precmd() {
   local prompt_gitstr=
   local branch
-  local nogit
-  if [[ -d ./.git ]]; then
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-    nogit=$?
-  else
-    branch=
-    nogit=1
-  fi
-  if [[ "$nogit" -eq "0" ]]; then
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+  if [[ "$?" -eq "0" ]]; then
     local gitstatus=$(git status --porcelain=1)
     local -A map
     local gitspace=
