@@ -4,6 +4,10 @@ function Open-AdminWindow {
   Start-Process $PowerShell -Verb Runas
 }
 
+function Restore-ConsoleWindow {
+  [Console]::SetWindowSize(100, 50)
+}
+
 $global:DDev = "D:\dev"
 $global:LocalPrograms = "$HOME\AppData\Local\Programs"
 

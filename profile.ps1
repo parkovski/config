@@ -25,7 +25,7 @@ function New-SymLink {
   param([string]$Target, [string]$Link, [Alias('d')][switch]$Dir)
 
   if ($OS -eq "Windows") {
-    if ((Test-Path -Container $Target) -or $Dir) {
+    if ((Test-Path $Target -PathType Container) -or $Dir) {
       cmd /c mklink /D $Link $Target
     } else {
       cmd /c mklink $Link $Target
@@ -49,6 +49,7 @@ function Download-TextFile {
 }
 
 . $HOME\bin\lib\dynparams.ps1
+. $HOME\bin\lib\with.ps1
 
 function gh {
   [CmdletBinding()]
@@ -189,7 +190,7 @@ function prompt {
     if ($ahead -gt 0) {
       Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
       if ($behind -gt 0) {
-        Write-Host "/" -ForegroundColor DarkYellow -NoNewLine
+        Write-Host "/" -ForegroundColor DarkGray -NoNewLine
       }
       $gitspace = ' '
     }
@@ -225,8 +226,9 @@ function prompt {
   }
   Write-Host "$($components[-1])" -ForegroundColor Blue -NoNewLine
 
+  $esc = [char]27
   $global:LastExitCode = $exitCode
-  "`n$('>' * ($NestedPromptLevel + 1)) "
+  "`n${esc}[90mpwsh$('>' * ($NestedPromptLevel + 1))${esc}[m "
 }
 
 $env:EDITOR='vim'
@@ -265,22 +267,22 @@ $ProVar.PromptShowGitRemote = $true
 try {
   Set-PSReadlineOption -EditMode vi
   Set-PSReadlineOption -BellStyle None
-  Set-PSReadlineOption -ViModeIndicator Cursor
+  #Set-PSReadlineOption -ViModeIndicator Cursor
+  Set-PSReadlineOption -ViModeIndicator Escape
+  Set-PSReadlineOption -ViCommandModeText "`e[1 q"
+  Set-PSReadlineOption -ViInsertModeText "`e[5 q"
   Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
-  Set-PSReadlineKeyHandler -Key 'Alt+c' -Function Complete
-  Set-PSReadlineKeyHandler -Key 'Alt+q' -Function TabCompletePrevious
-  Set-PSReadlineKeyHandler -Key 'Alt+w' -Function TabCompleteNext
   Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
   Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
 
-  Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Command -Function ScrollDisplayUp
-  Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Command -Function ScrollDisplayDown
-  Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Command -Function ScrollDisplayUpLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Command -Function ScrollDisplayDownLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+B' -ViMode Insert -Function ScrollDisplayUp
-  Set-PSReadlineKeyHandler -Key 'Ctrl+F' -ViMode Insert -Function ScrollDisplayDown
-  Set-PSReadlineKeyHandler -Key 'Ctrl+Y' -ViMode Insert -Function ScrollDisplayUpLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+E' -ViMode Insert -Function ScrollDisplayDownLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
+  Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
+  Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Command -Function ScrollDisplayUpLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Command -Function ScrollDisplayDownLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
+  Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
+  Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
+  Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
 
   Set-PSReadlineOption -Colors @{
     Comment = "DarkGray";
@@ -296,7 +298,7 @@ try {
     Error = "DarkRed"
   }
 } catch {
-  echo Error setting PSReadLine options.
+  echo "Error setting PSReadLine options."
 }
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'

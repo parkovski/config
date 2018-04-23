@@ -9,5 +9,5 @@ if ($OS -eq "Windows") {
 } else {
   $sync = ''
   if ($SyncUpdates) { $sync = '--sync' }
-  $GH\config\install-vscodeconfig.sh $sync
+  #$GH\config\install-vscodeconfig.sh $sync
 }

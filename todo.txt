@@ -1,2 +1,0 @@
-Use github vim colors on windows terminal only, solarized everywhere else
-Powershell vim

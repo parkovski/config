@@ -3,21 +3,36 @@ if ((read-host -prompt "Continue? y/n") -ne "y") {
   exit
 }
 
-copy .\.gitconfig $home\.gitconfig
-copy .\.gvimrc $home\_gvimrc
-copy .\.vimrc $home\_vimrc
-expand-archive $home\OneDrive\Documents\Utils\vimfiles.zip -DestinationPath $home
-mkdir $home\Documents\WindowsPowerShell -ErrorAction Ignore
-copy .\profile.ps1 $PROFILE
+function link {
+  param([string]$link, [string]$target)
 
-mkdir $home\bin -ErrorAction Ignore
-cp .\bin\* $home\bin
+  if (test-path $link) {
+    return
+  }
+
+  if (test-path -pathtype container $target) {
+    cmd /c mklink /d $link $target
+  } else {
+    cmd /c mklink $link $target
+  }
+}
+
+link $home\.gitconfig $pwd\.gitconfig
+link $home\_gvimrc $pwd\.gvimrc
+link $home\.gvimrc $pwd\.gvimrc
+link $home\_vimrc $pwd\.vimrc
+link $home\.vimrc $pwd\.vimrc
+if (-not test-path $home\Documents\WindowsPowerShell) {
+  mkdir $home\Documents\WindowsPowerShell
+}
+link $profile $pwd\profile.ps1
+link $home\bin $pwd\bin
 
 $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-[System.Environment]::SetEnvironmentVariable("Path", $userenv + ";$Home\bin", "User")
+if ($userenv -inotcontains "$Home\bin") {
+  [System.Environment]::SetEnvironmentVariable("Path", "$Home\bin;$userenv", "User")
+}
 
-.\install-apps.ps1
-
-cp $HOME\OneDrive\Documents\Utils\ConEmu.xml $HOME\AppData\Roaming
+#.\install-apps.ps1
 
 . $PROFILE

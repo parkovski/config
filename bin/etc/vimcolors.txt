@@ -1,0 +1,8 @@
+https://raw.githubusercontent.com/notpratheek/vim-luna/master/colors/luna.vim
+https://raw.githubusercontent.com/fneu/breezy/master/colors/breezy.vim
+https://raw.githubusercontent.com/ayu-theme/ayu-vim/master/colors/ayu.vim
+https://raw.githubusercontent.com/cnj4/horseradish256/master/colors/horseradish256.vim
+https://raw.githubusercontent.com/beigebrucewayne/hacked_ayu.vim/master/colors/hacked_ayu.vim
+https://raw.githubusercontent.com/sickill/vim-sunburst/master/colors/Sunburst.vim
+https://raw.githubusercontent.com/tyrannicaltoucan/vim-deep-space/master/colors/deep-space.vim
+https://raw.githubusercontent.com/danilo-augusto/vim-afterglow/master/colors/afterglow.vim

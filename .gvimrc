@@ -1,4 +1,4 @@
-set gfn=Consolas:h11
+set gfn=Iosevka:h11
 
 set go-=m "menu
 set go-=T "toolbar
