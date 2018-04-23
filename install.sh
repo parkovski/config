@@ -1,16 +1,16 @@
-CONFIG=$(pwd)
-function linkf() {
-  rm "~/$1" 2>/dev/null
-  ln -s "$CONFIG/$1" "~/$1"
+#!/usr/bin/env zsh
+
+function linkf {
+  if [ -e "$HOME/$1" ]; then
+    return
+  fi
+  ln -s "$PWD/$1" "$HOME/$1"
 }
 
-linkf .zshrc
 linkf .gitconfig
 linkf .vimrc
 linkf .gvimrc
+linkf .zshrc
 linkf .tmux.conf
-if [[ -f ~/OneDrive/Documents/Utils/vimfiles.zip ]]; then
-  unzip ~/OneDrive/Documents/Utils/vimfiles.zip -d ~
-  mv ~/vimfiles ~/.vim
-fi
+linkf bin
 

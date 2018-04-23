@@ -1,8 +1,3 @@
-echo "This needs admin. Also Set-ExecutionPolicy Bypass now."
-if ((read-host -prompt "Continue? y/n") -ne "y") {
-  exit
-}
-
 function link {
   param([string]$link, [string]$target)
 

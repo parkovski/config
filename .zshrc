@@ -1,3 +1,4 @@
+starttime=$(date "+%s%3N")
 export EDITOR=vim
 
 source <(antibody init)
@@ -62,7 +63,7 @@ function precmd() {
   local branch
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
   if [[ "$?" -eq "0" ]]; then
-    local gitstatus=$(git status --porcelain=1)
+    local gitstatus=$(git status --porcelain)
     local -A map
     local gitspace=
     local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
@@ -146,3 +147,6 @@ function gh() {
 export PATH="$HOME/bin:$PATH"
 
 [[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
+
+totaltime=$[$(date "+%s%3N")-$starttime]
+echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
