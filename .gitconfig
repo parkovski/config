@@ -1,14 +1,16 @@
 [user]
-	name = Parker Snell
-	email = parkersnell@gmail.com
+  email = parkersnell@gmail.com
+  name = Parker Snell
 [color]
-	ui = true
+  ui = true
 [filter "lfs"]
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
 [core]
-	symlinks = true
+  symlinks = true
 [pull]
   rebase = true
+[credential]
+  helper = manager
