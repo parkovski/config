@@ -28,6 +28,10 @@ if ($userenv -inotcontains "$Home\bin") {
   [System.Environment]::SetEnvironmentVariable("Path", "$Home\bin;$userenv", "User")
 }
 
+if (-not test-path Env:\VCPKG_DEFAULT_TRIPLET) {
+  [System.Environment]::SetEnvironmentVariable('VCPKG_DEFAULT_TRIPLET', 'x64-windows', 'User')
+}
+
 #.\install-apps.ps1
 
 . $PROFILE

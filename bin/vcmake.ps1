@@ -10,6 +10,15 @@ if ($Bits -eq 64) {
 } else {
   $arch = 'x86'
 }
+
+if (-not $env:VSINSTALLDIR) {
+  vcvars
+}
+
+if (-not $env:VCPKG_DEFAULT_TRIPLET) {
+  Write-Output "Warning: VCPKG_DEFAULT_TRIPLET not set."
+}
+
 cmake `
   "-DCMAKE_TOOLCHAIN_FILE=$root/scripts/buildsystems/vcpkg.cmake" `
   -G "Visual Studio 15 2017" `
