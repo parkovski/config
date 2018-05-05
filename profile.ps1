@@ -2,7 +2,7 @@ $ProVar = @{}
 
 $GH = "$HOME\Documents\GitHub"
 
-. ~/bin/Get-OS.ps1
+. $HOME/bin/Get-OS.ps1
 if ($OS -eq "Windows") {
   $user = [Security.Principal.WindowsIdentity]::GetCurrent();
   $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
@@ -210,15 +210,12 @@ function prompt {
     Write-Host ") " -ForegroundColor DarkGray -NoNewLine
   }
 
-  if ($components[0] -eq "~" -or $components[0] -eq "") {
-  } elseif ($components[0] -ieq $env:SystemDrive) {
+  if ($components[0] -match ':$') {
+    Write-Host $components[0] -ForegroundColor DarkBlue -NoNewLine
     $components[0] = ""
-  } elseif ($components[0] -match ':$') {
-    $drv = $components[0].Substring(0, $components[0].Length - 1)
-    $components[0] = ""
-    Write-Host '[' -ForegroundColor Gray -NoNewLine
-    Write-Host $drv -ForegroundColor DarkBlue -NoNewLine
-    Write-Host '] ' -ForegroundColor Gray -NoNewLine
+  }
+  if ($components.Length -gt 1 -and $components[-1] -eq "") {
+    $components = $components[0..($components.Length - 2)]
   }
   for ($i = 0; $i -lt $components.Length - 1; $i++) {
     Write-Host $components[$i][0] -ForegroundColor Blue -NoNewLine
@@ -255,7 +252,7 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
   }
   function cd {
     if ($args.Length -eq 0) {
-      Set-Location ~
+      Set-Location $HOME
     } else {
       Set-Location @args
     }
@@ -286,15 +283,15 @@ try {
 
   Set-PSReadlineOption -Colors @{
     Comment = "DarkGray";
-    Keyword = "DarkBlue";
+    Keyword = "Cyan";
     String = "Yellow";
-    Operator = "DarkMagenta";
-    Variable = "DarkYellow";
-    Command = "DarkGreen";
-    Parameter = "DarkCyan";
-    Type = "Blue";
-    Number = "Red";
-    Member = "DarkMagenta";
+    Operator = "DarkYellow";
+    Variable = "Magenta";
+    Command = "DarkBlue";
+    Parameter = "DarkGreen";
+    Type = "DarkCyan";
+    Number = "Green";
+    Member = "Blue";
     Error = "DarkRed"
   }
 } catch {

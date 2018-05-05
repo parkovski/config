@@ -1,17 +1,22 @@
 set nocompatible
 set autoindent
-set nu
-set ts=2 sts=2 sw=2 et
-set bs=indent,eol,start
-set noeb vb
-let &t_vb=''
+set number
+set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
+set backspace=indent,eol,start
+set noerrorbells
+set visualbell t_vb=
+set belloff=all
 set incsearch hlsearch
-set colorcolumn=81
-let &sts=&tabstop
+set colorcolumn=80,100,120
 set hidden
 set encoding=utf8
 set cursorline
 set signcolumn=yes
+set showcmd
+set splitright
+set splitbelow
+
+let mapleader='<space>'
 
 if !empty($VIMTERM)
   let &term=$VIMTERM
@@ -39,7 +44,7 @@ if has('win32')
     \ 'do': 'pwsh install.ps1',
     \ }
 
-  if !empty($PYTHON3DLL)
+  if !has('nvim') && !empty($PYTHON3DLL)
     let &pythonthreedll=$PYTHON3DLL
   endif
 else
@@ -58,14 +63,24 @@ endif
 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'PProvost/vim-ps1'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-surround'
 Plug 'luochen1990/rainbow'
-Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'tpope/vim-fugitive'
 "Plug 'Chilledheart/vim-clangd'
 Plug 'vhdirk/vim-cmake'
+Plug 'bronson/vim-visual-star-search'
+Plug 'vim-scripts/a.vim'
+
+Plug 'PProvost/vim-ps1'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'plasticboy/vim-markdown'
+Plug 'stephpy/vim-yaml'
+Plug 'cespare/vim-toml'
+Plug 'elzr/vim-json'
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'Quramy/tsuquyomi'
 
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -75,6 +90,9 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
+"let g:deoplete#num_processes = 4
+let g:deoplete#auto_complete_delay = 100
+let g:deoplete#auto_refresh_delay = 250
 
 call plug#end()
 
@@ -84,6 +102,8 @@ if !exists('g:airline_symbols')
 endif
 let g:airline_symbols.space = "\ua0"
 let g:airline_theme='wombat'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_buffers = 1
 
 let g:rainbow_active = 1
 
@@ -98,29 +118,41 @@ let g:LanguageClient_serverCommands = {
 let g:deoplete#sources = {}
 let g:deoplete#sources.cpp = ['LanguageClient']
 let g:deoplete#sources.c = ['LanguageClient']
-let g:deoplete#sources.vim = ['vim']
+"let g:deoplete#sources.vim = ['vim']
 
-nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+call deoplete#initialize()
 
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
-"imap <c-space> <Plug>(asyncomplete_force_refresh)
+inoremap <expr> <C-space> deoplete#mappings#manual_complete()
+inoremap <expr> <NUL> deoplete#mappings#manual_complete()
+inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
+inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
+inoremap <expr> <C-g> deoplete#undo_completion()
+inoremap <expr> <C-l> deoplete#refresh()
+inoremap <expr> <M-space> deoplete#complete_common_string()
 
 noremap <M-h> <C-w>5<
 noremap <M-j> <C-w>5-
 noremap <M-k> <C-w>5+
 noremap <M-l> <C-w>5>
 
+nnoremap <leader>T <Plug>AirlineSelectPrevTab
+nnoremap <leader>t <Plug>AirlineSelectNextTab
+nnoremap <leader>h :A<CR>
+nnoremap <leader>l :noh<CR>
+" <leader>b = browser
+
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 noremap! <Char-0x7F> <BS>
-set cm=blowfish2
+if !has('nvim')
+  set cryptmethod=blowfish2
+endif
 
 set tgc
 set bg=dark
