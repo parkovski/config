@@ -15,8 +15,10 @@ set signcolumn=yes
 set showcmd
 set splitright
 set splitbelow
+set wildmenu
+set wildmode=list:longest,full
 
-let mapleader='<space>'
+let mapleader="\<space>"
 
 if !empty($VIMTERM)
   let &term=$VIMTERM
@@ -71,6 +73,9 @@ Plug 'tpope/vim-fugitive'
 Plug 'vhdirk/vim-cmake'
 Plug 'bronson/vim-visual-star-search'
 Plug 'vim-scripts/a.vim'
+Plug 'skywind3000/asyncrun.vim'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'scrooloose/nerdtree'
 
 Plug 'PProvost/vim-ps1'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -143,7 +148,17 @@ nnoremap <leader>T <Plug>AirlineSelectPrevTab
 nnoremap <leader>t <Plug>AirlineSelectNextTab
 nnoremap <leader>h :A<CR>
 nnoremap <leader>l :noh<CR>
-" <leader>b = browser
+nnoremap <leader>: :AsyncRun<space>
+vnoremap <leader>: :AsyncRun<space>
+nnoremap <leader>b :NERDTreeToggle<CR>
+
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter *
+  \ if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") |
+  \ exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+autocmd bufenter *
+  \ if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) |
+  \ q | endif
 
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 

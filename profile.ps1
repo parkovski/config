@@ -302,3 +302,7 @@ $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
 
 Set-Alias ^ Invoke-History
+
+Import-Module Get-ChildItemColor
+Set-Alias ls Get-ChildItemColorFormatWide
+Set-Alias ll Get-ChildItemColor
