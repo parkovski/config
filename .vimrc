@@ -67,12 +67,13 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-fugitive'
 "Plug 'Chilledheart/vim-clangd'
 Plug 'vhdirk/vim-cmake'
 Plug 'bronson/vim-visual-star-search'
-Plug 'vim-scripts/a.vim'
+" Plug 'nacitar/a.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdtree'
@@ -96,8 +97,8 @@ else
 endif
 let g:deoplete#enable_at_startup = 1
 "let g:deoplete#num_processes = 4
-let g:deoplete#auto_complete_delay = 100
-let g:deoplete#auto_refresh_delay = 250
+let g:deoplete#auto_complete_delay = 50
+let g:deoplete#auto_refresh_delay = 200
 
 call plug#end()
 
@@ -127,25 +128,40 @@ let g:deoplete#sources.c = ['LanguageClient']
 
 call deoplete#initialize()
 
+"set omnifunc=LanguageClient#complete
+set completefunc=LanguageClient#complete
+
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
-inoremap <expr> <C-space> deoplete#mappings#manual_complete()
-inoremap <expr> <NUL> deoplete#mappings#manual_complete()
+inoremap <expr> <C-space> deoplete#manual_complete(['omni'])
+inoremap <expr> <NUL> deoplete#manual_complete(['omni'])
+inoremap <expr> <C-s> deoplete#manual_complete(['omni'])
 inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <C-g> deoplete#undo_completion()
 inoremap <expr> <C-l> deoplete#refresh()
 inoremap <expr> <M-space> deoplete#complete_common_string()
 
+nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> <leader>r :call LanguageClient#textDocument_rename()<CR>
+
+function! g:Multiple_cursors_before()
+  call deoplete#custom#buffer_option('auto_complete', v:false)
+endfunction
+function! g:Multiple_cursors_after()
+  call deoplete#custom#buffer_option('auto_complete', v:true)
+endfunction
+
 noremap <M-h> <C-w>5<
 noremap <M-j> <C-w>5-
 noremap <M-k> <C-w>5+
 noremap <M-l> <C-w>5>
 
-nnoremap <leader>T <Plug>AirlineSelectPrevTab
-nnoremap <leader>t <Plug>AirlineSelectNextTab
+nnoremap <leader>T :bp<CR>
+nnoremap <leader>t :bn<CR>
 nnoremap <leader>h :A<CR>
 nnoremap <leader>l :noh<CR>
 nnoremap <leader>: :AsyncRun<space>
