@@ -15,8 +15,19 @@ set signcolumn=yes
 set showcmd
 set splitright
 set splitbelow
-set wildmenu
 set wildmode=list:longest,full
+set wildmenu
+set nowritebackup
+set nobackup
+set noswapfile
+set backupdir-=.
+set pumheight=20
+set complete=.
+set noshowmode
+set laststatus=2
+set t_Co=256
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 let mapleader="\<space>"
 
@@ -34,10 +45,6 @@ if has('win32')
       \ )
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
-
-  set t_Co=256
-  set t_8f="\e[38;2;%lu;%lu;%lum"
-  set t_8b="\e[48;2;%lu;%lu;%lum"
 
   call plug#begin('~/vimfiles/bundle')
 
@@ -63,8 +70,7 @@ else
     \ }
 endif
 
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
@@ -77,6 +83,7 @@ Plug 'bronson/vim-visual-star-search'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdtree'
+Plug 'sgur/vim-editorconfig'
 
 Plug 'PProvost/vim-ps1'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -87,6 +94,7 @@ Plug 'elzr/vim-json'
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
 Plug 'Quramy/tsuquyomi'
+Plug 'leafo/moonscript-vim'
 
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -96,20 +104,25 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
-"let g:deoplete#num_processes = 4
-let g:deoplete#auto_complete_delay = 50
-let g:deoplete#auto_refresh_delay = 200
 
 call plug#end()
 
-let g:airline_powerline_fonts = 1
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-let g:airline_symbols.space = "\ua0"
-let g:airline_theme='wombat'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_buffers = 1
+call deoplete#custom#option('auto_complete_delay', 20)
+call deoplete#custom#option('auto_refresh_delay', 200)
+
+
+" let g:airline_powerline_fonts = 1
+" if !exists('g:airline_symbols')
+"   let g:airline_symbols = {}
+" endif
+" let g:airline_symbols.space = "\ua0"
+" let g:airline_theme='wombat'
+" let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#tabline#show_buffers = 1
+
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ }
 
 let g:rainbow_active = 1
 
@@ -119,16 +132,24 @@ let g:cmake_export_compile_commands = 1
 
 let g:LanguageClient_serverCommands = {
       \ 'cpp': ['clangd.exe'],
+      \ 'c': ['clangd.exe'],
+      \ 'javascript': ['javascript-typescript-stdio'],
+      \ 'typescript': ['javascript-typescript-stdio'],
+      \ 'lua': ['lua-lsp'],
       \ }
 
-let g:deoplete#sources = {}
-let g:deoplete#sources.cpp = ['LanguageClient']
-let g:deoplete#sources.c = ['LanguageClient']
-"let g:deoplete#sources.vim = ['vim']
+let g:LanguageClient_autoStart = 1
+
+" let g:deoplete#sources = {}
+" let g:deoplete#sources.cpp = ['LanguageClient']
+" let g:deoplete#sources.c = ['LanguageClient']
+" let g:deoplete#sources.javascript = ['LanguageClient']
+" let g:deoplete#sources.typescript = ['LanguageClient']
+" let g:deoplete#sources.vim = ['vim']
 
 call deoplete#initialize()
 
-"set omnifunc=LanguageClient#complete
+set omnifunc=LanguageClient#complete
 set completefunc=LanguageClient#complete
 
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -147,6 +168,14 @@ inoremap <expr> <M-space> deoplete#complete_common_string()
 nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> <leader>r :call LanguageClient#textDocument_rename()<CR>
+nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
+inoremap <expr><silent> <C-s> <SID>showSignatureHelp()
+" imap <expr><silent> <C-s> LanguageClient#textDocument_signatureHelp()
+
+function! s:showSignatureHelp()
+  call LanguageClient#textDocument_signatureHelp()
+  return ''
+endfunction
 
 function! g:Multiple_cursors_before()
   call deoplete#custom#buffer_option('auto_complete', v:false)
@@ -159,14 +188,22 @@ noremap <M-h> <C-w>5<
 noremap <M-j> <C-w>5-
 noremap <M-k> <C-w>5+
 noremap <M-l> <C-w>5>
+imap <M-h> <C-o><M-h>
+imap <M-j> <C-o><M-j>
+imap <M-k> <C-o><M-k>
+imap <M-l> <C-o><M-l>
 
-nnoremap <leader>T :bp<CR>
-nnoremap <leader>t :bn<CR>
-nnoremap <leader>h :A<CR>
-nnoremap <leader>l :noh<CR>
+nnoremap <silent> <leader>T :bp<CR>
+nnoremap <silent> <leader>t :bn<CR>
+nnoremap <silent> <leader>q :bd<CR>
+" nnoremap <silent> <leader>h :A<CR>
+nnoremap <silent> <leader>l :noh<CR>
 nnoremap <leader>: :AsyncRun<space>
 vnoremap <leader>: :AsyncRun<space>
-nnoremap <leader>b :NERDTreeToggle<CR>
+nnoremap <silent> <leader>b :NERDTreeToggle<CR>
+nnoremap <silent> <leader>P
+      \ :if &paste <Bar> set nopaste <Bar>
+      \ else <Bar> set paste <Bar> endif<CR>
 
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter *
@@ -176,10 +213,8 @@ autocmd bufenter *
   \ if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) |
   \ q | endif
 
-autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
 
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 noremap! <Char-0x7F> <BS>
 if !has('nvim')
   set cryptmethod=blowfish2

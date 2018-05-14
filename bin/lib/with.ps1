@@ -1,4 +1,4 @@
-function with {
+function Invoke-WithEnvironment {
   param([string[]]$envvars)
 
   $oldenv = @{}
@@ -37,3 +37,25 @@ function with {
     }
   }
 }
+
+function Set-EnvironmentVariable {
+  param(
+    [Parameter(Mandatory=$true, Position=0)][string]$Name,
+    [Parameter(Mandatory=$true, Position=1)][string]$Value,
+    [Parameter(Mandatory=$false)][System.EnvironmentVariableTarget]$Scope='Process'
+  )
+  [System.Environment]::SetEnvironmentVariable($Name, $Value, $Scope)
+  Set-Content -Path Env:\$Name -Value $Value
+}
+
+function Remove-EnvironmentVariable {
+  param(
+    [Parameter(Mandatory=$true, Position=0)][string]$Name,
+    [Parameter(Mandatory=$false)][System.EnvironmentVariableTarget]$Scope='Process'
+  )
+  [System.Environment]::SetEnvironmentVariable($Name, '', $Scope)
+  Remove-Item -Pat Env:\$Name
+}
+
+Set-Alias with Invoke-WithEnvironment
+Set-Alias senv Set-EnvironmentVariable
