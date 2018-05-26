@@ -1,2 +1,3 @@
 /bin/*.exe
 /bin/etc/vimcolor
+/bin/local/

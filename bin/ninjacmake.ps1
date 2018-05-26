@@ -13,6 +13,6 @@ if (-not $env:VCPKG_DEFAULT_TRIPLET) {
 }
 
 cmake `
-  "-DCMAKE_TOOLCHAIN_FILE=$root/scripts/buildsystems/vcpkg.cmake" `
   -G Ninja `
-  @args
+  @args `
+  "-DCMAKE_TOOLCHAIN_FILE=$root/scripts/buildsystems/vcpkg.cmake"

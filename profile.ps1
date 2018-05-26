@@ -35,6 +35,20 @@ function New-SymLink {
   }
 }
 
+function Enter-NewDirectory {
+  param([Parameter(Mandatory=$true)][string]$Path, [switch]$Push)
+  $dir = Get-ChildItem -Path $PWD -Name $Path -ErrorAction Ignore
+  if (-not ($dir -and (Test-Path $dir -ItemType Container))) {
+    $dir = New-Item $Path -ItemType Directory
+  }
+  if ($Push) {
+    Push-Location $dir
+  } else {
+    Set-Location $dir
+  }
+}
+Set-Alias mkcd Enter-NewDirectory
+
 function Download-TextFile {
   param([string]$From, [string]$To)
   if (Test-Path -PathType Container $To) {

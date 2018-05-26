@@ -25,6 +25,7 @@ set pumheight=20
 set complete=.
 set noshowmode
 set laststatus=2
+set showtabline=2
 set t_Co=256
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -71,6 +72,7 @@ else
 endif
 
 Plug 'itchyny/lightline.vim'
+Plug 'mgee/lightline-bufferline'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
@@ -110,19 +112,15 @@ call plug#end()
 call deoplete#custom#option('auto_complete_delay', 20)
 call deoplete#custom#option('auto_refresh_delay', 200)
 
-
-" let g:airline_powerline_fonts = 1
-" if !exists('g:airline_symbols')
-"   let g:airline_symbols = {}
-" endif
-" let g:airline_symbols.space = "\ua0"
-" let g:airline_theme='wombat'
-" let g:airline#extensions#tabline#enabled = 1
-" let g:airline#extensions#tabline#show_buffers = 1
-
 let g:lightline = {
       \ 'colorscheme': 'wombat',
+      \ 'tabline': {'left': [['buffers']], 'right': [['close']]},
+      \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
+      \ 'component_type': {'buffers': 'tabsel'}
       \ }
+
+let g:lightline#bufferline#show_number = 1
+let g:lightline#bufferline#unnamed = '[No Name]'
 
 let g:rainbow_active = 1
 
@@ -131,14 +129,16 @@ let g:cmake_project_generator = 'Ninja'
 let g:cmake_export_compile_commands = 1
 
 let g:LanguageClient_serverCommands = {
-      \ 'cpp': ['clangd.exe'],
-      \ 'c': ['clangd.exe'],
+      \ 'cpp': ['clangd'],
+      \ 'c': ['clangd'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
       \ }
 
 let g:LanguageClient_autoStart = 1
+let g:LanguageClient_loadSettings = 1
+let g:LanguageClient_settingsPath = glob('~/.vim/settings.json')
 
 " let g:deoplete#sources = {}
 " let g:deoplete#sources.cpp = ['LanguageClient']
@@ -146,6 +146,9 @@ let g:LanguageClient_autoStart = 1
 " let g:deoplete#sources.javascript = ['LanguageClient']
 " let g:deoplete#sources.typescript = ['LanguageClient']
 " let g:deoplete#sources.vim = ['vim']
+
+let g:deoplete#sources = { '_': ['LanguageClient'] }
+call deoplete#custom#option('sources', { '_': ['LanguageClient'] })
 
 call deoplete#initialize()
 
@@ -156,9 +159,9 @@ inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
-inoremap <expr> <C-space> deoplete#manual_complete(['omni'])
-inoremap <expr> <NUL> deoplete#manual_complete(['omni'])
-inoremap <expr> <C-s> deoplete#manual_complete(['omni'])
+inoremap <expr> <C-space> deoplete#manual_complete('omni')
+inoremap <expr> <NUL> deoplete#manual_complete('omni')
+" inoremap <expr> <C-s> deoplete#manual_complete('omni')
 inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <C-g> deoplete#undo_completion()
@@ -170,6 +173,7 @@ nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> <leader>r :call LanguageClient#textDocument_rename()<CR>
 nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
 inoremap <expr><silent> <C-s> <SID>showSignatureHelp()
+nnoremap <expr><silent> <C-s> <SID>showSignatureHelp()
 " imap <expr><silent> <C-s> LanguageClient#textDocument_signatureHelp()
 
 function! s:showSignatureHelp()
@@ -192,6 +196,21 @@ imap <M-h> <C-o><M-h>
 imap <M-j> <C-o><M-j>
 imap <M-k> <C-o><M-k>
 imap <M-l> <C-o><M-l>
+nnoremap <leader>H <C-w>H
+nnoremap <leader>J <C-w>J
+nnoremap <leader>K <C-w>K
+nnoremap <leader>L <C-w>L
+
+nmap <Leader>1 <Plug>lightline#bufferline#go(1)
+nmap <Leader>2 <Plug>lightline#bufferline#go(2)
+nmap <Leader>3 <Plug>lightline#bufferline#go(3)
+nmap <Leader>4 <Plug>lightline#bufferline#go(4)
+nmap <Leader>5 <Plug>lightline#bufferline#go(5)
+nmap <Leader>6 <Plug>lightline#bufferline#go(6)
+nmap <Leader>7 <Plug>lightline#bufferline#go(7)
+nmap <Leader>8 <Plug>lightline#bufferline#go(8)
+nmap <Leader>9 <Plug>lightline#bufferline#go(9)
+nmap <Leader>0 <Plug>lightline#bufferline#go(10)
 
 nnoremap <silent> <leader>T :bp<CR>
 nnoremap <silent> <leader>t :bn<CR>
@@ -201,7 +220,7 @@ nnoremap <silent> <leader>l :noh<CR>
 nnoremap <leader>: :AsyncRun<space>
 vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
-nnoremap <silent> <leader>P
+nnoremap <silent> <leader>p
       \ :if &paste <Bar> set nopaste <Bar>
       \ else <Bar> set paste <Bar> endif<CR>
 
