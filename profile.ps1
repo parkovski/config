@@ -49,19 +49,6 @@ function Enter-NewDirectory {
 }
 Set-Alias mkcd Enter-NewDirectory
 
-function Download-TextFile {
-  param([string]$From, [string]$To)
-  if (Test-Path -PathType Container $To) {
-    $slash = $From.LastIndexOf('/')
-    if (-not ($To.EndsWith('/') -or $To.EndsWith('\'))) {
-      $To += [System.IO.Path]::PathSeparator
-    }
-    $To += $From.Substring($slash + 1);
-  }
-  (Invoke-WebRequest $From -ContentType "text/plain").Content `
-    | Out-File -Encoding "utf8" -NoNewLine $To
-}
-
 . $HOME\bin\lib\dynparams.ps1
 . $HOME\bin\lib\with.ps1
 
@@ -126,7 +113,7 @@ function gh {
       git init
     } elseif ($Clone) {
       if (-not ($Project -match "[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+")) {
-        echo "Repo name is invalid."
+        Write-Host "Repo name is invalid."
         return
       }
       cd $Dir
@@ -151,8 +138,13 @@ function prompt {
     }
 
     foreach ($line in $status) {
-      $k = ""
-      if ($line[1] -ne " ") {
+      if ([string]::IsNullOrEmpty($line.Trim())) {
+        continue
+      }
+      $k = "" + $line[0]
+      if ($line[1] -eq "?") {
+        $k = "??"
+      } elseif ($line[1] -ne " ") {
         $k = $line[1] + "-"
       } else {
         $k = $line[0] + "+"
@@ -185,61 +177,58 @@ function prompt {
     }
   }
 
+  $c = 92
   if ($ProVar.admin) {
-    Write-Host ([System.Environment]::UserName) -ForegroundColor Red -NoNewLine
-    Write-Host "@" -ForegroundColor DarkGray -NoNewLine
-    Write-Host $ProVar.hostname -ForegroundColor Red -NoNewLine
-  } else {
-    Write-Host ([System.Environment]::UserName) -ForegroundColor Green -NoNewLine
-    Write-Host "@" -ForegroundColor DarkGray -NoNewLine
-    Write-Host $ProVar.hostname -ForegroundColor Green -NoNewLine
+    $c = 91
   }
-  Write-Host " " -NoNewLine
+  Write-Host -NoNewLine "`e[${c}m$([System.Environment]::UserName)"
+  Write-Host -NoNewLine "`e[90m@"
+  Write-Host -NoNewLine "`e[${c}m$($ProVar.hostname) `e[m"
 
   # Git
   if ($isgit) {
-    $gitspace = ''
-    Write-Host "$branch" -ForegroundColor DarkYellow -NoNewLine
-    Write-Host "(" -ForegroundColor DarkGray -NoNewLine
+    Write-Host -NoNewLine "`e[33m$branch"
     if ($ahead -gt 0) {
-      Write-Host "+$ahead" -ForegroundColor DarkBlue -NoNewLine
+      Write-Host -NoNewLine "`e[90m: `e[34m+$ahead"
       if ($behind -gt 0) {
-        Write-Host "/" -ForegroundColor DarkGray -NoNewLine
+        Write-Host -NoNewLine "`e[90m/`e[35m-$behind"
       }
-      $gitspace = ' '
+    } elseif ($behind -gt 0) {
+      Write-Host -NoNewLine "`e[90m: `e[35m-$behind"
     }
-    if ($behind -gt 0) {
-      Write-Host "-$behind" -ForegroundColor DarkMagenta -NoNewLine
-      $gitspace = ' '
+
+    $colors = @{
+      "+" = "`e[38;5;35m"; # Green
+      "-" = "`e[38;5;160m"; # Red
+      "?" = "`e[38;5;202m"; # Orange
     }
-    foreach ($k in $gitfiles.keys) {
-      if ($k[1] -eq "+") {
-        $c = "DarkGreen"
-      } else {
-        $c = "DarkRed"
+    if ($gitfiles.keys.Count -ne 0) {
+      Write-Host -NoNewLine "`e[90m:"
+      foreach ($k in $gitfiles.keys) {
+        Write-Host -NoNewLine (" " + $colors["" + $k[1]] + $k[0] + $gitfiles[$k])
       }
-      Write-Host "$gitspace$($k[0])$($gitfiles[$k])" -ForegroundColor $c -NoNewLine
-      $gitspace = ' '
     }
-    Write-Host ") " -ForegroundColor DarkGray -NoNewLine
+    Write-Host -NoNewLine "`e[90m: "
   }
 
   if ($components[0] -match ':$') {
-    Write-Host $components[0] -ForegroundColor DarkBlue -NoNewLine
+    Write-Host -NoNewLine "`e[34m$($components[0])"
     $components[0] = ""
   }
   if ($components.Length -gt 1 -and $components[-1] -eq "") {
     $components = $components[0..($components.Length - 2)]
   }
   for ($i = 0; $i -lt $components.Length - 1; $i++) {
-    Write-Host $components[$i][0] -ForegroundColor Blue -NoNewLine
-    Write-Host ([System.IO.Path]::DirectorySeparatorChar) -ForegroundColor Blue -NoNewLine
+    Write-Host -NoNewLine (
+      "`e[94m" +
+      $components[$i][0] +
+      ([System.IO.Path]::DirectorySeparatorChar)
+    )
   }
-  Write-Host "$($components[-1])" -ForegroundColor Blue -NoNewLine
+  Write-Host -NoNewLine "`e[94m$($components[-1])"
 
-  $esc = [char]27
   $global:LastExitCode = $exitCode
-  "`n${esc}[90mpwsh$('>' * ($NestedPromptLevel + 1))${esc}[m "
+  "`n`e[90mpwsh$('>' * ($NestedPromptLevel + 1))`e[m "
 }
 
 $env:EDITOR='vim'
@@ -276,12 +265,31 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
 $ProVar.PromptShowGitRemote = $true
 
 try {
-  Set-PSReadlineOption -EditMode vi
-  Set-PSReadlineOption -BellStyle None
-  #Set-PSReadlineOption -ViModeIndicator Cursor
-  Set-PSReadlineOption -ViModeIndicator Escape
-  Set-PSReadlineOption -ViCommandModeText "`e[1 q"
-  Set-PSReadlineOption -ViInsertModeText "`e[5 q"
+  Set-PSReadlineOption `
+    -EditMode vi `
+    -BellStyle None `
+    -ViModeIndicator Script `
+    -ViModeChangeHandler {
+      if ($args[0] -eq 'Command') {
+        Write-Host -NoNewLine "`e[1 q"
+      } else {
+        Write-Host -NoNewLine "`e[5 q"
+      }
+    } `
+    -Colors @{
+      Comment = "DarkGray";
+      Keyword = "Cyan";
+      String = "Yellow";
+      Operator = "DarkYellow";
+      Variable = "Magenta";
+      Command = "DarkBlue";
+      Parameter = "DarkGreen";
+      Type = "DarkCyan";
+      Number = "Green";
+      Member = "Blue";
+      Error = "DarkRed"
+    }
+
   Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
   Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
   Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
@@ -295,21 +303,8 @@ try {
   Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
   Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
 
-  Set-PSReadlineOption -Colors @{
-    Comment = "DarkGray";
-    Keyword = "Cyan";
-    String = "Yellow";
-    Operator = "DarkYellow";
-    Variable = "Magenta";
-    Command = "DarkBlue";
-    Parameter = "DarkGreen";
-    Type = "DarkCyan";
-    Number = "Green";
-    Member = "Blue";
-    Error = "DarkRed"
-  }
 } catch {
-  echo "Error setting PSReadLine options."
+  Write-Host "Error setting PSReadLine options."
 }
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
@@ -320,3 +315,5 @@ Set-Alias ^ Invoke-History
 Import-Module Get-ChildItemColor
 Set-Alias ls Get-ChildItemColorFormatWide
 Set-Alias ll Get-ChildItemColor
+function dirs { Get-Location -Stack }
+function touch { echo '' >> $args[0] }
