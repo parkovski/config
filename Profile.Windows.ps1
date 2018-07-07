@@ -1,7 +1,12 @@
 chcp 65001 | Out-Null
 
-function Open-AdminWindow {
-  Start-Process $PowerShell -Verb Runas
+function Open-PowerShell {
+  param([switch]$Admin)
+  if ($Admin) {
+    Start-Process $PowerShell -Verb Runas
+  } else {
+    Start-Process $PowerShell
+  }
 }
 
 function Restore-ConsoleWindow {
