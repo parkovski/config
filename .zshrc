@@ -59,6 +59,12 @@ bindkey '^h' backward-delete-char
 # https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 setopt prompt_subst
 function precmd() {
+  local exitcode="$?"
+  if [[ "$exitcode" -eq "0" ]]; then
+    exitcode=
+  else
+    exitcode="[%F{1}$exitcode%F{8}] "
+  fi
   local prompt_gitstr=
   local branch
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
@@ -115,7 +121,7 @@ function precmd() {
 
   piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
   PS1="%F{10}%n%F{8}@%F{10}%m%f$prompt_gitstr %F{12}$piznath%f
-%F{8}zsh%%%f "
+%F{8}${exitcode}zsh%%%f "
 }
 
 . ~/bin/get-os.zsh
