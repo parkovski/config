@@ -1,33 +1,25 @@
 set nocompatible
+set exrc secure
 set autoindent
-set number
+set title hidden
 set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 set backspace=indent,eol,start
-set noerrorbells
-set visualbell t_vb=
-set belloff=all
+set noerrorbells visualbell t_vb= belloff=all
 set incsearch hlsearch
-set smartcase
+set ignorecase smartcase
+set number relativenumber signcolumn=yes
 set colorcolumn=80,100,120
-set hidden
-set encoding=utf8
 set cursorline
-set signcolumn=yes
-set showcmd
-set splitright
-set splitbelow
-set wildmode=longest:full,full
-set wildmenu
-set nowritebackup
-set nobackup
-set noswapfile
-set backupdir-=.
-set autoread
-set pumheight=20
+set showcmd noshowmode showtabline=2
+set splitright splitbelow
+set wildmenu wildmode=longest:full,full
 set complete=.
-set noshowmode
+set pumheight=20
 set laststatus=2
-set showtabline=2
+set nobackup nowritebackup noswapfile backupdir-=.
+set foldmethod=marker nofoldenable
+set autoread
+set encoding=utf8 fileformats=unix,dos
 set t_Co=256
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -41,18 +33,12 @@ endif
 let g:vimrc_platform = {}
 
 if has('win32')
-  let &shell = "pwsh.exe"
-  if empty(glob('~/vimfiles/autoload/plug.vim'))
-    silent !pwsh -c mkdir -ea Ignore $HOME/vimfiles/autoload;
-      \ (New-Object Net.WebClient).DownloadFile(
-        \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
-        \ $HOME + '/vimfiles/autoload/plug.vim'
-      \ )
-    augroup InstallPlugins
-      autocmd!
-      autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-    augroup END
-  endif
+  set shell=pwsh.exe shellquote= shellxquote= shellpipe=\| shellredir=>
+  set shellslash
+  let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
+  function! g:Shellify(str)
+    return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
+  endfunction
 
   if exists('&pythonthreedll') && !empty($PYTHON3DLL)
     let &pythonthreedll=$PYTHON3DLL
@@ -60,34 +46,39 @@ if has('win32')
 
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
-  let g:vimrc_platform.lcinstall = 'pwsh install.ps1'
+  let g:vimrc_platform.lcinstall = 'powershell install.ps1'
   let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
   if empty(g:vimrc_platform.cquery_exe)
     let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery.exe')
   endif
 else
-  if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-      \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    augroup InstallPlugins
-      autocmd!
-      autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-    augroup END
-  endif
+  function! g:Shellify(str)
+    return shellescape(a:str)
+  endfunction
 
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
   let g:vimrc_platform.cquery_exe = exepath('cquery')
   if empty(g:vimrc_platform.cquery_exe)
-    g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery')
+    let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery')
     if empty(g:vimrc_platform.cquery_exe)
-      g:vimrc_platform.cquery_exe = exepath('cquery.exe')
+      let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
       if empty(g:vimrc_platform.cquery_exe)
-        g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery.exe')
+        let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery.exe')
       endif
     endif
   endif
+endif
+
+if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
+  exe 'silent !curl -fLo ' . g:vimrc_platform.dotvim . '/autoload/plug.vim ' .
+    \ '--create-dirs ' .
+    \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  augroup InstallPlugins
+    autocmd!
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  augroup END
 endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
@@ -99,15 +90,11 @@ Plug 'autozimu/LanguageClient-neovim', {
 
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
-" Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-fugitive'
-"Plug 'Chilledheart/vim-clangd'
-Plug 'vhdirk/vim-cmake'
 Plug 'bronson/vim-visual-star-search'
-" Plug 'nacitar/a.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdtree'
@@ -123,7 +110,6 @@ Plug 'elzr/vim-json'
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
 Plug 'Quramy/tsuquyomi'
-" Plug 'leafo/moonscript-vim'
 Plug 'Shougo/neco-vim'
 
 if has('nvim')
@@ -138,19 +124,69 @@ let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
-      \ 'component_type': {'buffers': 'tabsel'}
+      \ 'component_type': {'buffers': 'tabsel'},
+      \ 'inactive': {
+      \   'left': [['filename', 'modified']],
+      \   'right': [['lineinfo'], ['percent']] },
+      \ 'tab': {
+      \   'active': ['tabnum', 'name'],
+      \   'inactive': ['tabnum', 'name'] },
       \ }
+
+let g:lightline.tab_component_function = {
+      \ 'tabnum': 'lightline#tab#tabnum',
+      \ 'name': 'LightlineTabName' }
+
+if !exists('g:lightline#tab#names')
+  let g:lightline#tab#names = {}
+endif
+function! LightlineTabName(tabnum)
+  if has_key(g:lightline#tab#names, a:tabnum)
+    return g:lightline#tab#names[a:tabnum]
+  endif
+  return lightline#tab#filename(tabpagenr())
+endfunction
+" au TabClosed...
+function! SetLightlineTabName(cargs)
+  let l:args = split(a:cargs, '^[0-9]\+\zs')
+  if len(l:args) == 1
+    let l:num = tabpagenr()
+    let l:name = l:args[0]
+  else
+    let l:num = l:args[0]
+    let l:name = substitute(l:args[1], '^\W\+', '', '')
+  endif
+  let g:lightline#tab#names[l:num] = l:name
+  " execute tabpagenr().'tabn'
+  " Redraw??
+endfunction
+command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
+
+" TODO: Get PowerShell to not send \r\n here.
+set sessionoptions=blank,buffers,curdir,help,winsize,tabpages,slash,unix
+command! -bang -bar -nargs=? Session
+  \ mksession<bang> <args> |
+  \ exe "silent !echo " .
+    \ Shellify("let g:lightline\\#tab\\#names = " .
+    \          string(g:lightline#tab#names)) .
+    \ " >> " . Shellify(v:this_session)
 
 let g:lightline#bufferline#show_number = 1
 let g:lightline#bufferline#unnamed = '[No Name]'
 
 let g:rainbow_active = 1
 
-let g:cmake_install_prefix = $CMAKE_INSTALL_PREFIX
-let g:cmake_project_generator = 'Ninja'
-let g:cmake_export_compile_commands = 1
+" let g:cmake_install_prefix = $CMAKE_INSTALL_PREFIX
+" let g:cmake_project_generator = 'Ninja'
+" let g:cmake_export_compile_commands = 1
 
 let g:deoplete#enable_at_startup = 1
+let g:echodoc#enable_at_startup = 1
+
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+let g:cpp_concepts_highlight = 1
 
 call plug#end()
 
@@ -168,26 +204,31 @@ let g:LanguageClient_settingsPath = g:vimrc_platform.dotvim . '/settings.json'
 let g:LanguageClient_loggingFile = g:vimrc_platform.temp . '/lc-neovim.log'
 let g:LanguageClient_loggingLevel = 'WARN'
 let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
-let g:LanguageClient_hasSnippetSupport = 1
+" let g:LanguageClient_hasSnippetSupport = 1
 " let g:LanguageClient_waitOutputTimeout = 5
 
-silent call deoplete#custom#option('auto_complete_delay', 20)
-silent call deoplete#custom#option('auto_refresh_delay', 200)
+silent call deoplete#custom#option({ 'auto_complete_delay': 50,
+                                   \ 'auto_refresh_delay': 200,
+                                   \ 'min_pattern_length': 5,
+                                   \ 'sources': { '_': [] }, })
+call deoplete#custom#source('_', 'converters',
+                          \ ['converter_remove_overlap',
+                          \   'converter_truncate_abbr'])
 call deoplete#enable_logging('WARN', g:vimrc_platform.temp . '/deoplete.log')
-" call deoplete#custom#option('sources', { '_': ['LanguageClient'] })
-call deoplete#custom#option('sources', { '_': [] })
 
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
 imap <NUL> <C-space>
-if has('nvim') && has('win32')
-  " Neovim is missing a couple mappings on Windows.
-  imap <M-c> <C-space>
-endif
+" Neovim is missing a couple mappings on Windows.
+imap <M-x> <C-space>
+nmap <M-w> <S-Tab>
+nmap <leader><M-w> <leader><S-Tab>
 
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
+inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
 inoremap <expr> <C-space> deoplete#mappings#manual_complete()
 inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
@@ -212,21 +253,27 @@ function! g:Multiple_cursors_after()
   call deoplete#custom#buffer_option('auto_complete', v:true)
 endfunction
 
-noremap <M-h> <C-w>8>
-noremap <M-j> <C-w>8-
-noremap <M-k> <C-w>8+
-noremap <M-l> <C-w>8<
-imap <M-h> <C-o><M-h>
-imap <M-j> <C-o><M-j>
-imap <M-k> <C-o><M-k>
-imap <M-l> <C-o><M-l>
+nnoremap <M->> <C-w>8>
+nnoremap <M--> <C-w>8-
+nnoremap <M-+> <C-w>8+
+nnoremap <M-lt> <C-w>8<
 nnoremap <M-H> <C-w>H
 nnoremap <M-J> <C-w>J
 nnoremap <M-K> <C-w>K
 nnoremap <M-L> <C-w>L
 
-nnoremap <silent> <leader>T :bp<CR>
-nnoremap <silent> <leader>t :bn<CR>
+noremap! <M-h> <Left>
+noremap! <M-j> <Down>
+noremap! <M-k> <Up>
+noremap! <M-l> <Right>
+noremap! <M-b> <S-Left>
+noremap! <M-e> <S-Right>
+noremap! <C-a> <Home>
+noremap! <C-e> <End>
+
+nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
+nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
+nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
 nnoremap <silent> <leader>p :b#<CR>
 nnoremap <silent> <leader>q :b#<Bar>bd#<CR>
 nnoremap <silent> <leader>Q :b#<Bar>bd!#<CR>
@@ -239,18 +286,17 @@ nnoremap <silent> <leader>b :NERDTreeToggle<CR>
 nnoremap <silent> <leader>P
       \ :if &paste <Bar> set nopaste <Bar>
       \ else <Bar> set paste <Bar> endif<CR>
+nnoremap <silent> <leader>r :set relativenumber!<CR>
 
-nmap <leader><Tab><Tab> <S-Tab><S-Tab>
-
-nnoremap <silent> <Tab><Tab> :tabnext<CR>
-nnoremap <silent> <S-Tab><S-Tab> :tabprevious<CR>
-nnoremap <silent> <Tab>N :tabnew<CR>
-nnoremap <silent> <Tab>E :tabedit %<CR>
-nnoremap <silent> <Tab>Q :tabclose<CR>
-nnoremap <silent> <Tab>H :-tabmove<CR>
-nnoremap <silent> <Tab>L :+tabmove<CR>
-nnoremap <silent> <Tab>0 :tabfirst<CR>
-nnoremap <silent> <Tab>- :tablast<CR>
+nnoremap <silent> <leader><Tab> :tabnext<CR>
+nnoremap <silent> <leader><S-Tab> :tabprevious<CR>
+nnoremap <silent> <leader>N :tabnew<CR>
+nnoremap <silent> <leader>E :tabedit %<CR>
+nnoremap <silent> <leader>Q :tabclose<CR>
+nnoremap <silent> <leader>H :-tabmove<CR>
+nnoremap <silent> <leader>L :+tabmove<CR>
+nnoremap <silent> <leader>0 :tabfirst<CR>
+nnoremap <silent> <leader>- :tablast<CR>
 
 augroup AutoCommands
   autocmd!
@@ -276,10 +322,12 @@ if exists('&cryptmethod')
 endif
 
 set tgc
-set bg=dark
 silent! execute 'colors ' . readfile(glob('~/bin/etc/vimcolor'))[0]
+" TODO: Move
+hi ColorColumn guibg=#203040
+hi MatchParen guibg=#204090 guifg=#a7bd9a
 
-if !has('win32')
+if has('&t_SI') && !has('win32')
   let &t_SI = "\<Esc>[5 q"
   let &t_SR = "\<Esc>[3 q"
   let &t_EI = "\<Esc>[1 q"

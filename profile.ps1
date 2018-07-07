@@ -24,6 +24,7 @@ if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
 function New-SymLink {
   param([string]$Target, [string]$Link, [Alias('d')][switch]$Dir)
 
+  $Target = $(Resolve-Path $Target).Path
   if ($OS -eq "Windows") {
     if ((Test-Path $Target -PathType Container) -or $Dir) {
       cmd /c mklink /D $Link $Target
@@ -126,7 +127,12 @@ function gh {
 }
 
 function prompt {
-  $exitCode = $global:LastExitCode
+  if ($?) {
+    $global:LastExitCode = 0
+  } elseif ($global:LastExitCode -eq 0) {
+    $global:LastExitCode = -1
+  }
+  [int]$exitCode = $global:LastExitCode
 
   function Get-GitStatusMap {
     $status = git status --porcelain=1
@@ -228,7 +234,11 @@ function prompt {
   Write-Host -NoNewLine "`e[94m$($components[-1])"
 
   $global:LastExitCode = $exitCode
-  "`n`e[90mpwsh$('>' * ($NestedPromptLevel + 1))`e[m "
+  [string]$ec = ""
+  if ($exitCode -ne 0) {
+    $ec = "[`e[31m$exitCode`e[90m] "
+  }
+  "`n`e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))`e[m "
 }
 
 $env:EDITOR='vim'
@@ -310,10 +320,42 @@ try {
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
 
-Set-Alias ^ Invoke-History
+function Invoke-HistoryRecent {
+  [CmdletBinding()]
+  param()
+  dynamicparam {
+    $hist = Get-History
+    $hc = $hist.Count
+
+    # Fixme
+    if ($hc -ge 10) {
+      $hist = $hist[0..10]
+    }
+    # $values = [Enumerable]::Count(1, 10)
+    $hint = "History count: $hc"
+    for ($i = -1; $i -gt -$hist.Count; $i -= 1) {
+      $hint += "`n" + $hist[$i].CommandLine
+    }
+    $hint = $values | Select-Object { "${_}: " + $hist[-$_] + "\n" }
+    New-DynamicParams | Add-DynamicParam Index -Type:([int]) `
+      -Position:0 -HelpMessage:$hint -Values:$values
+  }
+  process {
+    $hist = Get-History
+    $hc = $hist.Count
+
+    $i = $PSBoundParameters.Index
+    if ($i -ge 0 -and $i -lt $hc) {
+      Invoke-History -Id:($hc-$i)
+    }
+  }
+}
+
+Set-Alias ^ Invoke-HistoryRecent
 
 Import-Module Get-ChildItemColor
 Set-Alias ls Get-ChildItemColorFormatWide
 Set-Alias ll Get-ChildItemColor
+Remove-Alias -Force sl -ErrorAction Ignore
 function dirs { Get-Location -Stack }
 function touch { echo '' >> $args[0] }
