@@ -31,6 +31,7 @@ if !empty($VIMTERM)
 endif
 
 let g:vimrc_platform = {}
+let &pyxversion = 3
 
 function! g:Chsh(shell)
   let &shell=a:shell
