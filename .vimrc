@@ -32,10 +32,31 @@ endif
 
 let g:vimrc_platform = {}
 
+function! g:Chsh(shell)
+  let &shell=a:shell
+  let l:shellslash = 0
+  if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
+    set shellquote= shellxquote= shellredir=*>
+    let &shellpipe="| tee"
+    set shellxescape=
+    let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
+    let l:shellslash = 1
+  elseif a:shell =~? 'cmd\(\.exe\)\?'
+    set shellquote= shellxquote=\" shellredir=>%s\ 2>&1 shellpipe=>
+    "let &shellxescape='"&|<>>()@^'
+    let &shellcmdflag="/s /c"
+  else
+    set shellquote= shellxquote= shellpipe=\| shellredir=">%s 2>&1"
+    set shellcmdflag=-c
+  endif
+  if exists('+shellslash')
+    let &shellslash = l:shellslash
+  endif
+endfunction
+command! -bar -nargs=1 Chsh call Chsh(<q-args>)
+
 if has('win32')
-  set shell=pwsh.exe shellquote= shellxquote= shellpipe=\| shellredir=>
-  set shellslash
-  let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
+  Chsh pwsh.exe
   function! g:Shellify(str)
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
   endfunction
@@ -100,6 +121,8 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'scrooloose/nerdtree'
 Plug 'sgur/vim-editorconfig'
 Plug 'Shougo/echodoc.vim'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 Plug 'PProvost/vim-ps1'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -166,10 +189,12 @@ command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
 set sessionoptions=blank,buffers,curdir,help,winsize,tabpages,slash,unix
 command! -bang -bar -nargs=? Session
   \ mksession<bang> <args> |
-  \ exe "silent !echo " .
-    \ Shellify("let g:lightline\\#tab\\#names = " .
-    \          string(g:lightline#tab#names)) .
-    \ " >> " . Shellify(v:this_session)
+  \ if !empty(g:lightline#tab#names) |
+  \   exe "silent !echo " .
+  \     Shellify("let g:lightline\\#tab\\#names = " .
+  \              string(g:lightline#tab#names)) .
+  \     " >> " . Shellify(v:this_session) |
+  \ endif
 
 let g:lightline#bufferline#show_number = 1
 let g:lightline#bufferline#unnamed = '[No Name]'
@@ -188,11 +213,11 @@ let g:cpp_member_variable_highlight = 1
 let g:cpp_class_decl_highlight = 1
 let g:cpp_concepts_highlight = 1
 
-call plug#end()
-
 let g:LanguageClient_serverCommands = {
-      \ 'cpp': [g:vimrc_platform.cquery_exe, '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
-      \ 'c': [g:vimrc_platform.cquery_exe, '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
+      \ 'cpp': [g:vimrc_platform.cquery_exe,
+      \         '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
+      \ 'c': [g:vimrc_platform.cquery_exe,
+      \       '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
@@ -204,16 +229,18 @@ let g:LanguageClient_settingsPath = g:vimrc_platform.dotvim . '/settings.json'
 let g:LanguageClient_loggingFile = g:vimrc_platform.temp . '/lc-neovim.log'
 let g:LanguageClient_loggingLevel = 'WARN'
 let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
-" let g:LanguageClient_hasSnippetSupport = 1
+let g:LanguageClient_hasSnippetSupport = 1
 " let g:LanguageClient_waitOutputTimeout = 5
+
+call plug#end()
 
 silent call deoplete#custom#option({ 'auto_complete_delay': 50,
                                    \ 'auto_refresh_delay': 200,
-                                   \ 'min_pattern_length': 5,
-                                   \ 'sources': { '_': [] }, })
-call deoplete#custom#source('_', 'converters',
-                          \ ['converter_remove_overlap',
-                          \   'converter_truncate_abbr'])
+                                   \ 'min_pattern_length': 3,
+                                   \ 'sources': { '_': [] } })
+silent call deoplete#custom#source('_', 'converters',
+                                 \ ['converter_remove_overlap',
+                                 \   'converter_truncate_abbr'])
 call deoplete#enable_logging('WARN', g:vimrc_platform.temp . '/deoplete.log')
 
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
