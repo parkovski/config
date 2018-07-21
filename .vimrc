@@ -69,7 +69,7 @@ if has('win32')
   let g:vimrc_platform.temp = $TEMP
   let g:vimrc_platform.lcinstall = 'powershell install.ps1'
   if !empty($CQUERY_HOME)
-    let g:vimrc_platform.cquery_exe = $CQUERY_HOME
+    let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
   else
     let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
   endif
@@ -81,10 +81,19 @@ else
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
+  " TODO: Check for WSL
   if !empty($CQUERY_HOME)
-    let g:vimrc_platform.cquery_exe = $CQUERY_HOME
+    let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery'
+    if !exepath(g:vimrc_platform.cquery_exe)
+      if exepath($CQUERY_HOME . '/bin/cquery.exe')
+        let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
+      endif
+    endif
   else
     let g:vimrc_platform.cquery_exe = exepath('cquery')
+    if !g:vimrc_platform.cquery_exe
+      let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
+    endif
   endif
 endif
 
