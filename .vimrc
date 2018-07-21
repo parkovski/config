@@ -68,9 +68,10 @@ if has('win32')
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
   let g:vimrc_platform.lcinstall = 'powershell install.ps1'
-  let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
-  if empty(g:vimrc_platform.cquery_exe)
-    let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery.exe')
+  if !empty($CQUERY_HOME)
+    let g:vimrc_platform.cquery_exe = $CQUERY_HOME
+  else
+    let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
   endif
 else
   function! g:Shellify(str)
@@ -80,15 +81,10 @@ else
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
-  let g:vimrc_platform.cquery_exe = exepath('cquery')
-  if empty(g:vimrc_platform.cquery_exe)
-    let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery')
-    if empty(g:vimrc_platform.cquery_exe)
-      let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
-      if empty(g:vimrc_platform.cquery_exe)
-        let g:vimrc_platform.cquery_exe = glob('~/bin/cquery/bin/cquery.exe')
-      endif
-    endif
+  if !empty($CQUERY_HOME)
+    let g:vimrc_platform.cquery_exe = $CQUERY_HOME
+  else
+    let g:vimrc_platform.cquery_exe = exepath('cquery')
   endif
 endif
 
