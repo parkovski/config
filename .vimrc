@@ -31,7 +31,6 @@ if !empty($VIMTERM)
 endif
 
 let g:vimrc_platform = {}
-let &pyxversion = 3
 
 function! g:Chsh(shell)
   let &shell=a:shell
@@ -91,6 +90,10 @@ else
       endif
     endif
   endif
+endif
+
+if exists('+pyxversion')
+  set pyxversion=3
 endif
 
 if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')

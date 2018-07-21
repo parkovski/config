@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+cmd.exe /c xlaunch -run "\"$(wslpath -w "$WHOME/config.xlaunch")\""
