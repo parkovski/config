@@ -155,6 +155,20 @@ function gh() {
   fi
 }
 
+function mkcd {
+  local cmd
+  local dir
+  if [[ "$1" == "-p" ]]; then
+    cmd="pushd"
+    dir="$2"
+  else
+    cmd="cd"
+    dir="$1"
+  fi
+  [[ ! -d "$dir" ]] && mkdir -p "$dir"
+  $cmd $dir
+}
+
 export PATH="$HOME/bin:$PATH"
 
 [[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh

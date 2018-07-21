@@ -38,14 +38,13 @@ function New-SymLink {
 
 function Enter-NewDirectory {
   param([Parameter(Mandatory=$true)][string]$Path, [switch]$Push)
-  $dir = Get-ChildItem -Path $PWD -Name $Path -ErrorAction Ignore
-  if (-not ($dir -and (Test-Path $dir -ItemType Container))) {
-    $dir = New-Item $Path -ItemType Directory
+  if (-not (Test-Path $Path -ItemType Container)) {
+    New-Item $Path -ItemType Directory
   }
   if ($Push) {
-    Push-Location $dir
+    Push-Location $Path
   } else {
-    Set-Location $dir
+    Set-Location $Path
   }
 }
 Set-Alias mkcd Enter-NewDirectory
