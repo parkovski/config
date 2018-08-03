@@ -169,6 +169,13 @@ function mkcd {
   $cmd $dir
 }
 
+function up {
+  local amt=$1
+  [[ ! $amt ]] && amt=1
+  local s=$(printf "%${amt}s")
+  cd ${s// /..\/}
+}
+
 export PATH="$HOME/bin:$PATH"
 
 [[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh

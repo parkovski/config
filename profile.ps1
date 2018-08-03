@@ -37,8 +37,8 @@ function New-SymLink {
 }
 
 function Enter-NewDirectory {
-  param([Parameter(Mandatory=$true)][string]$Path, [switch]$Push)
-  if (-not (Test-Path $Path -ItemType Container)) {
+  param([Parameter(Mandatory=$true, Position=0)][string]$Path, [switch]$Push)
+  if (-not (Test-Path $Path -PathType Container)) {
     New-Item $Path -ItemType Directory
   }
   if ($Push) {
@@ -48,6 +48,24 @@ function Enter-NewDirectory {
   }
 }
 Set-Alias mkcd Enter-NewDirectory
+
+function Enter-ParentDirectory {
+  param([int]$Levels = 1)
+  Set-Location ("../" * $Levels)
+}
+Set-Alias up Enter-ParentDirectory
+
+if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
+  function Set-Clipboard {
+    param(
+      [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+      [string]$Text
+    )
+
+    $Text += [char]0
+    $Text | clip.exe
+  }
+}
 
 . $HOME\bin\lib\dynparams.ps1
 . $HOME\bin\lib\with.ps1

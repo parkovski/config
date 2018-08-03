@@ -30,6 +30,10 @@ if !empty($VIMTERM)
   let &term=$VIMTERM
 endif
 
+if exists('+pyxversion')
+  set pyxversion=3
+endif
+
 let g:vimrc_platform = {}
 
 function! g:Chsh(shell)
@@ -61,8 +65,16 @@ if has('win32')
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
   endfunction
 
-  if exists('&pythonthreedll') && !empty($PYTHON3DLL)
-    let &pythonthreedll=$PYTHON3DLL
+  if !empty($PYTHON3DLL)
+    let s:pythonthreehome=fnamemodify($PYTHON3DLL, ':p:h')
+    let g:python3_host_prog=s:pythonthreehome . "\\python3.exe"
+    if !filereadable(g:python3_host_prog)
+      let g:python3_host_prog=s:pythonthreehome . "\\python.exe"
+    endif
+    if exists('&pythonthreedll')
+      let &pythonthreehome=s:pythonthreehome
+      let &pythonthreedll=$PYTHON3DLL
+    endif
   endif
 
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
@@ -95,10 +107,6 @@ else
       let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
     endif
   endif
-endif
-
-if exists('+pyxversion')
-  set pyxversion=3
 endif
 
 if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
@@ -260,6 +268,8 @@ imap <M-x> <C-space>
 nmap <M-w> <S-Tab>
 nmap <leader><M-w> <leader><S-Tab>
 
+" TODO: Figure out what ultisnips does.
+" silent iunmap <Tab>
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
@@ -337,9 +347,10 @@ nnoremap <silent> <leader>- :tablast<CR>
 augroup AutoCommands
   autocmd!
 
-  autocmd VimEnter * call deoplete#initialize()
+  autocmd VimEnter * silent call deoplete#initialize()
 
   autocmd FileType cpp set commentstring=//%s
+  autocmd FileType cmake set commentstring=#%s
 
   autocmd StdinReadPre * let s:std_in=1
   autocmd VimEnter *
