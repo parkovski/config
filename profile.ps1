@@ -2,7 +2,7 @@ $ProVar = @{}
 
 $GH = "$HOME\Documents\GitHub"
 
-. $HOME/bin/Get-OS.ps1
+. $HOME/shared/lib/Get-OS.ps1
 if ($OS -eq "Windows") {
   $user = [Security.Principal.WindowsIdentity]::GetCurrent();
   $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
@@ -69,8 +69,8 @@ if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
   }
 }
 
-. $HOME\bin\lib\dynparams.ps1
-. $HOME\bin\lib\with.ps1
+. $HOME\shared\lib\dynparams.ps1
+. $HOME\shared\lib\with.ps1
 
 function gh {
   [CmdletBinding()]
@@ -278,8 +278,8 @@ function prompt {
 $env:EDITOR='vim'
 $env:VISUAL='vim'
 & {
-  if (Test-Path "$HOME\bin\lib\paths.txt") {
-    $fpaths = (gc "$HOME\bin\lib\paths.txt") -split "`n"
+  if (Test-Path "$HOME\shared\lib\paths.txt") {
+    $fpaths = (gc "$HOME\shared\lib\paths.txt") -split "`n"
     if ($env:PATH.IndexOf($fpaths[-1]) -ne -1) {
       return;
     }

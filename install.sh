@@ -12,5 +12,5 @@ linkf .vimrc
 linkf .gvimrc
 linkf .zshrc
 linkf .tmux.conf
-linkf bin
+linkf shared
 

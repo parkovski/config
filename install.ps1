@@ -21,11 +21,11 @@ if (-not test-path $home\Documents\WindowsPowerShell) {
   mkdir $home\Documents\WindowsPowerShell
 }
 link $profile $pwd\profile.ps1
-link $home\bin $pwd\bin
+link $home\shared $pwd\shared
 
 $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-if ($userenv -inotcontains "$Home\bin") {
-  [System.Environment]::SetEnvironmentVariable("Path", "$Home\bin;$userenv", "User")
+if ($userenv -inotcontains "$Home\shared\bin") {
+  [System.Environment]::SetEnvironmentVariable("Path", "$Home\shared\bin;$userenv", "User")
 }
 
 if (-not test-path Env:\VCPKG_DEFAULT_TRIPLET) {
@@ -34,4 +34,4 @@ if (-not test-path Env:\VCPKG_DEFAULT_TRIPLET) {
 
 #.\install-apps.ps1
 
-. $PROFILE
+. "$pwd\profile.ps1"

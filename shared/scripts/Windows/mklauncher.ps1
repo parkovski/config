@@ -4,10 +4,10 @@ if ($args[0] -eq "-?" -or $args[0] -eq "-h") {
 }
 
 if ($args[0] -eq "-c") {
-  $program = 'launcher.exe'
+  $program = '../../bin/launcher.exe'
   $subsys = 'console'
 } elseif ($args[0] -eq "-w") {
-  $program = 'launcherw.exe'
+  $program = '../../bin/launcherw.exe'
   $subsys = 'windows'
 } else {
   echo 'Need to specify -w (windows) or -c (console)'
@@ -21,10 +21,10 @@ if (-not (test-path $args[1])) {
 
 $name = $args[1] -split '[/\\]'
 $name = $name[$name.Length - 1]
-cp $home\bin\$program $home\bin\$name
+cp $home\shared\bin\$program $home\local\bin\$name
 if (-not $?) {
-  echo "Can't copy program to ~\bin\$name"
+  echo "Can't copy program to ~\local\bin\$name"
   exit 1
 }
-rcedit $home\bin\$name --set-resource-string 101 $args[1]
-echo "made $subsys launcher ~\bin\$name --> $($args[1])"
+..\..\bin\rcedit $home\local\bin\$name --set-resource-string 101 $args[1]
+echo "made $subsys launcher ~\local\bin\$name --> $($args[1])"

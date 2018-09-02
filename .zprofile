@@ -5,8 +5,8 @@ if [[ $(uname -r | grep Microsoft) ]]; then
   # export VIMTERM=tmux-256color
 fi
 
-if [[ -f ~/bin/etc/lscolors.txt ]]; then
-  export LS_COLORS=$(cat ~/bin/etc/lscolors.txt)
+if [[ -f ~/shared/etc/lscolors.txt ]]; then
+  export LS_COLORS=$(cat ~/shared/etc/lscolors.txt)
 fi
 
 [[ -d $HOME/.nvm ]] && export NVM_DIR="$HOME/.nvm"

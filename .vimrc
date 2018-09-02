@@ -376,7 +376,7 @@ if exists('&cryptmethod')
 endif
 
 set tgc
-silent! execute 'colors ' . readfile(glob('~/bin/etc/vimcolor'))[0]
+silent! execute 'colors ' . readfile(glob('~/shared/etc/vimcolor'))[0]
 " TODO: Move
 hi ColorColumn guibg=#203040
 hi MatchParen guibg=#204090 guifg=#a7bd9a

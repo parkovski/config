@@ -9,7 +9,7 @@ antibody bundle ael-code/zsh-colored-man-pages
 antibody bundle chrissicool/zsh-256color
 antibody bundle zdharma/fast-syntax-highlighting
 
-export fpath=($HOME/bin/lib/zcomp $fpath)
+export fpath=($HOME/shared/lib/zcomp $fpath)
 setopt histignorealldups sharehistory
 HISTSIZE=1000
 SAVEHIST=1000
@@ -126,7 +126,7 @@ function precmd() {
 %F{8}${exitcode}zsh%%%f "
 }
 
-. ~/bin/get-os.zsh
+. ~/shared/bin/get-os.zsh
 
 if [[ "$OS" == "Arch Linux" ]]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
@@ -182,7 +182,7 @@ function up {
   cd ${s// /..\/}
 }
 
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
 
 totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
