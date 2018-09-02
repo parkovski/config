@@ -56,14 +56,16 @@ function Enter-ParentDirectory {
 Set-Alias up Enter-ParentDirectory
 
 if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
-  function Set-Clipboard {
-    param(
-      [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-      [string]$Text
-    )
+  if ($OS -eq "Windows") {
+    function Set-Clipboard {
+      param(
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [string]$Text
+      )
 
-    $Text += [char]0
-    $Text | clip.exe
+      $Text += [char]0
+      $Text | clip.exe
+    }
   }
 }
 
@@ -143,6 +145,21 @@ function gh {
   }
 }
 
+# For compatibility with older powershell
+function _escify {
+  param([Parameter(ValueFromPipeline=$true, Position=0)][string]$s)
+  return $s -Replace '`e', "$([char]27)"
+}
+
+function Write-Escape {
+  param([switch]$NoNewLine=$false)
+  $e = [string][char]27
+  for ($i = 0; $i -lt $args.Length; $i += 1) {
+    $args[$i] = $args[$i] -Replace '`e', $e
+  }
+  Write-Host -NoNewLine:$NoNewLine @args
+}
+
 function prompt {
   if ($?) {
     $global:LastExitCode = 0
@@ -204,58 +221,58 @@ function prompt {
   if ($ProVar.admin) {
     $c = 91
   }
-  Write-Host -NoNewLine "`e[${c}m$([System.Environment]::UserName)"
-  Write-Host -NoNewLine "`e[90m@"
-  Write-Host -NoNewLine "`e[${c}m$($ProVar.hostname) `e[m"
+  Write-Escape -NoNewLine "``e[${c}m$([System.Environment]::UserName)"
+  Write-Escape -NoNewLine "``e[90m@"
+  Write-Escape -NoNewLine "``e[${c}m$($ProVar.hostname) ``e[m"
 
   # Git
   if ($isgit) {
-    Write-Host -NoNewLine "`e[33m$branch"
+    Write-Escape -NoNewLine "``e[33m$branch"
     if ($ahead -gt 0) {
-      Write-Host -NoNewLine "`e[90m: `e[34m+$ahead"
+      Write-Escape -NoNewLine "``e[90m: ``e[34m+$ahead"
       if ($behind -gt 0) {
-        Write-Host -NoNewLine "`e[90m/`e[35m-$behind"
+        Write-Escape -NoNewLine "``e[90m/``e[35m-$behind"
       }
     } elseif ($behind -gt 0) {
-      Write-Host -NoNewLine "`e[90m: `e[35m-$behind"
+      Write-Escape -NoNewLine "``e[90m: ``e[35m-$behind"
     }
 
     $colors = @{
-      "+" = "`e[38;5;35m"; # Green
-      "-" = "`e[38;5;160m"; # Red
-      "?" = "`e[38;5;202m"; # Orange
+      "+" = _escify('`e[38;5;35m'); # Green
+      "-" = _escify('`e[38;5;160m'); # Red
+      "?" = _escify('`e[38;5;202m'); # Orange
     }
     if ($gitfiles.keys.Count -ne 0) {
-      Write-Host -NoNewLine "`e[90m:"
+      Write-Escape -NoNewLine '`e[90m:'
       foreach ($k in $gitfiles.keys) {
         Write-Host -NoNewLine (" " + $colors["" + $k[1]] + $k[0] + $gitfiles[$k])
       }
     }
-    Write-Host -NoNewLine "`e[90m: "
+    Write-Escape -NoNewLine '`e[90m: '
   }
 
   if ($components[0] -match ':$') {
-    Write-Host -NoNewLine "`e[34m$($components[0])"
+    Write-Escape -NoNewLine "``e[34m$($components[0])"
     $components[0] = ""
   }
   if ($components.Length -gt 1 -and $components[-1] -eq "") {
     $components = $components[0..($components.Length - 2)]
   }
   for ($i = 0; $i -lt $components.Length - 1; $i++) {
-    Write-Host -NoNewLine (
-      "`e[94m" +
+    Write-Escape -NoNewLine (
+      '`e[94m' +
       $components[$i][0] +
       ([System.IO.Path]::DirectorySeparatorChar)
     )
   }
-  Write-Host -NoNewLine "`e[94m$($components[-1])"
+  Write-Escape -NoNewLine "``e[94m$($components[-1])"
 
   $global:LastExitCode = $exitCode
   [string]$ec = ""
   if ($exitCode -ne 0) {
-    $ec = "[`e[31m$exitCode`e[90m] "
+    $ec = "[``e[31m$exitCode``e[90m] "
   }
-  "`n`e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))`e[m "
+  _escify("`n``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m ")
 }
 
 $env:EDITOR='vim'
@@ -291,32 +308,45 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
 
 $ProVar.PromptShowGitRemote = $true
 
-try {
-  Set-PSReadlineOption `
-    -EditMode vi `
-    -BellStyle None `
-    -ViModeIndicator Script `
-    -ViModeChangeHandler {
-      if ($args[0] -eq 'Command') {
-        Write-Host -NoNewLine "`e[1 q"
-      } else {
-        Write-Host -NoNewLine "`e[5 q"
-      }
-    } `
-    -Colors @{
-      Comment = "DarkGray";
-      Keyword = "Cyan";
-      String = "Yellow";
-      Operator = "DarkYellow";
-      Variable = "Magenta";
-      Command = "DarkBlue";
-      Parameter = "DarkGreen";
-      Type = "DarkCyan";
-      Number = "Green";
-      Member = "Blue";
-      Error = "DarkRed"
-    }
+# Try to be flexible across PSReadline versions
+function SetOpt {
+  $arg0 = $args[0]
+  $arg1 = $args[1]
 
+  try {
+    $opts = @{ "$arg0" = $arg1 }
+    Set-PSReadlineOption @opts
+  } catch {
+    Write-Escape "``e[91mError setting PSReadline option '``e[m$arg0``e[31m'.``e[m"
+  }
+}
+
+SetOpt BellStyle None
+SetOpt EditMode vi 
+SetOpt ViModeIndicator Cursor
+SetOpt ViModeIndicator Script
+SetOpt ViModeChangeHandler {
+  if ($args[0] -eq 'Command') {
+    Write-Escape -NoNewLine '`e[1 q'
+  } else {
+    Write-Escape -NoNewLine '`e[5 q'
+  }
+}
+SetOpt Colors @{
+  comment = "darkgray";
+  keyword = "cyan";
+  string = "yellow";
+  operator = "darkyellow";
+  variable = "magenta";
+  command = "darkblue";
+  parameter = "darkgreen";
+  type = "darkcyan";
+  number = "green";
+  member = "blue";
+  error = "darkred"
+}
+
+try {
   Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
   Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
   Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
@@ -329,9 +359,8 @@ try {
   Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
   Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
   Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
-
 } catch {
-  Write-Host "Error setting PSReadLine options."
+  Write-Escape "``e[31mError setting PSReadLine options.``e[m"
 }
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
@@ -344,35 +373,44 @@ function Invoke-HistoryRecent {
     $hist = Get-History
     $hc = $hist.Count
 
-    # Fixme
+    # FIXME
     if ($hc -ge 10) {
-      $hist = $hist[0..10]
+      $hist = $hist[-10 .. -1]
     }
-    # $values = [Enumerable]::Count(1, 10)
-    $hint = "History count: $hc"
-    for ($i = -1; $i -gt -$hist.Count; $i -= 1) {
-      $hint += "`n" + $hist[$i].CommandLine
+    #$values = [System.Linq.Enumerable]::Count(1, $hist.Count)
+    $hint = [System.Text.StringBuilder]::new("History count: $hc")
+    for ($i = 0; $i -lt $hist.Count; $i += 1) {
+      $hint.Append("`n").
+        Append($i + 1).
+        Append(": ").
+        Append($hist[$hc - $i - 1].CommandLine)
     }
-    $hint = $values | Select-Object { "${_}: " + $hist[-$_] + "\n" }
-    New-DynamicParams | Add-DynamicParam Index -Type:([int]) `
-      -Position:0 -HelpMessage:$hint -Values:$values
+    # hint = $values | Select-Object { "${_}: " + $hist[-$_] + "\n" }
+    $p = New-DynamicParams `
+      | Add-DynamicParam -Name:'Index' `
+        -Type:([int]) -Position:0 `
+        -helpmessage:'hi' #-HelpMessage:($hint.ToString()) -Values:$values
+    return $p
+  }
+  begin {
+    $i = $PSBoundParameters.Index
+    if ($i -eq 0) { $i = 1 }
+    elseif ($i -lt 0) { $i = -$i }
   }
   process {
     $hist = Get-History
     $hc = $hist.Count
 
-    $i = $PSBoundParameters.Index
-    if ($i -ge 0 -and $i -lt $hc) {
-      Invoke-History -Id:($hc-$i)
-    }
+    Invoke-History -Id:($hc-$i)
   }
 }
 
 Set-Alias ^ Invoke-HistoryRecent
 
 Import-Module Get-ChildItemColor
+Remove-Item -Force -ea Ignore Alias:\ls
+Remove-Item -Force -ea Ignore Alias:\sl
 Set-Alias ls Get-ChildItemColorFormatWide
 Set-Alias ll Get-ChildItemColor
-Remove-Alias -Force sl -ErrorAction Ignore
 function dirs { Get-Location -Stack }
 function touch { echo '' >> $args[0] }
