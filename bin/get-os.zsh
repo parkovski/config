@@ -9,3 +9,8 @@ else
 fi
 export OS_BASE
 export OS
+
+if [[ "$OS_BASE" -eq "Linux" ]]; then
+  cat /proc/version | grep -q Microsoft
+  export IS_WSL=$[! $?]
+fi

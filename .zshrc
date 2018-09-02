@@ -1,6 +1,8 @@
 starttime=$(date "+%s%3N")
 export EDITOR=vim
 
+which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
+
 source <(antibody init)
 
 antibody bundle ael-code/zsh-colored-man-pages
@@ -130,7 +132,11 @@ if [[ "$OS" == "Arch Linux" ]]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
 fi
 if [[ "$OS_BASE" -eq "Linux" ]]; then
-  alias ls='ls --color'
+  if (( $IS_WSL )); then
+    alias ls='ls --color 2>/dev/null'
+  else
+    alias ls='ls --color'
+  fi
 else
   alias ls='ls -G'
 fi
@@ -178,7 +184,6 @@ function up {
 
 export PATH="$HOME/bin:$PATH"
 
-[[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
-
 totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
+
