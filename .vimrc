@@ -249,6 +249,13 @@ let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
 let g:LanguageClient_hasSnippetSupport = 1
 " let g:LanguageClient_waitOutputTimeout = 5
 
+" These can't be disabled so I guess just set them to something I'll never type,
+" since deoplete will handle this stuff anyways.
+let g:UltiSnipsExpandTrigger = '<C-^><M-u>X'
+let g:UltiSnipsJumpForwardTrigger = '<C-^><M-u>F'
+let g:UltiSnipsJumpBackwardTrigger = '<C-^><M-u>B'
+let g:UltiSnipsListSnippets = '<C-^><M-u>L'
+
 call plug#end()
 
 silent call deoplete#custom#option({ 'auto_complete_delay': 50,
@@ -344,7 +351,7 @@ nnoremap <silent> <leader>L :+tabmove<CR>
 nnoremap <silent> <leader>0 :tabfirst<CR>
 nnoremap <silent> <leader>- :tablast<CR>
 
-augroup AutoCommands
+augroup VimrcAutoCommands
   autocmd!
 
   autocmd VimEnter * silent call deoplete#initialize()
@@ -374,7 +381,7 @@ silent! execute 'colors ' . readfile(glob('~/bin/etc/vimcolor'))[0]
 hi ColorColumn guibg=#203040
 hi MatchParen guibg=#204090 guifg=#a7bd9a
 
-if has('&t_SI') && !has('win32')
+if exists('&t_SI') && !has('win32')
   let &t_SI = "\<Esc>[5 q"
   let &t_SR = "\<Esc>[3 q"
   let &t_EI = "\<Esc>[1 q"
