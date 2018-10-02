@@ -1,4 +1,4 @@
-starttime=$(date "+%s%3N")
+local starttime=$(date "+%s%3N")
 export EDITOR=vim
 
 which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
@@ -38,7 +38,7 @@ function zle-line-init() {
   zle-keymap-select
 }
 TRAPWINCH() {
-  zle && zle -R
+  zle && { zle reset-prompt; zle -R }
 }
 
 zle -N zle-keymap-select
@@ -121,12 +121,12 @@ function precmd() {
     fi
   fi
 
-  piznath=$(echo ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1="%F{10}%n%F{8}@%F{10}%m%f$prompt_gitstr %F{12}$piznath%f
-%F{8}${exitcode}zsh%%%f "
+  local piznath=$(echo -n ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
+  print -P "%F{10}%n%F{8}@%F{10}%m%f$prompt_gitstr %F{12}$piznath%f"
+  PS1="%F{8}${exitcode}zsh%%%f "
 }
 
-. ~/shared/bin/get-os.zsh
+. ~/shared/lib/get-os.zsh
 
 if [[ "$OS" == "Arch Linux" ]]; then
   export AUR=$HOME/Documents/GitHub/3rd-party/aur
@@ -184,6 +184,6 @@ function up {
 
 export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
 
-totaltime=$[$(date "+%s%3N")-$starttime]
+local totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
 
