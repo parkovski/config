@@ -1,3 +1,5 @@
+" TODO: if current script filename is in current dir, exit
+
 set nocompatible
 set exrc secure
 set autoindent
@@ -65,18 +67,6 @@ if has('win32')
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
   endfunction
 
-  if !empty($PYTHON3DLL)
-    let s:pythonthreehome=fnamemodify($PYTHON3DLL, ':p:h')
-    let g:python3_host_prog=s:pythonthreehome . "\\python3.exe"
-    if !filereadable(g:python3_host_prog)
-      let g:python3_host_prog=s:pythonthreehome . "\\python.exe"
-    endif
-    if exists('&pythonthreedll')
-      let &pythonthreehome=s:pythonthreehome
-      let &pythonthreedll=$PYTHON3DLL
-    endif
-  endif
-
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
   let g:vimrc_platform.lcinstall = 'powershell install.ps1'
@@ -85,7 +75,26 @@ if has('win32')
   else
     let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
   endif
-else
+
+  if !empty($PYTHONHOME)
+    let s:pythonhome = $PYTHONHOME
+  elseif !empty($PYTHON3DLL)
+    let s:pythonhome=fnamemodify($PYTHON3DLL, ':p:h')
+  endif
+
+  let g:python3_host_prog=s:pythonhome . "\\python3.exe"
+  if !filereadable(g:python3_host_prog)
+    let g:python3_host_prog=s:pythonhome . "\\python.exe"
+  endif
+if exists('&pythonthreehome')
+  let &pythonthreehome = s:pythonhome
+endif
+
+if exists('&pythonthreedll') && !empty($PYTHON3DLL)
+  let &pythonthreedll=$PYTHON3DLL
+endif
+
+else " not win32
   function! g:Shellify(str)
     return shellescape(a:str)
   endfunction
@@ -93,19 +102,31 @@ else
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
-  " TODO: Check for WSL
   if !empty($CQUERY_HOME)
     let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery'
-    if !exepath(g:vimrc_platform.cquery_exe)
+    " Allow Windows cquery by setting CQUERY_HOME in WSL.
+    if $IS_WSL && !exepath(g:vimrc_platform.cquery_exe)
       if exepath($CQUERY_HOME . '/bin/cquery.exe')
         let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
       endif
     endif
   else
     let g:vimrc_platform.cquery_exe = exepath('cquery')
-    if !g:vimrc_platform.cquery_exe
-      let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
-    endif
+  endif
+
+  if $IS_WSL && exepath('win32yank.exe')
+    let g:clipboard = {
+          \   'name': 'win32yank',
+          \   'copy': {
+          \     '+': 'win32yank.exe -i',
+          \     '*': 'win32yank.exe -i',
+          \   },
+          \   'paste': {
+          \     '+': 'win32yank.exe -o',
+          \     '*': 'win32yank.exe -o',
+          \   },
+          \   'cache_enabled': 1,
+          \ }
   endif
 endif
 
@@ -309,6 +330,7 @@ endfunction
 nnoremap <M->> <C-w>8>
 nnoremap <M--> <C-w>8-
 nnoremap <M-+> <C-w>8+
+nmap <M-=> <M-+>
 nnoremap <M-lt> <C-w>8<
 nnoremap <M-H> <C-w>H
 nnoremap <M-J> <C-w>J
@@ -376,7 +398,15 @@ if exists('&cryptmethod')
 endif
 
 set tgc
-silent! execute 'colors ' . readfile(glob('~/shared/etc/vimcolor'))[0]
+let g:colors = []
+silent! let g:colors = readfile(glob('~/shared/etc/vimcolor'))
+if len(g:colors) > 0
+  if len(g:colors) > 1
+    let &background=g:colors[1]
+  endif
+  exe 'colorscheme ' . g:colors[0]
+endif
+
 " TODO: Move
 hi ColorColumn guibg=#203040
 hi MatchParen guibg=#204090 guifg=#a7bd9a

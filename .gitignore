@@ -1,3 +1,2 @@
-/bin/*.exe
-/bin/etc/vimcolor
-/bin/local/
+/shared/bin/*.exe
+/shared/etc/vimcolor

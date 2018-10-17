@@ -267,12 +267,13 @@ function prompt {
   }
   Write-Escape -NoNewLine "``e[94m$($components[-1])"
 
-  $global:LastExitCode = $exitCode
   [string]$ec = ""
   if ($exitCode -ne 0) {
     $ec = "[``e[31m$exitCode``e[90m] "
   }
-  _escify("`n``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m ")
+  $prompt = _escify("`n``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m``e[5 q ")
+  $global:LastExitCode = $exitCode
+  $prompt
 }
 
 $env:EDITOR='vim'
@@ -309,7 +310,7 @@ if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
 $ProVar.PromptShowGitRemote = $true
 
 # Try to be flexible across PSReadline versions
-function SetOpt {
+function SetPSRLOption {
   $arg0 = $args[0]
   $arg1 = $args[1]
 
@@ -321,18 +322,29 @@ function SetOpt {
   }
 }
 
-SetOpt BellStyle None
-SetOpt EditMode vi 
-SetOpt ViModeIndicator Cursor
-SetOpt ViModeIndicator Script
-SetOpt ViModeChangeHandler {
+function SetPSRLKey {
+  try {
+    Set-PSReadlineKeyHandler @args
+  } catch {
+    Write-Escape (
+      "``e[91mError setting PSReadline key handler " +
+      "'``e[m$args``e[31m'.``e[m"
+    )
+  }
+}
+
+SetPSRLOption BellStyle None
+SetPSRLOption EditMode vi 
+SetPSRLOption ViModeIndicator Cursor
+SetPSRLOption ViModeIndicator Script
+SetPSRLOption ViModeChangeHandler {
   if ($args[0] -eq 'Command') {
     Write-Escape -NoNewLine '`e[1 q'
   } else {
     Write-Escape -NoNewLine '`e[5 q'
   }
 }
-SetOpt Colors @{
+SetPSRLOption Colors @{
   comment = "darkgray";
   keyword = "cyan";
   string = "yellow";
@@ -346,22 +358,18 @@ SetOpt Colors @{
   error = "darkred"
 }
 
-try {
-  Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
-  Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-  Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
+SetPSRLKey -Key 'Shift+Tab' -Function Complete
+SetPSRLKey -Key Tab -Function MenuComplete
+SetPSRLKey -Key 'Ctrl+[' -Function ViCommandMode
 
-  Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
-  Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
-  Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Command -Function ScrollDisplayUpLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Command -Function ScrollDisplayDownLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
-  Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
-  Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
-  Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
-} catch {
-  Write-Escape "``e[31mError setting PSReadLine options.``e[m"
-}
+SetPSRLKey -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
+SetPSRLKey -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
+SetPSRLKey -Key 'Ctrl+y' -ViMode Command -Function ScrollDisplayUpLine
+SetPSRLKey -Key 'Ctrl+e' -ViMode Command -Function ScrollDisplayDownLine
+SetPSRLKey -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
+SetPSRLKey -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
+SetPSRLKey -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
+SetPSRLKey -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'

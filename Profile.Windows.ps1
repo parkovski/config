@@ -16,6 +16,7 @@ function Restore-ConsoleWindow {
 $global:DDev = "D:\dev"
 $global:LocalPrograms = "$HOME\AppData\Local\Programs"
 
+# C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 $ProVar.vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 function vcvars {
   param([bool]$Force = $false)
