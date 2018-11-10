@@ -14,4 +14,4 @@
 [pull]
   rebase = true
 [credential]
-	helper = manager
+  helper = manager
