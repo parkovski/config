@@ -1,6 +1,8 @@
 local starttime=$(date "+%s%3N")
 export EDITOR=vim
 
+export LS_COLORS=$(cat ~/shared/etc/lscolors.txt)
+
 which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
 
 source <(antibody init)

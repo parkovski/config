@@ -11,6 +11,7 @@
 [core]
   symlinks = true
   autocrlf = false
+  filemode = true
 [pull]
   rebase = true
 [credential]

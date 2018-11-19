@@ -17,22 +17,49 @@ $global:DDev = "D:\dev"
 $global:LocalPrograms = "$HOME\AppData\Local\Programs"
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
-$ProVar.vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+# C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+$ProVar.vcvars = @{
+  Base = "C:\Program Files (x86)\Microsoft Visual Studio";
+  Version = "2017";
+  Edition = "BuildTools";
+  SubDir = "VC\Auxiliary\Build";
+  Script = "vcvars64.bat";
+  IsSet = $false;
+}
+# TODO: Make this look for more versions/editions
 function vcvars {
   param([bool]$Force = $false)
 
-  if ($ProVar.vcvars_set -and -not $Force) {
+  $dir = [System.IO.Path]::Combine(
+    $ProVar.vcvars.Base,
+    $ProVar.vcvars.Version,
+    $ProVar.vcvars.Edition,
+    $ProVar.vcvars.SubDir,
+    $ProVar.vcvars.Script
+  )
+
+  if (-not (Test-Path $dir -PathType Leaf)) {
+    Write-Host "Dawg. `$ProVar.vcvars is wack!"
+    return
+  }
+
+  if ($ProVar.vcvars.IsSet -and -not $Force) {
     Write-Host "Aw dawg you savin like 3 to 4 seconds cuz its already set!"
     return;
   }
-  cmd /c "`"$($ProVar.vcvars)`" & set" | ?{$_ -match "^[A-Za-z_0-9]+="} | %{
+  $output = cmd /c "`"$dir`" & set"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Aw hell nah dawg stuff didn't work!"
+    return
+  }
+  $output | ?{$_ -match "^[A-Za-z_0-9]+="} | %{
     $var = $_
     $eq = $var.IndexOf('=');
     $key = $var.Substring(0, $eq);
     $val = $var.Substring($eq + 1);
     Set-Content "Env:\$key" "$val"
   }
-  $ProVar.vcvars_set = $true
+  $ProVar.vcvars.IsSet = $true
   Write-Host "Dawg, vcvars is r-r-r-ready to roll"
 }
 

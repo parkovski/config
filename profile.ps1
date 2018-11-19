@@ -1,6 +1,7 @@
 $ProVar = @{}
 
 $GH = "$HOME\Documents\GitHub"
+$env:GH = $GH
 
 . $HOME/shared/lib/Get-OS.ps1
 if ($OS -eq "Windows") {
@@ -268,8 +269,13 @@ function prompt {
   Write-Escape -NoNewLine "``e[94m$($components[-1])"
 
   [string]$ec = ""
-  if ($exitCode -ne 0) {
-    $ec = "[``e[31m$exitCode``e[90m] "
+  if ($exitCode -lt 0 -or $exitCode -gt 255) {
+    $ec = "0x" + [System.Convert]::ToString($exitCode, 16).ToUpper() + " ``e[36m($exitCode)"
+  } elseif ($exitCode -ne 0) {
+    $ec = "$exitCode"
+  }
+  if (-not ([string]::IsNullOrEmpty($ec))) {
+    $ec = "[``e[31m$ec``e[90m] "
   }
   $prompt = _escify("`n``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m``e[5 q ")
   $global:LastExitCode = $exitCode

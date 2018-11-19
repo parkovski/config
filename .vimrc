@@ -1,7 +1,11 @@
 " TODO: if current script filename is in current dir, exit
 
+" if has('win32')
+"   set rtp ^=$HOME\vimfiles
+" endif
+
 set nocompatible
-set exrc secure
+" set exrc secure
 set autoindent
 set title hidden
 set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
@@ -42,6 +46,7 @@ function! g:Chsh(shell)
   let &shell=a:shell
   let l:shellslash = 0
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
+    " TODO: Quoting doesn't work right here.
     set shellquote= shellxquote= shellredir=*>
     let &shellpipe="| tee"
     set shellxescape=
