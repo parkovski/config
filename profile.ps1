@@ -269,7 +269,10 @@ function prompt {
   Write-Escape -NoNewLine "``e[94m$($components[-1])"
 
   [string]$ec = ""
-  if ($exitCode -lt 0 -or $exitCode -gt 255) {
+  if ($exitCode -eq -1) {
+    # PowerShell gives this generic code on an exception
+    $ec = "false"
+  } elseif ($exitCode -lt -1 -or $exitCode -gt 255) {
     $ec = "0x" + [System.Convert]::ToString($exitCode, 16).ToUpper() + " ``e[36m($exitCode)"
   } elseif ($exitCode -ne 0) {
     $ec = "$exitCode"
