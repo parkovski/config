@@ -1,0 +1,12 @@
+#!/bin/sh
+
+. $(dirname "${BASH_SOURCE[0]}")/../../lib/get-os.zsh
+
+if [[ "$IS_WSL" == "1" ]]; then
+  exec pwsh.exe
+elif [[ "$SHELL" != "" ]]; then
+  exec "$SHELL"
+else
+  exec /bin/bash
+fi
+
