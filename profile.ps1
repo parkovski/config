@@ -424,10 +424,14 @@ function Invoke-HistoryRecent {
 
 Set-Alias ^ Invoke-HistoryRecent
 
-Import-Module Get-ChildItemColor
-Remove-Item -Force -ea Ignore Alias:\ls
-Remove-Item -Force -ea Ignore Alias:\sl
-Set-Alias ls Get-ChildItemColorFormatWide
-Set-Alias ll Get-ChildItemColor
+try {
+  Import-Module Get-ChildItemColor
+  Remove-Item -Force -ea Ignore Alias:\ls
+  Remove-Item -Force -ea Ignore Alias:\sl
+  Set-Alias ls Get-ChildItemColorFormatWide
+  Set-Alias ll Get-ChildItemColor
+} catch {
+}
+
 function dirs { Get-Location -Stack }
 function touch { echo '' >> $args[0] }
