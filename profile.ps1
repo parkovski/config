@@ -23,11 +23,14 @@ if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
 }
 
 function New-SymLink {
-  param([string]$Target, [string]$Link, [Alias('d')][switch]$Dir)
+  param([string]$Target, [string]$Link, [switch]$Relative)
 
-  $Target = $(Resolve-Path $Target).Path
+  if (-not $Relative) {
+    $Target = $(Resolve-Path $Target).Path
+  }
   if ($OS -eq "Windows") {
-    if ((Test-Path $Target -PathType Container) -or $Dir) {
+    $Target = $Target -Replace '/','\'
+    if (Test-Path $Target -PathType Container) {
       cmd /c mklink /D $Link $Target
     } else {
       cmd /c mklink $Link $Target

@@ -257,14 +257,17 @@ let g:cpp_class_decl_highlight = 1
 let g:cpp_concepts_highlight = 1
 
 let g:LanguageClient_serverCommands = {
-      \ 'cpp': [g:vimrc_platform.cquery_exe,
-      \         '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
-      \ 'c': [g:vimrc_platform.cquery_exe,
-      \       '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
+      \ 'cpp': ['clangd'],
+      \ 'c': ['clangd'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
       \ }
+
+      " \ 'cpp': [g:vimrc_platform.cquery_exe,
+      " \         '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
+      " \ 'c': [g:vimrc_platform.cquery_exe,
+      " \       '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
 
 let g:LanguageClient_autoStart = 1
 let g:LanguageClient_loadSettings = 1
