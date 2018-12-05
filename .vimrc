@@ -81,23 +81,29 @@ if has('win32')
     let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
   endif
 
-  if !empty($PYTHONHOME)
-    let s:pythonhome = $PYTHONHOME
+  let s:pythonthreehome = ''
+  if !empty($PYTHON3HOME)
+    let s:pythonthreehome = $PYTHON3HOME
   elseif !empty($PYTHON3DLL)
-    let s:pythonhome=fnamemodify($PYTHON3DLL, ':p:h')
+    let s:pythonthreehome=fnamemodify($PYTHON3DLL, ':p:h')
   endif
 
-  let g:python3_host_prog=s:pythonhome . "\\python3.exe"
+  let g:python3_host_prog=s:pythonthreehome . "\\python3.exe"
   if !filereadable(g:python3_host_prog)
-    let g:python3_host_prog=s:pythonhome . "\\python.exe"
+    let g:python3_host_prog=s:pythonthreehome . "\\python.exe"
   endif
-if exists('&pythonthreehome')
-  let &pythonthreehome = s:pythonhome
-endif
 
-if exists('&pythonthreedll') && !empty($PYTHON3DLL)
-  let &pythonthreedll=$PYTHON3DLL
-endif
+  if exists('&pythonthreehome')
+    let &pythonthreehome = s:pythonthreehome
+  endif
+
+  if exists('&pythonthreedll')
+    if !empty($PYTHON3DLL)
+      let &pythonthreedll=$PYTHON3DLL
+    else
+      let &pythonthreedll=s:pythonthreehome . "\\python37.dll"
+    endif
+  endif
 
 else " not win32
   function! g:Shellify(str)
@@ -275,15 +281,14 @@ let g:LanguageClient_settingsPath = g:vimrc_platform.dotvim . '/settings.json'
 let g:LanguageClient_loggingFile = g:vimrc_platform.temp . '/lc-neovim.log'
 let g:LanguageClient_loggingLevel = 'WARN'
 let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
-let g:LanguageClient_hasSnippetSupport = 1
 " let g:LanguageClient_waitOutputTimeout = 5
 
 " These can't be disabled so I guess just set them to something I'll never type,
 " since deoplete will handle this stuff anyways.
-let g:UltiSnipsExpandTrigger = '<C-^><M-u>X'
-let g:UltiSnipsJumpForwardTrigger = '<C-^><M-u>F'
-let g:UltiSnipsJumpBackwardTrigger = '<C-^><M-u>B'
-let g:UltiSnipsListSnippets = '<C-^><M-u>L'
+let g:UltiSnipsExpandTrigger = '<C-^>X'
+let g:UltiSnipsJumpForwardTrigger = '<C-^>F'
+let g:UltiSnipsJumpBackwardTrigger = "<C-^>B"
+let g:UltiSnipsListSnippets = "<C-^>L"
 
 call plug#end()
 
@@ -294,7 +299,7 @@ silent call deoplete#custom#option({ 'auto_complete_delay': 50,
 silent call deoplete#custom#source('_', 'converters',
                                  \ ['converter_remove_overlap',
                                  \   'converter_truncate_abbr'])
-call deoplete#enable_logging('WARN', g:vimrc_platform.temp . '/deoplete.log')
+silent call deoplete#enable_logging('WARN', g:vimrc_platform.temp . '/deoplete.log')
 
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
@@ -304,11 +309,81 @@ imap <M-x> <C-space>
 nmap <M-w> <S-Tab>
 nmap <leader><M-w> <leader><S-Tab>
 
-" TODO: Figure out what ultisnips does.
-" silent iunmap <Tab>
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+function! ExpandLspSnippet()
+  let l:value = v:completed_item.word
+  let l:matched = len(l:value)
+  if l:matched <= 0
+    return ''
+  endif
+
+  " remove inserted chars before expand snippet
+  if col('.') == col('$')
+    let l:matched -= 1
+    exec 'normal! ' . l:matched . 'Xx'
+  else
+    exec 'normal! ' . l:matched . 'X'
+  endif
+
+  if col('.') == col('$') - 1
+    " move to $ if at the end of line.
+    call cursor(line('.'), col('$'))
+  endif
+
+  " expand snippet now.
+  return UltiSnips#Anon(l:value)
+endfunction
+
+let g:ulti_expand_res = 0
+function! AutoCompleteSelect()
+  if !pumvisible()
+    return "\<CR>"
+  endif
+
+  if v:completed_item.kind ==# 'Snippet'
+    return ExpandLspSnippet()
+  endif
+
+  call UltiSnips#ExpandSnippet()
+  if g:ulti_expand_res
+    return ""
+  endif
+
+  return "\<C-y>"
+endfunction
+
+let g:ulti_jump_forwards_res = 0
+function! AutoCompleteJumpForwards()
+  if pumvisible()
+    return "\<C-n>"
+  endif
+
+  call UltiSnips#JumpForwards()
+  if g:ulti_jump_forwards_res
+    return ""
+  endif
+
+  return "\<Tab>"
+endfunction
+
+let g:ulti_jump_backwards_res = 0
+function! AutoCompleteJumpBackwards()
+  if pumvisible()
+    return "\<C-p>"
+  endif
+
+  call UltiSnips#JumpBackwards()
+  if g:ulti_jump_backwards_res
+    return ""
+  endif
+
+  return "\<S-Tab>"
+endfunction
+
+inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
+snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
+inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
+snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
+inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
 inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
 inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
@@ -316,7 +391,7 @@ inoremap <expr> <C-space> deoplete#mappings#manual_complete()
 inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <C-g> deoplete#undo_completion()
-inoremap <expr> <C-l> deoplete#refresh()
+inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
 inoremap <expr> <M-space> deoplete#complete_common_string()
 
 nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
@@ -378,8 +453,13 @@ nnoremap <silent> <leader>E :tabedit %<CR>
 nnoremap <silent> <leader>Q :tabclose<CR>
 nnoremap <silent> <leader>H :-tabmove<CR>
 nnoremap <silent> <leader>L :+tabmove<CR>
-nnoremap <silent> <leader>0 :tabfirst<CR>
-nnoremap <silent> <leader>- :tablast<CR>
+nnoremap <silent> <leader>_ :tabfirst<CR>
+nnoremap <silent> <leader>+ :tablast<CR>
+
+for nr in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  exe 'nnoremap <silent> <leader>' . nr . ' :b' . nr . '<CR>'
+endfor
+nnoremap <silent> <leader>0 :b10<CR>
 
 augroup VimrcAutoCommands
   autocmd!
@@ -416,8 +496,8 @@ if len(g:colors) > 0
 endif
 
 " TODO: Move
-hi ColorColumn guibg=#203040
-hi MatchParen guibg=#204090 guifg=#a7bd9a
+" hi ColorColumn guibg=#203040
+" hi MatchParen guibg=#204090 guifg=#a7bd9a
 
 if exists('&t_SI') && !has('win32')
   let &t_SI = "\<Esc>[5 q"
