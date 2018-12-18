@@ -291,6 +291,7 @@ function prompt {
 $env:EDITOR='vim'
 $env:VISUAL='vim'
 & {
+  $fpaths = $null
   if (Test-Path "$HOME\shared\lib\paths.txt") {
     $fpaths = (gc "$HOME\shared\lib\paths.txt") -split "`n"
     if ($env:PATH.IndexOf($fpaths[-1]) -ne -1) {
@@ -367,8 +368,11 @@ SetPSRLOption Colors @{
   type = "darkcyan";
   number = "green";
   member = "blue";
-  error = "darkred"
+  error = "darkred";
+  continuationprompt = "darkgray"
 }
+# SetPSRLOption PromptText _escify('`e[90mpwsh> ')
+SetPSRLOption ContinuationPrompt '[...]>> '
 
 SetPSRLKey -Key 'Shift+Tab' -Function Complete
 SetPSRLKey -Key Tab -Function MenuComplete
@@ -382,6 +386,14 @@ SetPSRLKey -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
 SetPSRLKey -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
 SetPSRLKey -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
 SetPSRLKey -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
+
+# SetPSRLKey -Key 'Ctrl+]' -Function CopyScreen
+# SetPSRLKey -Key 'Alt+h' -ViMode Insert -Function Left
+# SetPSRLKey -Key 'Alt+l' -ViMode Insert -Function Right
+# SetPSRLKey -Key 'Alt+w' -ViMode Insert -Function NextWord
+# SetPSRLKey -Key 'Alt+b' -ViMode Insert -Function PreviousWord
+# SetPSRLKey -Key 'z,z' -ViMode Command -Function ScrollToMiddle
+# SetPSRLKey -Key 'z,t' -ViMode Command -Function ScrollToTop
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
@@ -427,13 +439,11 @@ function Invoke-HistoryRecent {
 
 Set-Alias ^ Invoke-HistoryRecent
 
-try {
-  Import-Module Get-ChildItemColor
+if (Import-Module Get-ChildItemColor -PassThru -ErrorAction Ignore) {
   Remove-Item -Force -ea Ignore Alias:\ls
   Remove-Item -Force -ea Ignore Alias:\sl
   Set-Alias ls Get-ChildItemColorFormatWide
   Set-Alias ll Get-ChildItemColor
-} catch {
 }
 
 function dirs { Get-Location -Stack }

@@ -184,6 +184,17 @@ function up {
   cd ${s// /..\/}
 }
 
+function nvm {
+  if [[ ! -f /usr/share/nvm/init-nvm.sh ]]; then
+    echo "NVM is not installed!"
+    return 1
+  fi
+
+  unset -f nvm
+  . /usr/share/nvm/init-nvm.sh
+  nvm $@
+}
+
 export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
 
 local totaltime=$[$(date "+%s%3N")-$starttime]

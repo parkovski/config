@@ -23,7 +23,7 @@ set complete=.
 set pumheight=20
 set laststatus=2
 set nobackup nowritebackup noswapfile backupdir-=.
-set foldmethod=marker nofoldenable
+set foldmethod=marker nofoldenable foldcolumn=1
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set t_Co=256
@@ -44,37 +44,41 @@ let g:vimrc_platform = {}
 
 function! g:Chsh(shell)
   let &shell=a:shell
-  let l:shellslash = 0
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
     " TODO: Quoting doesn't work right here.
-    set shellquote= shellxquote= shellredir=*>
-    let &shellpipe="| tee"
-    set shellxescape=
+    set shellquote=( shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
     let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
-    let l:shellslash = 1
   elseif a:shell =~? 'cmd\(\.exe\)\?'
-    set shellquote= shellxquote=\" shellredir=>%s\ 2>&1 shellpipe=>
-    "let &shellxescape='"&|<>>()@^'
+    set shellquote= shellxquote=( shellredir=>%s\ 2>&1 shellpipe=>
+    let &shellxescape='"&|<>()@^'
     let &shellcmdflag="/s /c"
   else
-    set shellquote= shellxquote= shellpipe=\| shellredir=">%s 2>&1"
+    set shellquote= shellxquote= shellpipe=\|\ tee shellredir=">%s 2>&1"
     set shellcmdflag=-c
-  endif
-  if exists('+shellslash')
-    let &shellslash = l:shellslash
+    if has('win32') && exists('+shellslash')
+      set shellslash
+    endif
   endif
 endfunction
 command! -bar -nargs=1 Chsh call Chsh(<q-args>)
 
+function! g:Shellify(str)
+  if &shell =~? 'pwsh' || &shell =~? 'powershell'
+    return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
+  elseif &shell =~? 'cmd\.exe'
+    " TODO: Is this right?
+    return shellescape(a:str)
+  else
+    return shellescape(a:str)
+  endif
+endfunction
+
 if has('win32')
   Chsh pwsh.exe
-  function! g:Shellify(str)
-    return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
-  endfunction
 
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
-  let g:vimrc_platform.lcinstall = 'powershell install.ps1'
+  let g:vimrc_platform.lcinstall = 'powershell -nop -noni install.ps1'
   if !empty($CQUERY_HOME)
     let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
   else
@@ -106,10 +110,6 @@ if has('win32')
   endif
 
 else " not win32
-  function! g:Shellify(str)
-    return shellescape(a:str)
-  endfunction
-
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
@@ -172,6 +172,8 @@ Plug 'sgur/vim-editorconfig'
 Plug 'Shougo/echodoc.vim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
+Plug 'michaeljsmith/vim-indent-object'
+Plug 'nathanaelkane/vim-indent-guides'
 
 Plug 'PProvost/vim-ps1'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -239,10 +241,10 @@ set sessionoptions=blank,buffers,curdir,help,winsize,tabpages,slash,unix
 command! -bang -bar -nargs=? Session
   \ mksession<bang> <args> |
   \ if !empty(g:lightline#tab#names) |
-  \   exe "silent !echo " .
+  \   exe "silent !Out-File -Append -NoNewLine -InputObject " .
   \     Shellify("let g:lightline\\#tab\\#names = " .
   \              string(g:lightline#tab#names)) .
-  \     " >> " . Shellify(v:this_session) |
+  \     " " . Shellify(v:this_session) |
   \ endif
 
 let g:lightline#bufferline#show_number = 1
@@ -256,6 +258,13 @@ let g:rainbow_active = 1
 
 let g:deoplete#enable_at_startup = 1
 let g:echodoc#enable_at_startup = 1
+
+let g:indent_guides_auto_colors = 0
+let g:indent_guides_guide_size = 1
+let g:indent_guides_enable_on_vim_startup = 1
+
+hi link IndentGuidesOdd CursorLine
+hi link IndentGuidesEven CursorLine
 
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
@@ -310,10 +319,13 @@ nmap <M-w> <S-Tab>
 nmap <leader><M-w> <leader><S-Tab>
 
 function! ExpandLspSnippet()
+  if empty(v:completed_item)
+    return v:false
+  endif
   let l:value = v:completed_item.word
   let l:matched = len(l:value)
   if l:matched <= 0
-    return ''
+    return v:false
   endif
 
   " remove inserted chars before expand snippet
@@ -330,21 +342,24 @@ function! ExpandLspSnippet()
   endif
 
   " expand snippet now.
-  return UltiSnips#Anon(l:value)
+  call UltiSnips#Anon(l:value)
+  return v:true
 endfunction
 
-let g:ulti_expand_res = 0
+let g:ulti_expand_or_jump_res = 0
 function! AutoCompleteSelect()
+  call UltiSnips#ExpandSnippetOrJump()
+  if g:ulti_expand_or_jump_res
+    if pumvisible() | call deoplete#close_popup() | endif
+    return ""
+  endif
+
   if !pumvisible()
     return "\<CR>"
   endif
 
-  if v:completed_item.kind ==# 'Snippet'
-    return ExpandLspSnippet()
-  endif
-
-  call UltiSnips#ExpandSnippet()
-  if g:ulti_expand_res
+  if ExpandLspSnippet()
+    call deoplete#close_popup()
     return ""
   endif
 
@@ -379,6 +394,17 @@ function! AutoCompleteJumpBackwards()
   return "\<S-Tab>"
 endfunction
 
+function! AutoCompleteCancel()
+  if pumvisible()
+    call deoplete#close_popup()
+    if empty(v:completed_item)
+      return "\<Esc>"
+    endif
+    return ""
+  endif
+  return "\<Esc>"
+endfunction
+
 inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
 snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
 inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
@@ -393,6 +419,7 @@ inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
 inoremap <expr> <C-g> deoplete#undo_completion()
 inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
 inoremap <expr> <M-space> deoplete#complete_common_string()
+inoremap <expr> <Esc> AutoCompleteCancel()
 
 nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
@@ -429,6 +456,29 @@ noremap! <M-e> <S-Right>
 noremap! <C-a> <Home>
 noremap! <C-e> <End>
 
+" Statement
+"map (
+"map )
+
+" Block
+"map {
+"map }
+
+" Inner indent up/down
+"map []
+"map ][
+
+" Outer indent up/down
+"map [[
+"map ]]
+
+" Top level block that there is more than one of
+" E.g. C# class, cpp function.
+"map [{
+"map ]}
+
+" Should do? g[, g], g{, g}
+
 nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
 nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
 nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
@@ -441,9 +491,7 @@ nnoremap <silent> <leader>l :noh<CR>
 nnoremap <leader>: :AsyncRun<space>
 vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
-nnoremap <silent> <leader>P
-      \ :if &paste <Bar> set nopaste <Bar>
-      \ else <Bar> set paste <Bar> endif<CR>
+nnoremap <silent> <leader>P :set paste!<CR>
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
 nnoremap <silent> <leader><Tab> :tabnext<CR>
@@ -456,7 +504,7 @@ nnoremap <silent> <leader>L :+tabmove<CR>
 nnoremap <silent> <leader>_ :tabfirst<CR>
 nnoremap <silent> <leader>+ :tablast<CR>
 
-for nr in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+for nr in range(1, 9)
   exe 'nnoremap <silent> <leader>' . nr . ' :b' . nr . '<CR>'
 endfor
 nnoremap <silent> <leader>0 :b10<CR>
@@ -464,7 +512,7 @@ nnoremap <silent> <leader>0 :b10<CR>
 augroup VimrcAutoCommands
   autocmd!
 
-  autocmd VimEnter * silent call deoplete#initialize()
+  " autocmd VimEnter * silent call deoplete#initialize()
 
   autocmd FileType cpp set commentstring=//%s
   autocmd FileType cmake set commentstring=#%s

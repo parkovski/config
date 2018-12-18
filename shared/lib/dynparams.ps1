@@ -22,6 +22,7 @@ function Add-DynamicParam {
     [string]$HelpMessage=$null,
     [int]$Position=-1,
     $Values=$null,
+    [string[]]$Alias=$null,
     [switch]$NotNull=$false,
     [switch]$NotNullOrEmpty=$false
   )
@@ -31,13 +32,19 @@ function Add-DynamicParam {
   if ($Mandatory) {
     $pattr.Mandatory = $true
   }
-  $pattr.HelpMessage = $HelpMessage
+  if ($HelpMessage) {
+    $pattr.HelpMessage = $HelpMessage
+  }
   if ($Position -ge 0) {
     $pattr.Position = $Position
   }
   $attrs.Add($pattr)
   if ($Values -ne $null) {
     $vattr = New-Object -Type System.Management.Automation.ValidateSetAttribute($Values)
+    $attrs.Add($vattr)
+  }
+  if ($Alias -ne $null) {
+    $vattr = New-Object -Type System.Management.Automation.AliasAttribute($Alias)
     $attrs.Add($vattr)
   }
   if ($NotNull) {
