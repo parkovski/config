@@ -308,7 +308,7 @@ silent call deoplete#custom#option({ 'auto_complete_delay': 50,
 silent call deoplete#custom#source('_', 'converters',
                                  \ ['converter_remove_overlap',
                                  \   'converter_truncate_abbr'])
-silent call deoplete#enable_logging('WARN', g:vimrc_platform.temp . '/deoplete.log')
+silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
 
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
