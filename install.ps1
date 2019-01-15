@@ -17,15 +17,19 @@ link $home\_gvimrc $pwd\.gvimrc
 link $home\.gvimrc $pwd\.gvimrc
 link $home\_vimrc $pwd\.vimrc
 link $home\.vimrc $pwd\.vimrc
+link $home\config.xlaunch $pwd\config.xlaunch
 
-if (-not (test-path "$home\Documents\WindowsPowerShell")) {
-  mkdir $home\Documents\WindowsPowerShell
-}
+mkdir $home\.vim -ea ignore
+link $home\vimfiles $home\.vim
+link $home\.vim\settings.json $pwd\vim-settings-windows.json
+
+mkdir $home\AppData\Local\nvim -ea ignore
+link $home\AppData\Local\nvim\init.vim $pwd\init.vim
+
+mkdir $home\Documents\WindowsPowerShell -ea ignore
 link $home\Documents\WindowsPowerShell\profile.ps1 $pwd\profile.ps1
 
-if (-not (test-path "$home\Documents\PowerShell")) {
-  mkdir $home\Documents\PowerShell
-}
+mkdir $home\Documents\PowerShell -ea ignore
 link $home\Documents\PowerShell\profile.ps1 $pwd\profile.ps1
 
 link $home\shared $pwd\shared
@@ -33,6 +37,10 @@ link $home\shared $pwd\shared
 $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
 if ($userenv -inotcontains "$Home\shared\bin") {
   [System.Environment]::SetEnvironmentVariable("Path", "$Home\shared\bin;$userenv", "User")
+}
+
+if ($userenv -inotcontains "$Home\local\bin") {
+  [System.Environment]::SetEnvironmentVariable("Path", "$Home\local\bin;$userenv", "User")
 }
 
 if (-not (test-path Env:\VCPKG_DEFAULT_TRIPLET)) {
