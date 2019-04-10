@@ -46,14 +46,14 @@ function! g:Chsh(shell)
   let &shell=a:shell
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
     " TODO: Quoting doesn't work right here.
-    set shellquote=( shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
+    set shellquote=\" shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
     let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
   elseif a:shell =~? 'cmd\(\.exe\)\?'
     set shellquote= shellxquote=( shellredir=>%s\ 2>&1 shellpipe=>
     let &shellxescape='"&|<>()@^'
     let &shellcmdflag="/s /c"
   else
-    set shellquote= shellxquote= shellpipe=\|\ tee shellredir=">%s 2>&1"
+    set shellquote= shellxquote= shellpipe=\|\ tee shellredir=>%s\ 2>&1
     set shellcmdflag=-c
     if has('win32') && exists('+shellslash')
       set shellslash
@@ -65,7 +65,7 @@ command! -bar -nargs=1 Chsh call Chsh(<q-args>)
 function! g:Shellify(str)
   if &shell =~? 'pwsh' || &shell =~? 'powershell'
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
-  elseif &shell =~? 'cmd\.exe'
+  elseif &shell =~? 'cmd'
     " TODO: Is this right?
     return shellescape(a:str)
   else
@@ -153,10 +153,26 @@ endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
 
-Plug 'autozimu/LanguageClient-neovim', {
-  \ 'branch': 'next',
-  \ 'do': g:vimrc_platform.lcinstall,
-  \ }
+if $VIM_ALE
+  let g:ale_completion_enabled = 1
+  Plug 'w0rp/ale'
+else
+  if has('nvim')
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  else
+    Plug 'Shougo/deoplete.nvim'
+    Plug 'roxma/nvim-yarp'
+    Plug 'roxma/vim-hug-neovim-rpc'
+  endif
+  Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': g:vimrc_platform.lcinstall,
+    \ }
+  Plug 'terryma/vim-multiple-cursors'
+  Plug 'Shougo/echodoc.vim'
+  Plug 'SirVer/ultisnips'
+  Plug 'honza/vim-snippets'
+endif
 
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
@@ -165,13 +181,9 @@ Plug 'tpope/vim-commentary'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-fugitive'
 Plug 'bronson/vim-visual-star-search'
-Plug 'skywind3000/asyncrun.vim'
-Plug 'terryma/vim-multiple-cursors'
+" Plug 'skywind3000/asyncrun.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'sgur/vim-editorconfig'
-Plug 'Shougo/echodoc.vim'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'nathanaelkane/vim-indent-guides'
 
@@ -185,14 +197,6 @@ Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
 Plug 'Quramy/tsuquyomi'
 Plug 'Shougo/neco-vim'
-
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
 
 let g:lightline = {
       \ 'colorscheme': 'wombat',
@@ -236,16 +240,29 @@ function! SetLightlineTabName(cargs)
 endfunction
 command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
 
+function! MakeSession()
+  if empty(g:lightline#tab#names)
+    return
+  endif
+
+  if &shell =~? "pwsh"
+    exe "silent !Out-File -Append -NoNewLine -InputObject " .
+          \ Shellify("let g:lightline\\#tab\\#names = "
+          \          . string(g:lightline#tab#names))
+          \ . " " . Shellify(v:this_session)
+  elseif &shell =~? "cmd"
+    echo 'not supported'
+  else
+    exe "silent !echo -n " .
+          \ Shellify("let g:lightline\\#tab\\#names = "
+          \          . string(g:lightline#tab#names))
+          \ . " " . Shellify(v:this_session)
+  endif
+endfunction
+
 " TODO: Get PowerShell to not send \r\n here.
 set sessionoptions=blank,buffers,curdir,help,winsize,tabpages,slash,unix
-command! -bang -bar -nargs=? Session
-  \ mksession<bang> <args> |
-  \ if !empty(g:lightline#tab#names) |
-  \   exe "silent !Out-File -Append -NoNewLine -InputObject " .
-  \     Shellify("let g:lightline\\#tab\\#names = " .
-  \              string(g:lightline#tab#names)) .
-  \     " " . Shellify(v:this_session) |
-  \ endif
+command! -bang -bar -nargs=? Session mksession<bang> <args> | call MakeSession()
 
 let g:lightline#bufferline#show_number = 1
 let g:lightline#bufferline#unnamed = '[No Name]'
@@ -272,13 +289,28 @@ let g:cpp_class_decl_highlight = 1
 let g:cpp_concepts_highlight = 1
 
 let g:LanguageClient_serverCommands = {
-      \ 'cpp': ['clangd'],
-      \ 'c': ['clangd'],
+      \ 'cpp': ['cquery'],
+      \ 'c': ['cquery'],
+      \ 'rust': ['rls'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
       \ }
 
+" let g:ale_fixers = {
+"       \ '*': ['remove_trailing_lines', 'trim_whitespace']
+"       \ }
+
+" let g:ale_linters = {
+"       \ 'c': ['cquery'],
+"       \ 'cpp': ['cquery'],
+"       \ 'rust': ['rls'],
+"       \ 'javascript': ['javascript-typescript-stdio'],
+"       \ }
+
+if has('win32')
+  call add(g:LanguageClient_serverCommands.cpp, '-fno-delayed-template-parsing')
+endif
       " \ 'cpp': [g:vimrc_platform.cquery_exe,
       " \         '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
       " \ 'c': [g:vimrc_platform.cquery_exe,
@@ -301,16 +333,18 @@ let g:UltiSnipsListSnippets = "<C-^>L"
 
 call plug#end()
 
-silent call deoplete#custom#option({ 'auto_complete_delay': 50,
-                                   \ 'auto_refresh_delay': 200,
-                                   \ 'min_pattern_length': 3,
-                                   \ 'sources': { '_': [] } })
-silent call deoplete#custom#source('_', 'converters',
-                                 \ ['converter_remove_overlap',
-                                 \   'converter_truncate_abbr'])
-silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
+if exists('*deoplete#custom#option')
+  silent call deoplete#custom#option({ 'auto_complete_delay': 50,
+                                     \ 'auto_refresh_delay': 200,
+                                     \ 'min_pattern_length': 3,
+                                     \ 'sources': { '_': [] } })
+  silent call deoplete#custom#source('_', 'converters',
+                                   \ ['converter_remove_overlap',
+                                   \   'converter_truncate_abbr'])
+  silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
+endif
 
-set formatexpr=LanguageClient_textDocument_rangeFormatting()
+" set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
 imap <NUL> <C-space>
 " Neovim is missing a couple mappings on Windows.
@@ -405,37 +439,85 @@ function! AutoCompleteCancel()
   return "\<Esc>"
 endfunction
 
-inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
-snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
-inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
-snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
-inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
+function! DoTab()
+  if pumvisible()
+    return "\<C-n>"
+  endif
+  return "\<Tab>"
+endfunction
+
+function! DoShiftTab()
+  if pumvisible()
+    return "\<C-p>"
+  endif
+  return "\<S-Tab>"
+endfunction
+
+function! DoEnter()
+  if pumvisible()
+    return "\<C-y>"
+  endif
+  return "\<CR>"
+endfunction
+
+function! DoEsc()
+  if pumvisible()
+    pclose
+    if empty(v:completed_item)
+      return "\<Esc>"
+    endif
+    return ""
+  endif
+  return "\<Esc>"
+endfunction
+
+if $VIM_ALE
+  inoremap <silent> <Tab> <C-r>=DoTab()<CR>
+  snoremap <silent> <Tab> <Esc>:call DoTab()<CR>
+  inoremap <silent> <S-Tab> <C-r>=DoShiftTab()<CR>
+  snoremap <silent> <S-Tab> <Esc>:call DoShiftTab()<CR>
+  inoremap <silent> <CR> <C-r>=DoEnter()<CR>
+
+  nnoremap <silent> K :ALEHover<CR>
+  nnoremap <silent> gd :ALEGoToDefinition<CR>
+  nnoremap <silent> gr :ALEFindReferences<CR>
+  nnoremap <silent> gs :ALESymbolSearch<CR>
+else
+  inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
+  snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
+  inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
+  snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
+  inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
+
+  inoremap <expr> <C-space> deoplete#mappings#manual_complete()
+  inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <expr> <C-g> deoplete#undo_completion()
+  inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
+  inoremap <expr> <M-space> deoplete#complete_common_string()
+  inoremap <expr> <Esc> AutoCompleteCancel()
+
+  nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+  nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+  nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>
+  nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
+  nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
+  nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+  nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
+  imap <silent> <C-s> <C-o><C-s>
+endif
+
 inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
 inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
-inoremap <expr> <C-space> deoplete#mappings#manual_complete()
-inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
-inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
-inoremap <expr> <C-g> deoplete#undo_completion()
-inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
-inoremap <expr> <M-space> deoplete#complete_common_string()
-inoremap <expr> <Esc> AutoCompleteCancel()
-
-nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>
-nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
-nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
-nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
-nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
-imap <silent> <C-s> <C-o><C-s>
-
-function! g:Multiple_cursors_before()
-  call deoplete#custom#buffer_option('auto_complete', v:false)
-endfunction
-function! g:Multiple_cursors_after()
-  call deoplete#custom#buffer_option('auto_complete', v:true)
-endfunction
+if exists('*deoplete#custom#buffer_option')
+  function! g:Multiple_cursors_before()
+    call deoplete#custom#buffer_option('auto_complete', v:false)
+  endfunction
+  function! g:Multiple_cursors_after()
+    call deoplete#custom#buffer_option('auto_complete', v:true)
+  endfunction
+endif
 
 nnoremap <M->> <C-w>8>
 nnoremap <M--> <C-w>8-
@@ -540,7 +622,7 @@ if len(g:colors) > 0
   if len(g:colors) > 1
     let &background=g:colors[1]
   endif
-  exe 'colorscheme ' . g:colors[0]
+  exe 'silent! colorscheme ' . g:colors[0]
 endif
 
 " TODO: Move

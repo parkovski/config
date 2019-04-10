@@ -1,4 +1,5 @@
+Use https://github.com/zenofx/smap
 Maps currently set in registry:
 
-[sc: 0x003a][kn: capslock] desc: Caps Lock                             --> [sc: 0x0001][kn: esc]                                                 
-[sc: 0xe05d][kn: cwindows] desc: Windows Context Key                   --> [sc: 0xe01d][kn: rctrl] desc: Right 'Ctrl' Key                        
+[sc: 0x003a][kn: capslock] desc: Caps Lock                             --> [sc: 0x0001][kn: esc]
+[sc: 0xe05d][kn: cwindows] desc: Windows Context Key                   --> [sc: 0xe01d][kn: rctrl] desc: Right 'Ctrl' Key

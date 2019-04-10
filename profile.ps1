@@ -29,6 +29,7 @@ function New-SymLink {
     $Target = $(Resolve-Path $Target).Path
   }
   if ($OS -eq "Windows") {
+    $Link = $Link -Replace '/','\'
     $Target = $Target -Replace '/','\'
     if (Test-Path $Target -PathType Container) {
       cmd /c mklink /D $Link $Target
@@ -269,12 +270,12 @@ function prompt {
       ([System.IO.Path]::DirectorySeparatorChar)
     )
   }
-  Write-Escape -NoNewLine "``e[94m$($components[-1])"
+  Write-Escape "``e[94m$($components[-1])"
 
   [string]$ec = ""
   if ($exitCode -eq -1) {
     # PowerShell gives this generic code on an exception
-    $ec = "false"
+    $ec = "-1"
   } elseif ($exitCode -lt -1 -or $exitCode -gt 255) {
     $ec = "0x" + [System.Convert]::ToString($exitCode, 16).ToUpper() + " ``e[36m($exitCode)"
   } elseif ($exitCode -ne 0) {
@@ -283,7 +284,7 @@ function prompt {
   if (-not ([string]::IsNullOrEmpty($ec))) {
     $ec = "[``e[31m$ec``e[90m] "
   }
-  $prompt = _escify("`n``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m``e[5 q ")
+  $prompt = _escify("``e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))``e[m``e[5 q ")
   $global:LastExitCode = $exitCode
   $prompt
 }
@@ -377,6 +378,7 @@ SetPSRLOption ContinuationPrompt '[...]>> '
 SetPSRLKey -Key 'Shift+Tab' -Function Complete
 SetPSRLKey -Key Tab -Function MenuComplete
 SetPSRLKey -Key 'Ctrl+[' -Function ViCommandMode
+SetPSRLKey -Key 'Ctrl+d' -Function ViExit
 
 SetPSRLKey -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
 SetPSRLKey -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown

@@ -1,5 +1,6 @@
 {
   "initializationOptions": {
     "cacheDirectory": "/tmp/cquery",
+    "extraClangArguments": ["-std=c++17"]
   }
 }
