@@ -6,3 +6,4 @@ https://raw.githubusercontent.com/a10y/hacked_ayu.vim/master/colors/hacked_ayu.v
 https://raw.githubusercontent.com/sickill/vim-sunburst/master/colors/Sunburst.vim
 https://raw.githubusercontent.com/tyrannicaltoucan/vim-deep-space/master/colors/deep-space.vim
 https://raw.githubusercontent.com/danilo-augusto/vim-afterglow/master/colors/afterglow.vim
+https://raw.githubusercontent.com/NLKNguyen/papercolor-theme/master/colors/PaperColor.vim

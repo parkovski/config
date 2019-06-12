@@ -46,7 +46,7 @@ function! g:Chsh(shell)
   let &shell=a:shell
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
     " TODO: Quoting doesn't work right here.
-    set shellquote=\" shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
+    set shellquote= shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
     let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
   elseif a:shell =~? 'cmd\(\.exe\)\?'
     set shellquote= shellxquote=( shellredir=>%s\ 2>&1 shellpipe=>
@@ -67,7 +67,7 @@ function! g:Shellify(str)
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
   elseif &shell =~? 'cmd'
     " TODO: Is this right?
-    return shellescape(a:str)
+    return '"' . substitute(a:str, "[\"]", "\"\"", "g") . '"'
   else
     return shellescape(a:str)
   endif
@@ -78,7 +78,7 @@ if has('win32')
 
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
-  let g:vimrc_platform.lcinstall = 'powershell -nop -noni install.ps1'
+  let g:vimrc_platform.lcinstall = 'powershell -nologo -nop -noni -file install.ps1'
   if !empty($CQUERY_HOME)
     let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
   else
@@ -194,8 +194,12 @@ Plug 'stephpy/vim-yaml'
 Plug 'cespare/vim-toml'
 Plug 'elzr/vim-json'
 Plug 'pangloss/vim-javascript'
-Plug 'leafgarland/typescript-vim'
-Plug 'Quramy/tsuquyomi'
+Plug 'HerringtonDarkholme/yats'
+if has('win32')
+  Plug 'Quramy/tsuquyomi'
+else
+  Plug 'mhartington/nvim-typescript', {'build': './install.sh'}
+endif
 Plug 'Shougo/neco-vim'
 
 let g:lightline = {
@@ -361,30 +365,35 @@ function! ExpandLspSnippet()
   if l:matched <= 0
     return v:false
   endif
+  if v:completed_item.menu !=? '[US] '
+    return v:false
+  endif
 
   " remove inserted chars before expand snippet
   if col('.') == col('$')
-    let l:matched -= 1
-    exec 'normal! ' . l:matched . 'Xx'
+    exec 'normal! ' . (l:matched - 1) . 'Xx'
+    call cursor(line('.'), col('$'))
+    call UltiSnips#Anon(l:value)
   else
     exec 'normal! ' . l:matched . 'X'
+    call UltiSnips#Anon(l:value)
   endif
 
-  if col('.') == col('$') - 1
-    " move to $ if at the end of line.
-    call cursor(line('.'), col('$'))
-  endif
-
-  " expand snippet now.
-  call UltiSnips#Anon(l:value)
   return v:true
 endfunction
 
 let g:ulti_expand_or_jump_res = 0
 function! AutoCompleteSelect()
+  if empty(v:completed_item)
+    if pumvisible()
+      return "\<C-e>\<CR>"
+    endif
+    return "\<CR>"
+  endif
+
   call UltiSnips#ExpandSnippetOrJump()
   if g:ulti_expand_or_jump_res
-    if pumvisible() | call deoplete#close_popup() | endif
+    if pumvisible() | return "\<C-y>" | endif
     return ""
   endif
 
@@ -392,10 +401,9 @@ function! AutoCompleteSelect()
     return "\<CR>"
   endif
 
-  if ExpandLspSnippet()
-    call deoplete#close_popup()
-    return ""
-  endif
+  " if ExpandLspSnippet()
+  "   return "\<C-y>"
+  " endif
 
   return "\<C-y>"
 endfunction
@@ -430,11 +438,10 @@ endfunction
 
 function! AutoCompleteCancel()
   if pumvisible()
-    call deoplete#close_popup()
     if empty(v:completed_item)
-      return "\<Esc>"
+      return "\<C-e>\<Esc>"
     endif
-    return ""
+    return "\<Esc>"
   endif
   return "\<Esc>"
 endfunction
@@ -462,11 +469,7 @@ endfunction
 
 function! DoEsc()
   if pumvisible()
-    pclose
-    if empty(v:completed_item)
-      return "\<Esc>"
-    endif
-    return ""
+    return "\<C-e>"
   endif
   return "\<Esc>"
 endfunction

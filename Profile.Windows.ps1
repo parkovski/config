@@ -43,20 +43,18 @@ $ProVar.vcvars = @{
     $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host32
     $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host32
     $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost32
-    $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp64host32
+    $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp32host32
   }
-  $ProVar.vcvars.Versions = ,(Get-ChildItem $ProVar.vcvars.Base |
-                            Where Name -ine 'Installer' | % {
+  $ProVar.vcvars.Versions = Get-ChildItem $ProVar.vcvars.Base | % {
     $i = 0
-    if (-not [int]::TryParse($_.Name, [ref]$i)) {
-      $i = 999999
-    }
+    [int]::TryParse($_.Name, [ref]$i)
     return @{
       Name = $_.Name;
       Rank = $i;
-      Editions = ,(Get-ChildItem -Directory ($ProVar.vcvars.Base + '\' + $_.Name) | % Name);
+      Editions = Get-ChildItem -Directory ($ProVar.vcvars.Base + '\' + $_.Name) | % Name;
     }
-  } | Sort-Object -Property Rank)
+  } | Where { $_.Editions -and $_.Editions.Length -gt 0 } `
+    | Sort-Object -Descending -Property Rank
 }
 # TODO: Make this look for more versions/editions
 function vcvars {
@@ -65,31 +63,31 @@ function vcvars {
     [switch]$Force = $false,
     [switch]$List = $false,
     [switch]$Unset = $false,
-    [switch]$ShowEnv = $false
+    [switch]$ShowEnv = $false,
+    [string]
+    [Alias('v')]
+    [ValidateSet('2017', '2019')]
+    $Version = '2019'
   )
   dynamicparam {
-    $versions = $ProVar.vcvars.Versions | % Name
-    $Version = $PSBoundParameters.Version
-    if ($Version -eq $null) {
-      $Version = $ProVar.vcvars.Versions[0].Name
-    }
-    $editions = ,($ProVar.vcvars.Versions | Where Name -ieq $Version | % Editions)
-    $Edition = $editions[0]
-    $PSBoundParameters.Version = $Version
-    $PSBoundParameters.Edition = $Edition
-    $PSBoundParameters.Toolset = 'cpp'
-    New-DynamicParams |
-      Add-DynamicParam Toolset -Alias 't' -Type:([string]) `
-        -Values $ProVar.vcvars.Toolsets.Keys -NotNullOrEmpty |
-      Add-DynamicParam Version -Alias 'v' -Type:([string]) `
-        -Values $versions -NotNullOrEmpty |
-      Add-DynamicParam Edition -Alias 'e' -Type:([string]) `
-        -Values $editions -NotNullOrEmpty
+    $editions = $ProVar.vcvars.Versions | Where Name -ieq $Version | % Editions
+    $params = New-DynamicParams `
+            | Add-DynamicParam Toolset -Alias 't' -Type:([string]) `
+              -Values $ProVar.vcvars.Toolsets.Keys `
+            | Add-DynamicParam Edition -Alias 'e' -Type:([string]) `
+              -Values $editions
+
+    $params
   }
   begin {
-    $Version = $PSBoundParameters.Version
     $Edition = $PSBoundParameters.Edition
+    if (-not $Edition) {
+      $Edition = $editions[0]
+    }
     $Toolset = $PSBoundParameters.Toolset
+    if (-not $Toolset) {
+      $Toolset = 'cpp'
+    }
   }
   process {
     $dir = [System.IO.Path]::Combine(
@@ -157,6 +155,7 @@ function vcvars {
 
     if (-not (Test-Path $dir -PathType Leaf)) {
       Write-Host "Dawg. `$ProVar.vcvars is wack!"
+      Write-Host $dir
       return
     }
 

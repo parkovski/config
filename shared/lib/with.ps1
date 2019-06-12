@@ -56,6 +56,3 @@ function Remove-EnvironmentVariable {
   [System.Environment]::SetEnvironmentVariable($Name, '', $Scope)
   Remove-Item -Pat Env:\$Name
 }
-
-Set-Alias with Invoke-WithEnvironment
-Set-Alias senv Set-EnvironmentVariable
