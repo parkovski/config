@@ -32,6 +32,7 @@ $ProVar.vcvars = @{
   }
   IsSet = $false;
   Env = @{};
+  DefaultVersion = '2019';
 }
 & {
   if ([System.Environment]::Is64BitOperatingSystem) {
@@ -45,16 +46,16 @@ $ProVar.vcvars = @{
     $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost32
     $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp32host32
   }
-  $ProVar.vcvars.Versions = Get-ChildItem $ProVar.vcvars.Base | % {
+  $ProVar.vcvars.Versions = @(Get-ChildItem $ProVar.vcvars.Base | % {
     $i = 0
     [int]::TryParse($_.Name, [ref]$i)
     return @{
       Name = $_.Name;
       Rank = $i;
-      Editions = Get-ChildItem -Directory ($ProVar.vcvars.Base + '\' + $_.Name) | % Name;
+      Editions = @(Get-ChildItem -Directory ($ProVar.vcvars.Base + '\' + $_.Name) | % Name);
     }
-  } | Where { $_.Editions -and $_.Editions.Length -gt 0 } `
-    | Sort-Object -Descending -Property Rank
+  }) | Where { $_.Editions -and $_.Editions.Length -gt 0 } `
+     | Sort-Object -Descending -Property Rank
 }
 # TODO: Make this look for more versions/editions
 function vcvars {
@@ -64,13 +65,16 @@ function vcvars {
     [switch]$List = $false,
     [switch]$Unset = $false,
     [switch]$ShowEnv = $false,
-    [string]
     [Alias('v')]
     [ValidateSet('2017', '2019')]
-    $Version = '2019'
+    [string]
+    $Version
   )
   dynamicparam {
-    $editions = $ProVar.vcvars.Versions | Where Name -ieq $Version | % Editions
+    if ([string]::IsNullOrEmpty($Version)) {
+      $Version = $ProVar.vcvars.DefaultVersion
+    }
+    $editions = @($ProVar.vcvars.Versions | Where Name -ieq $Version | % Editions)
     $params = New-DynamicParams `
             | Add-DynamicParam Toolset -Alias 't' -Type:([string]) `
               -Values $ProVar.vcvars.Toolsets.Keys `
@@ -80,6 +84,9 @@ function vcvars {
     $params
   }
   begin {
+    if ([string]::IsNullOrEmpty($Version)) {
+      $Version = $ProVar.vcvars.DefaultVersion
+    }
     $Edition = $PSBoundParameters.Edition
     if (-not $Edition) {
       $Edition = $editions[0]
