@@ -283,6 +283,7 @@ let g:echodoc#enable_at_startup = 1
 let g:indent_guides_auto_colors = 0
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 2
 
 hi link IndentGuidesOdd CursorLine
 hi link IndentGuidesEven CursorLine
@@ -620,7 +621,7 @@ endif
 
 set tgc
 let g:colors = []
-silent! let g:colors = readfile(glob('~/shared/etc/vimcolor'))
+silent! let g:colors = readfile(glob('~/local/etc/vimcolor'))
 if len(g:colors) > 0
   if len(g:colors) > 1
     let &background=g:colors[1]
