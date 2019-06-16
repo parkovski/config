@@ -7,3 +7,6 @@ https://raw.githubusercontent.com/sickill/vim-sunburst/master/colors/Sunburst.vi
 https://raw.githubusercontent.com/tyrannicaltoucan/vim-deep-space/master/colors/deep-space.vim
 https://raw.githubusercontent.com/danilo-augusto/vim-afterglow/master/colors/afterglow.vim
 https://raw.githubusercontent.com/NLKNguyen/papercolor-theme/master/colors/PaperColor.vim
+https://raw.githubusercontent.com/sonph/onehalf/master/vim/colors/onehalfdark.vim
+https://raw.githubusercontent.com/AlessandroYorba/Sierra/master/colors/sierra.vim
+https://raw.githubusercontent.com/jonathanfilip/vim-lucius/master/colors/lucius.vim

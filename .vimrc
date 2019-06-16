@@ -187,6 +187,13 @@ Plug 'sgur/vim-editorconfig'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'nathanaelkane/vim-indent-guides'
 
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'bluz71/vim-moonfly-colors'
+Plug 'cocopon/iceberg.vim'
+Plug 'chase/focuspoint-vim'
+Plug 'nightsense/snow'
+Plug 'rakr/vim-two-firewatch'
+
 Plug 'PProvost/vim-ps1'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'plasticboy/vim-markdown'
