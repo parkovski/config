@@ -61,7 +61,10 @@ if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
   }
 }
 
-$ProVar.PromptShowGitRemote = $true
+$ProVar.PromptOpts = @{
+  Git = $true;
+  GitRemote = $true;
+}
 . $HOME/shared/lib/prompt.ps1
 
 $env:EDITOR='vim'
@@ -155,7 +158,6 @@ SetPSRLOption ContinuationPrompt '[...]>> '
 
 SetPSRLKey -Key 'Shift+Tab' -Function Complete
 SetPSRLKey -Key Tab -Function MenuComplete
-SetPSRLKey -Key 'Ctrl+[' -Function ViCommandMode
 SetPSRLKey -Key 'Ctrl+d' -Function ViExit
 
 SetPSRLKey -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
@@ -166,6 +168,7 @@ SetPSRLKey -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
 SetPSRLKey -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
 SetPSRLKey -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
 SetPSRLKey -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
+SetPSRLKey -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
 
 # SetPSRLKey -Key 'Ctrl+]' -Function CopyScreen
 # SetPSRLKey -Key 'Alt+h' -ViMode Insert -Function Left

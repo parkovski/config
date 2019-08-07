@@ -204,3 +204,5 @@ export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
 local totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
 
+[[ -d $HOME/.bashrc ]] && . $HOME/.bashrc
+

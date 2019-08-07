@@ -53,19 +53,22 @@ function prompt {
   }
   $components = $path -split [regex]'[/\\]'
 
-  $branch = git symbolic-ref --short HEAD 2> $null
-  $isgit = $LASTEXITCODE -eq 0
-  $ahead = 0
-  $behind = 0
-  if ($isgit) {
-    $gitfiles = Get-GitStatusMap
-    if ($ProVar.PromptShowGitRemote) {
-      $remote = $(git rev-parse --abbrev-ref --symbolic-full-name '@{u}')
-      if ($remote) {
-        $ahead_str = git rev-list --count "$remote..HEAD"
-        $_ = [int]::TryParse($ahead_str.Trim(), [ref]$ahead)
-        $behind_str = git rev-list --count "HEAD..$remote"
-        $_ = [int]::TryParse($behind_str.Trim(), [ref]$behind)
+  $isgit = $false
+  if ($ProVar.PromptOpts.Git) {
+    $branch = git symbolic-ref --short HEAD 2> $null
+    $isgit = $LASTEXITCODE -eq 0
+    $ahead = 0
+    $behind = 0
+    if ($isgit) {
+      $gitfiles = Get-GitStatusMap
+      if ($ProVar.PromptOpts.GitRemote) {
+        $remote = $(git rev-parse --abbrev-ref --symbolic-full-name '@{u}')
+        if ($remote) {
+          $ahead_str = git rev-list --count "$remote..HEAD"
+          $_ = [int]::TryParse($ahead_str.Trim(), [ref]$ahead)
+          $behind_str = git rev-list --count "HEAD..$remote"
+          $_ = [int]::TryParse($behind_str.Trim(), [ref]$behind)
+        }
       }
     }
   }

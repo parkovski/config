@@ -10,3 +10,5 @@ https://raw.githubusercontent.com/NLKNguyen/papercolor-theme/master/colors/Paper
 https://raw.githubusercontent.com/sonph/onehalf/master/vim/colors/onehalfdark.vim
 https://raw.githubusercontent.com/AlessandroYorba/Sierra/master/colors/sierra.vim
 https://raw.githubusercontent.com/jonathanfilip/vim-lucius/master/colors/lucius.vim
+https://raw.githubusercontent.com/toupeira/vim-desertink/master/colors/desertink.vim
+https://raw.githubusercontent.com/ajmwagar/vim-deus/master/colors/deus.vim

@@ -32,6 +32,11 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 let mapleader="\<space>"
 
+if has('win32')
+  " AAAAAAGGGGGHHHHH
+  nmap <C-z> <Nop>
+endif
+
 if !empty($VIMTERM)
   let &term=$VIMTERM
 endif
@@ -151,29 +156,41 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
   augroup END
 endif
 
+if empty($VIM_LANGCLIENT)
+  let $VIM_LANGCLIENT = 'ale'
+endif
+
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
 
-if $VIM_ALE
-  let g:ale_completion_enabled = 1
-  Plug 'w0rp/ale'
-else
-  if has('nvim')
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  else
-    Plug 'Shougo/deoplete.nvim'
-    Plug 'roxma/nvim-yarp'
-    Plug 'roxma/vim-hug-neovim-rpc'
-  endif
+if $VIM_LANGCLIENT ==? 'lcn'
   Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': g:vimrc_platform.lcinstall,
     \ }
-  Plug 'terryma/vim-multiple-cursors'
-  Plug 'Shougo/echodoc.vim'
-  Plug 'SirVer/ultisnips'
-  Plug 'honza/vim-snippets'
+  let s:sources = []
+  let g:vista_default_executive = 'lcn'
+elseif $VIM_LANGCLIENT ==? 'ale'
+  " let g:ale_completion_enabled = 1
+  Plug 'w0rp/ale'
+  let s:sources = ['ale']
+  let g:vista_default_executive = 'ale'
 endif
 
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'Shougo/neco-vim'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'Shougo/echodoc.vim'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+Plug 'embear/vim-localvimrc'
+Plug 'liuchengxu/vista.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
 Plug 'tpope/vim-surround'
@@ -193,24 +210,18 @@ Plug 'cocopon/iceberg.vim'
 Plug 'chase/focuspoint-vim'
 Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
+Plug 'sainnhe/vim-color-desert-night'
 
-Plug 'PProvost/vim-ps1'
-Plug 'octol/vim-cpp-enhanced-highlight'
-Plug 'plasticboy/vim-markdown'
-Plug 'stephpy/vim-yaml'
-Plug 'cespare/vim-toml'
-Plug 'elzr/vim-json'
-Plug 'pangloss/vim-javascript'
-Plug 'HerringtonDarkholme/yats'
+Plug 'sheerun/vim-polyglot'
+" Plug 'HerringtonDarkholme/yats'
 if has('win32')
   Plug 'Quramy/tsuquyomi'
 else
   Plug 'mhartington/nvim-typescript', {'build': './install.sh'}
 endif
-Plug 'Shougo/neco-vim'
 
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
+      \ 'colorscheme': 'desert_night',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
       \ 'component_type': {'buffers': 'tabsel'},
@@ -286,6 +297,7 @@ let g:rainbow_active = 1
 
 let g:deoplete#enable_at_startup = 1
 let g:echodoc#enable_at_startup = 1
+let g:echodoc#type = "floating"
 
 let g:indent_guides_auto_colors = 0
 let g:indent_guides_guide_size = 1
@@ -294,6 +306,7 @@ let g:indent_guides_start_level = 2
 
 hi link IndentGuidesOdd CursorLine
 hi link IndentGuidesEven CursorLine
+hi link ColorColumn CursorLine
 
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
@@ -301,24 +314,27 @@ let g:cpp_class_decl_highlight = 1
 let g:cpp_concepts_highlight = 1
 
 let g:LanguageClient_serverCommands = {
-      \ 'cpp': ['cquery'],
-      \ 'c': ['cquery'],
+      \ 'cpp': ['clangd'],
+      \ 'c': ['clangd'],
       \ 'rust': ['rls'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
       \ }
 
-" let g:ale_fixers = {
-"       \ '*': ['remove_trailing_lines', 'trim_whitespace']
-"       \ }
+let g:ale_fixers = {
+      \ '*': ['remove_trailing_lines', 'trim_whitespace']
+      \ }
 
-" let g:ale_linters = {
-"       \ 'c': ['cquery'],
-"       \ 'cpp': ['cquery'],
-"       \ 'rust': ['rls'],
-"       \ 'javascript': ['javascript-typescript-stdio'],
-"       \ }
+let g:ale_linters = {
+      \ 'c': ['clangd'],
+      \ 'cpp': ['clangd'],
+      \ 'rust': ['rls'],
+      \ 'javascript': ['javascript-typescript-stdio'],
+      \ 'typescript': ['javascript-typescript-stdio'],
+      \ }
+
+let g:ale#util#info_priority = 6
 
 if has('win32')
   call add(g:LanguageClient_serverCommands.cpp, '-fno-delayed-template-parsing')
@@ -349,7 +365,8 @@ if exists('*deoplete#custom#option')
   silent call deoplete#custom#option({ 'auto_complete_delay': 50,
                                      \ 'auto_refresh_delay': 200,
                                      \ 'min_pattern_length': 3,
-                                     \ 'sources': { '_': [] } })
+                                     \ 'sources': { '_': s:sources } })
+
   silent call deoplete#custom#source('_', 'converters',
                                    \ ['converter_remove_overlap',
                                    \   'converter_truncate_abbr'])
@@ -360,9 +377,9 @@ endif
 
 imap <NUL> <C-space>
 " Neovim is missing a couple mappings on Windows.
-imap <M-x> <C-space>
-nmap <M-w> <S-Tab>
-nmap <leader><M-w> <leader><S-Tab>
+imap <C-_><Space> <C-space>
+nmap <C-_><Tab> <S-Tab>
+nmap <leader><C-_><Tab> <leader><S-Tab>
 
 function! ExpandLspSnippet()
   if empty(v:completed_item)
@@ -399,10 +416,12 @@ function! AutoCompleteSelect()
     return "\<CR>"
   endif
 
-  call UltiSnips#ExpandSnippetOrJump()
-  if g:ulti_expand_or_jump_res
-    if pumvisible() | return "\<C-y>" | endif
-    return ""
+  if has("*UltiSnips#ExpandSnippetOrJump")
+    call UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res
+      if pumvisible() | return "\<C-y>" | endif
+      return ""
+    endif
   endif
 
   if !pumvisible()
@@ -422,9 +441,11 @@ function! AutoCompleteJumpForwards()
     return "\<C-n>"
   endif
 
-  call UltiSnips#JumpForwards()
-  if g:ulti_jump_forwards_res
-    return ""
+  if has("*UltiSnips#JumpForwards")
+    call UltiSnips#JumpForwards()
+    if g:ulti_jump_forwards_res
+      return ""
+    endif
   endif
 
   return "\<Tab>"
@@ -436,9 +457,11 @@ function! AutoCompleteJumpBackwards()
     return "\<C-p>"
   endif
 
-  call UltiSnips#JumpBackwards()
-  if g:ulti_jump_backwards_res
-    return ""
+  if has("*UltiSnips#JumpBackwards")
+    call UltiSnips#JumpBackwards()
+    if g:ulti_jump_backwards_res
+      return ""
+    endif
   endif
 
   return "\<S-Tab>"
@@ -454,70 +477,12 @@ function! AutoCompleteCancel()
   return "\<Esc>"
 endfunction
 
-function! DoTab()
-  if pumvisible()
-    return "\<C-n>"
-  endif
-  return "\<Tab>"
-endfunction
-
-function! DoShiftTab()
-  if pumvisible()
-    return "\<C-p>"
-  endif
-  return "\<S-Tab>"
-endfunction
-
-function! DoEnter()
-  if pumvisible()
-    return "\<C-y>"
-  endif
-  return "\<CR>"
-endfunction
-
-function! DoEsc()
-  if pumvisible()
-    return "\<C-e>"
-  endif
-  return "\<Esc>"
-endfunction
-
-if $VIM_ALE
-  inoremap <silent> <Tab> <C-r>=DoTab()<CR>
-  snoremap <silent> <Tab> <Esc>:call DoTab()<CR>
-  inoremap <silent> <S-Tab> <C-r>=DoShiftTab()<CR>
-  snoremap <silent> <S-Tab> <Esc>:call DoShiftTab()<CR>
-  inoremap <silent> <CR> <C-r>=DoEnter()<CR>
-
-  nnoremap <silent> K :ALEHover<CR>
-  nnoremap <silent> gd :ALEGoToDefinition<CR>
-  nnoremap <silent> gr :ALEFindReferences<CR>
-  nnoremap <silent> gs :ALESymbolSearch<CR>
-else
-  inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
-  snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
-  inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
-  snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
-  inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
-
-  inoremap <expr> <C-space> deoplete#mappings#manual_complete()
-  inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
-  inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
-  inoremap <expr> <C-g> deoplete#undo_completion()
-  inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
-  inoremap <expr> <M-space> deoplete#complete_common_string()
-  inoremap <expr> <Esc> AutoCompleteCancel()
-
-  nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-  nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-  nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>
-  nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
-  nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
-  nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
-  nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
-  imap <silent> <C-s> <C-o><C-s>
-endif
-
+inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
+snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
+inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
+snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
+inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
+inoremap <expr> <Esc> AutoCompleteCancel()
 inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
 inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
@@ -528,6 +493,32 @@ if exists('*deoplete#custom#buffer_option')
   function! g:Multiple_cursors_after()
     call deoplete#custom#buffer_option('auto_complete', v:true)
   endfunction
+
+  inoremap <silent> <C-space> <C-o>:call deoplete#manual_complete()<CR>
+  inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <silent> <C-g> <C-o>:call deoplete#undo_completion()<CR>
+  inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
+  inoremap <silent> <M-space> <C-o>:call deoplete#complete_common_string()<CR>
+endif
+
+if $VIM_LANGCLIENT ==? 'ale'
+  nnoremap K :ALEHover<CR>
+  nnoremap gd :ALEGoToDefinition<CR>
+  nnoremap gD :ALEDocumentation<CR>
+  nnoremap gr :ALEFindReferences<CR>
+  nnoremap gs :ALESymbolSearch<Space>
+  nnoremap gt :ALEGoToTypeDefinition<CR>
+  " inoremap <C-space> <C-\><C-o>:ALEComplete<CR>
+elseif $VIM_LANGCLIENT ==? 'lcn'
+  nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+  nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+  nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>
+  nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
+  nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
+  nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+  nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
+  imap <silent> <C-s> <C-o><C-s>
 endif
 
 nnoremap <M->> <C-w>8>
@@ -572,6 +563,9 @@ noremap! <C-e> <End>
 
 " Should do? g[, g], g{, g}
 
+" Keep the last thing copied when we paste.
+xnoremap <expr> p 'pgv"'.v:register.'y'
+
 nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
 nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
 nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
@@ -605,7 +599,11 @@ nnoremap <silent> <leader>0 :b10<CR>
 augroup VimrcAutoCommands
   autocmd!
 
-  " autocmd VimEnter * silent call deoplete#initialize()
+  if (has('win32') && has('nvim') && !empty(exepath($GH . "/conutils/isvt.exe")))
+    " Fix some nvim glitches
+    command! Conflags exe "!".$GH."/conutils/isvt.exe"
+    autocmd VimEnter * exe "silent !".$GH."/conutils/isvt.exe o=_+DISABLE_NEWLINE_AUTO_RETURN"
+  endif
 
   autocmd FileType cpp set commentstring=//%s
   autocmd FileType cmake set commentstring=#%s
