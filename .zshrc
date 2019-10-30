@@ -136,6 +136,11 @@ fi
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
     alias ls='ls --color 2>/dev/null'
+    function start() {
+      local winpath="$(wslpath -w $1)"
+      shift
+      cmd.exe /c start $winpath $@
+    }
   else
     alias ls='ls --color'
   fi
@@ -206,3 +211,17 @@ echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
 
 [[ -d $HOME/.bashrc ]] && . $HOME/.bashrc
 
+
+function conda() {
+  if [[ "$1" != "init" ]]; then
+    echo "Type 'conda init'."
+    return 1
+  fi
+
+  unset conda
+  if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
+    . "$HOME/miniconda3/etc/profile.d/conda.sh"
+  else
+    export PATH="$HOME/miniconda3/bin:$PATH"
+  fi
+}

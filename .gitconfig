@@ -10,7 +10,7 @@
   required = true
 [core]
   symlinks = true
-  autocrlf = false
+  autocrlf = input
   filemode = true
 [pull]
   rebase = true

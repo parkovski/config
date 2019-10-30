@@ -14,7 +14,7 @@ set noerrorbells visualbell t_vb= belloff=all
 set incsearch hlsearch
 set ignorecase smartcase
 set number relativenumber signcolumn=yes
-set colorcolumn=80,100,120
+set colorcolumn=81,101,121
 set cursorline
 set showcmd noshowmode showtabline=2
 set splitright splitbelow
@@ -26,6 +26,7 @@ set nobackup nowritebackup noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=1
 set autoread
 set encoding=utf8 fileformats=unix,dos
+set mouse=a
 set t_Co=256
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -110,7 +111,7 @@ if has('win32')
     if !empty($PYTHON3DLL)
       let &pythonthreedll=$PYTHON3DLL
     else
-      let &pythonthreedll=s:pythonthreehome . "\\python37.dll"
+      let &pythonthreedll=s:pythonthreehome . "\\python38.dll"
     endif
   endif
 
@@ -171,6 +172,7 @@ if $VIM_LANGCLIENT ==? 'lcn'
   let g:vista_default_executive = 'lcn'
 elseif $VIM_LANGCLIENT ==? 'ale'
   " let g:ale_completion_enabled = 1
+  let g:ale_set_balloons = 1
   Plug 'w0rp/ale'
   let s:sources = ['ale']
   let g:vista_default_executive = 'ale'
@@ -212,13 +214,12 @@ Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/vim-color-desert-night'
 
+let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
 Plug 'sheerun/vim-polyglot'
-" Plug 'HerringtonDarkholme/yats'
-if has('win32')
-  Plug 'Quramy/tsuquyomi'
-else
-  Plug 'mhartington/nvim-typescript', {'build': './install.sh'}
-endif
+Plug 'leafgarland/typescript-vim'
+Plug 'Quramy/vim-js-pretty-template'
+Plug 'jason0x43/vim-js-indent'
+Plug 'Quramy/tsuquyomi'
 
 let g:lightline = {
       \ 'colorscheme': 'desert_night',
@@ -335,14 +336,6 @@ let g:ale_linters = {
       \ }
 
 let g:ale#util#info_priority = 6
-
-if has('win32')
-  call add(g:LanguageClient_serverCommands.cpp, '-fno-delayed-template-parsing')
-endif
-      " \ 'cpp': [g:vimrc_platform.cquery_exe,
-      " \         '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
-      " \ 'c': [g:vimrc_platform.cquery_exe,
-      " \       '--log-file=' . g:vimrc_platform.temp . '/cquery.log'],
 
 let g:LanguageClient_autoStart = 1
 let g:LanguageClient_loadSettings = 1
@@ -563,6 +556,19 @@ noremap! <C-e> <End>
 
 " Should do? g[, g], g{, g}
 
+function! Align(col, start, end)
+  for line in range(a:start, a:end)
+    let l:curcol = col('.')
+    if a:col < l:curcol
+      exe l:line.'normal 0'.(l:curcol-1).'l'.(l:curcol - a:col).'X'
+    elseif a:col > l:curcol
+      exe l:line.'normal 0'.(l:curcol-1).'l'.(a:col - l:curcol).'i '
+    endif
+  endfor
+endfunction
+
+command! -bar -range -nargs=1 Align call Align(<args>, <line1>, <line2>)
+
 " Keep the last thing copied when we paste.
 xnoremap <expr> p 'pgv"'.v:register.'y'
 
@@ -578,7 +584,7 @@ nnoremap <silent> <leader>l :noh<CR>
 nnoremap <leader>: :AsyncRun<space>
 vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
-nnoremap <silent> <leader>P :set paste!<CR>
+nnoremap <silent> <leader>P :set paste<CR>"+p:set nopaste<CR>
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
 nnoremap <silent> <leader><Tab> :tabnext<CR>
@@ -601,8 +607,13 @@ augroup VimrcAutoCommands
 
   if (has('win32') && has('nvim') && !empty(exepath($GH . "/conutils/isvt.exe")))
     " Fix some nvim glitches
-    command! Conflags exe "!".$GH."/conutils/isvt.exe"
-    autocmd VimEnter * exe "silent !".$GH."/conutils/isvt.exe o=_+DISABLE_NEWLINE_AUTO_RETURN"
+    command! Conflags exe "!".
+          \ $GH."/conutils/isvt.exe -p".
+          \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)"
+    autocmd VimEnter * exe "silent !".
+          \ $GH."/conutils/isvt.exe -p".
+          \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)".
+          \ " o=_+DISABLE_NEWLINE_AUTO_RETURN"
   endif
 
   autocmd FileType cpp set commentstring=//%s
