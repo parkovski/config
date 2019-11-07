@@ -1,12 +1,50 @@
 #!/bin/sh
 
-. $(dirname "${BASH_SOURCE[0]}")/../../lib/get-os.zsh
-
-if [[ "$IS_WSL" == "1" ]]; then
-  exec pwsh.exe
-elif [[ "$SHELL" != "" ]]; then
-  exec "$SHELL"
-else
-  exec /bin/bash
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "Usage: select-shell [shell] [start-dir]."
+  echo "  If shell is empty or '-', the platform default shell is used."
+  echo "  If start-dir is empty, the home folder is used."
+  exit 1
 fi
 
+# This does no zsh-specific things and that ext should probably be changed, but
+# other things depend on that name.
+. $(dirname "${BASH_SOURCE[0]}")/../../lib/get-os.zsh
+
+if [[ "$2" ]]; then
+  cd "$2"
+fi
+
+if [[ "$1" && "$1" != "-" ]]; then
+  if [[ "$IS_WSL" ]]; then
+    if [[ "$1" == "pwsh" || "$1" == "pwsh.exe" ]]; then
+      if [[ ! "$2" ]]; then
+        exec -c pwsh.exe -wd "$(wslpath -w $USERPROFILE)"
+      else
+        exec -c pwsh.exe -wd "$(wslpath -w $2)"
+      fi
+    fi
+  fi
+
+  exec -c "$1" -l
+fi
+
+if [[ "$IS_WSL" == "1" ]]; then
+  if [[ ! "$2" ]]; then
+    exec -c pwsh.exe -wd "$(wslpath -w $USERPROFILE)"
+  else
+    exec -c pwsh.exe -wd "$(wslpath -w $2)"
+  fi
+elif [[ "$SHELL" == "" ]]; then
+  if [[ -f /bin/zsh ]]; then
+    export SHELL=/bin/zsh
+  elif [[ -f /bin/bash ]]; then
+    export SHELL=/bin/bash
+  elif [[ -f /bin/sh ]]; then
+    export SHELL=/bin/sh
+  else
+    SHELL=sh
+  fi
+fi
+
+exec "$SHELL" -l
