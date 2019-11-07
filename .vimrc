@@ -222,7 +222,7 @@ Plug 'jason0x43/vim-js-indent'
 Plug 'Quramy/tsuquyomi'
 
 let g:lightline = {
-      \ 'colorscheme': 'desert_night',
+      \ 'colorscheme': 'moonfly',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
       \ 'component_type': {'buffers': 'tabsel'},
@@ -258,10 +258,12 @@ function! SetLightlineTabName(cargs)
     let l:name = substitute(l:args[1], '^\W\+', '', '')
   endif
   let g:lightline#tab#names[l:num] = l:name
+  call lightline#update()
   " execute tabpagenr().'tabn'
   " Redraw??
 endfunction
 command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
+command! -nargs=1 LightlineColors let g:lightline.colorscheme = <q-args> <bar> call lightline#enable()
 
 function! MakeSession()
   if empty(g:lightline#tab#names)
@@ -308,6 +310,7 @@ let g:indent_guides_start_level = 2
 hi link IndentGuidesOdd CursorLine
 hi link IndentGuidesEven CursorLine
 hi link ColorColumn CursorLine
+hi link EchoDocFloat Pmenu
 
 let g:cpp_class_scope_highlight = 1
 let g:cpp_member_variable_highlight = 1
@@ -602,6 +605,18 @@ for nr in range(1, 9)
 endfor
 nnoremap <silent> <leader>0 :b10<CR>
 
+function! TryToFixColorScheme(colors)
+  if empty(a:colors)
+    let l:colors = g:colors_name
+  else
+    let l:colors = a:colors
+  endif
+  let l:fn = glob('~/shared/etc/fix-' . l:colors . '.vim')
+  if filereadable(fn)
+    exe 'source ' . l:fn
+  endif
+endf
+
 augroup VimrcAutoCommands
   autocmd!
 
@@ -628,6 +643,8 @@ augroup VimrcAutoCommands
     \ q | endif
 
   autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+
+  autocmd ColorScheme * call TryToFixColorScheme('')
 augroup END
 
 noremap! <Char-0x7F> <BS>
@@ -643,6 +660,7 @@ if len(g:colors) > 0
     let &background=g:colors[1]
   endif
   exe 'silent! colorscheme ' . g:colors[0]
+  call TryToFixColorScheme(g:colors[0])
 endif
 
 " TODO: Move
