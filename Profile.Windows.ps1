@@ -1,4 +1,14 @@
-chcp 65001 | Out-Null
+& {
+  [System.UInt16]$page=0
+  if (-not (Test-Path Env:\CODEPAGE)) {
+    $page = 65001
+  } else {
+    [System.UInt16]::TryParse($env:CODEPAGE, [ref]$page)
+  }
+  if ($page) {
+    chcp $page | Out-Null
+  }
+}
 
 function Open-PowerShell {
   param([switch]$Admin)
@@ -11,6 +21,19 @@ function Open-PowerShell {
 
 function Restore-ConsoleWindow {
   [Console]::SetWindowSize(100, 50)
+}
+
+# Fix missing Set-Clipboard.
+if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
+  function Set-Clipboard {
+    param(
+      [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+      [string]$Text
+    )
+
+    $Text += [char]0
+    $Text | clip.exe
+  }
 }
 
 $global:DDev = "D:\dev"

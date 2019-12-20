@@ -1,5 +1,19 @@
+# Base config
+
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
+
+# Stop it from adding backslashes to the title.
+Write-Host -NoNewLine "$([char]0x1b)]2;pwsh $($Host.Version.ToString())$([char]0x1b)\"
+
+if (-not ($env:VISUAL)) {
+  $env:VISUAL='vim'
+}
+if (-not ($env:EDITOR)) {
+  $env:EDITOR=$env:VISUAL
+}
+
+$PowerShell = (Get-Process -Id $PID).MainModule.FileName
 
 # Profile config.
 $ProVar = @{
@@ -12,21 +26,6 @@ Set-Alias up Enter-ParentDirectory
 Set-Alias in Invoke-InDirectory
 
 . $HOME/shared/lib/Get-OS.ps1
-
-. $HOME\shared\lib\dynparams.ps1
-
-. $HOME\shared\lib\with.ps1
-Set-Alias with Invoke-WithEnvironment
-Set-Alias senv Set-EnvironmentVariable
-
-. $HOME/shared/lib/history.ps1
-Set-Alias ^ Invoke-HistoryRecent
-
-$GH = "$HOME\Documents\GitHub"
-$env:GH = $GH
-# Note: $DDev is a secondary project dir.
-. $HOME/shared/lib/gh.ps1
-
 # Find if we're Admin/root.
 if ($OS -eq "Windows") {
   $user = [Security.Principal.WindowsIdentity]::GetCurrent();
@@ -38,39 +37,22 @@ if ($OS -eq "Windows") {
   $ProVar.hostname = hostname
 }
 
-# Load OS-specific configuration.
-if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
-  . "$GH/config/Profile.$OS_BASE.ps1"
-}
-if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
-  . "$GH/config/Profile.$OS.ps1"
-}
+. $HOME\shared\lib\dynparams.ps1
 
-# Fix missing Set-Clipboard.
-if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
-  if ($OS -eq "Windows") {
-    function Set-Clipboard {
-      param(
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [string]$Text
-      )
+. $HOME\shared\lib\with.ps1
+Set-Alias with Invoke-WithEnvironment
+Set-Alias senv Set-EnvironmentVariable
 
-      $Text += [char]0
-      $Text | clip.exe
-    }
-  }
-}
+. $HOME/shared/lib/history.ps1
+Set-Alias ^ Invoke-HistoryRecent
 
-$ProVar.PromptOpts = @{
-  Git = $true;
-  GitRemote = $true;
-}
-. $HOME/shared/lib/prompt.ps1
+function dirs { Get-Location -Stack }
+function touch { echo '' >> $args[0] }
 
-$env:EDITOR='vim'
-$env:VISUAL='vim'
-
-$PowerShell = (Get-Process -Id $PID).MainModule.FileName
+$GH = "$HOME\Documents\GitHub"
+$env:GH = $GH
+# Note: $DDev is a secondary project dir.
+. $HOME/shared/lib/gh.ps1
 
 # Add ~/shared/lib/paths.txt to $PATH.
 & {
@@ -90,56 +72,39 @@ $PowerShell = (Get-Process -Id $PID).MainModule.FileName
   }
 }
 
-# Fix cd on old PowerShell.
-if (-not ($PSVersionTable.PSCompatibleVersions | % major).Contains(6)) {
-  if (test-path Alias:cd) {
-    rm -force Alias:cd
-  }
-  function cd {
-    if ($args.Length -eq 0) {
-      Set-Location $HOME
-    } else {
-      Set-Location @args
-    }
-  }
+$ProVar.PromptOpts = @{
+  Git = $true;
+  GitRemote = $true;
 }
 
-# Try to be flexible across PSReadline versions
-function SetPSRLOption {
-  $arg0 = $args[0]
-  $arg1 = $args[1]
-
-  try {
-    $opts = @{ "$arg0" = $arg1 }
-    Set-PSReadlineOption @opts
-  } catch {
-    Write-Escape "``e[91mError setting PSReadline option '``e[m$arg0``e[31m'.``e[m"
-  }
+# For compatibility with older powershell
+if ($Host.Version.Major -lt 6) {
+  . "$HOME/shared/lib/oldprofile.ps1"
+  exit
 }
 
-function SetPSRLKey {
-  try {
-    Set-PSReadlineKeyHandler @args
-  } catch {
-    Write-Escape (
-      "``e[91mError setting PSReadline key handler " +
-      "'``e[m$args``e[31m'.``e[m"
-    )
-  }
+# Load OS-specific configuration.
+if (Test-Path "$GH/config/Profile.$OS_BASE.ps1") {
+  . "$GH/config/Profile.$OS_BASE.ps1"
+}
+if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
+  . "$GH/config/Profile.$OS.ps1"
 }
 
-SetPSRLOption BellStyle None
-SetPSRLOption EditMode vi 
-SetPSRLOption ViModeIndicator Cursor
-SetPSRLOption ViModeIndicator Script
-SetPSRLOption ViModeChangeHandler {
+. $HOME/shared/lib/prompt.ps1
+
+Set-PSReadlineOption -BellStyle None
+Set-PSReadlineOption -EditMode vi 
+Set-PSReadlineOption -ViModeIndicator Cursor
+Set-PSReadlineOption -ViModeIndicator Script -ErrorAction Ignore
+Set-PSReadlineOption -ViModeChangeHandler {
   if ($args[0] -eq 'Command') {
-    Write-Escape -NoNewLine '`e[1 q'
+    Write-Host -NoNewLine "`e[1 q"
   } else {
-    Write-Escape -NoNewLine '`e[5 q'
+    Write-Host -NoNewLine "`e[5 q"
   }
-}
-SetPSRLOption Colors @{
+} -ErrorAction Ignore
+Set-PSReadlineOption -Colors @{
   comment = "darkgray";
   keyword = "cyan";
   string = "yellow";
@@ -153,30 +118,30 @@ SetPSRLOption Colors @{
   error = "darkred";
   continuationprompt = "darkgray"
 }
-# SetPSRLOption PromptText _escify('`e[90mpwsh> ')
-SetPSRLOption ContinuationPrompt '[...]>> '
+Set-PSReadlineOption PromptText 'pwsh> '
+Set-PSReadlineOption ContinuationPrompt '... > '
 
-SetPSRLKey -Key 'Shift+Tab' -Function Complete
-SetPSRLKey -Key Tab -Function MenuComplete
-SetPSRLKey -Key 'Ctrl+d' -Function ViExit
+Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadlineKeyHandler -Key 'Ctrl+d' -Function ViExit
 
-SetPSRLKey -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
-SetPSRLKey -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
-SetPSRLKey -Key 'Ctrl+y' -ViMode Command -Function ScrollDisplayUpLine
-SetPSRLKey -Key 'Ctrl+e' -ViMode Command -Function ScrollDisplayDownLine
-SetPSRLKey -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
-SetPSRLKey -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
-SetPSRLKey -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
-SetPSRLKey -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
-SetPSRLKey -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
+Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
+Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Command -Function ScrollDisplayUpLine
+Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Command -Function ScrollDisplayDownLine
+Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
+Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
+Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
+Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
+Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
 
-# SetPSRLKey -Key 'Ctrl+]' -Function CopyScreen
-# SetPSRLKey -Key 'Alt+h' -ViMode Insert -Function Left
-# SetPSRLKey -Key 'Alt+l' -ViMode Insert -Function Right
-# SetPSRLKey -Key 'Alt+w' -ViMode Insert -Function NextWord
-# SetPSRLKey -Key 'Alt+b' -ViMode Insert -Function PreviousWord
-# SetPSRLKey -Key 'z,z' -ViMode Command -Function ScrollToMiddle
-# SetPSRLKey -Key 'z,t' -ViMode Command -Function ScrollToTop
+# Set-PSReadlineKeyHandler -Key 'Ctrl+]' -Function CopyScreen
+# Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function Left
+# Set-PSReadlineKeyHandler -Key 'Alt+l' -ViMode Insert -Function Right
+# Set-PSReadlineKeyHandler -Key 'Alt+w' -ViMode Insert -Function NextWord
+# Set-PSReadlineKeyHandler -Key 'Alt+b' -ViMode Insert -Function PreviousWord
+# Set-PSReadlineKeyHandler -Key 'z,z' -ViMode Command -Function ScrollToMiddle
+# Set-PSReadlineKeyHandler -Key 'z,t' -ViMode Command -Function ScrollToTop
 
 if (Import-Module Get-ChildItemColor -PassThru -ErrorAction Ignore) {
   Remove-Item -Force -ea Ignore Alias:\ls
@@ -184,6 +149,3 @@ if (Import-Module Get-ChildItemColor -PassThru -ErrorAction Ignore) {
   Set-Alias ls Get-ChildItemColorFormatWide
   Set-Alias ll Get-ChildItemColor
 }
-
-function dirs { Get-Location -Stack }
-function touch { echo '' >> $args[0] }

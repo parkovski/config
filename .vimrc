@@ -1,11 +1,4 @@
-" TODO: if current script filename is in current dir, exit
-
-" if has('win32')
-"   set rtp ^=$HOME\vimfiles
-" endif
-
 set nocompatible
-" set exrc secure
 set autoindent
 set title hidden
 set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
@@ -20,16 +13,16 @@ set showcmd noshowmode showtabline=2
 set splitright splitbelow
 set wildmenu wildmode=longest:full,full
 set complete=.
-set pumheight=20
+" set pumheight=20
 set laststatus=2
 set nobackup nowritebackup noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=1
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
-set t_Co=256
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+" set t_Co=256
+" let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+" let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 let mapleader="\<space>"
 
@@ -85,12 +78,6 @@ if has('win32')
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
   let g:vimrc_platform.lcinstall = 'powershell -nologo -nop -noni -file install.ps1'
-  if !empty($CQUERY_HOME)
-    let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
-  else
-    let g:vimrc_platform.cquery_exe = exepath('cquery.exe')
-  endif
-
   let s:pythonthreehome = ''
   if !empty($PYTHON3HOME)
     let s:pythonthreehome = $PYTHON3HOME
@@ -111,7 +98,7 @@ if has('win32')
     if !empty($PYTHON3DLL)
       let &pythonthreedll=$PYTHON3DLL
     else
-      let &pythonthreedll=s:pythonthreehome . "\\python38.dll"
+      let &pythonthreedll=glob(s:pythonthreehome . "\\python3?.dll")
     endif
   endif
 
@@ -119,17 +106,6 @@ else " not win32
   let g:vimrc_platform.dotvim = glob('~/.vim')
   let g:vimrc_platform.temp = '/tmp'
   let g:vimrc_platform.lcinstall = 'bash install.sh'
-  if !empty($CQUERY_HOME)
-    let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery'
-    " Allow Windows cquery by setting CQUERY_HOME in WSL.
-    if $IS_WSL && !exepath(g:vimrc_platform.cquery_exe)
-      if exepath($CQUERY_HOME . '/bin/cquery.exe')
-        let g:vimrc_platform.cquery_exe = $CQUERY_HOME . '/bin/cquery.exe'
-      endif
-    endif
-  else
-    let g:vimrc_platform.cquery_exe = exepath('cquery')
-  endif
 
   if $IS_WSL && exepath('win32yank.exe')
     let g:clipboard = {
@@ -151,6 +127,7 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
   exe 'silent !curl -fLo ' . g:vimrc_platform.dotvim . '/autoload/plug.vim ' .
     \ '--create-dirs ' .
     \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  source g:vimrc_platform.dotvim . '/autoload/plug.vim'
   augroup InstallPlugins
     autocmd!
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
@@ -158,7 +135,7 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
 endif
 
 if empty($VIM_LANGCLIENT)
-  let $VIM_LANGCLIENT = 'ale'
+  let $VIM_LANGCLIENT = 'lcn'
 endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
@@ -178,6 +155,7 @@ elseif $VIM_LANGCLIENT ==? 'ale'
   let g:vista_default_executive = 'ale'
 endif
 
+" Autocomplete popups
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
@@ -185,13 +163,14 @@ else
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
+" Vimscript autocomplete
 Plug 'Shougo/neco-vim'
-Plug 'terryma/vim-multiple-cursors'
 Plug 'Shougo/echodoc.vim'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+Plug 'junegunn/fzf.vim'
 
+Plug 'terryma/vim-multiple-cursors'
 Plug 'embear/vim-localvimrc'
+" Symbol browser
 Plug 'liuchengxu/vista.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
@@ -203,9 +182,10 @@ Plug 'bronson/vim-visual-star-search'
 " Plug 'skywind3000/asyncrun.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'sgur/vim-editorconfig'
-Plug 'michaeljsmith/vim-indent-object'
+" Plug 'michaeljsmith/vim-indent-object'
 Plug 'nathanaelkane/vim-indent-guides'
 
+" Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'cocopon/iceberg.vim'
@@ -214,6 +194,7 @@ Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/vim-color-desert-night'
 
+" Syntaxes
 let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
 Plug 'sheerun/vim-polyglot'
 Plug 'leafgarland/typescript-vim'
@@ -294,10 +275,6 @@ let g:lightline#bufferline#unnamed = '[No Name]'
 
 let g:rainbow_active = 1
 
-" let g:cmake_install_prefix = $CMAKE_INSTALL_PREFIX
-" let g:cmake_project_generator = 'Ninja'
-" let g:cmake_export_compile_commands = 1
-
 let g:deoplete#enable_at_startup = 1
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#type = "floating"
@@ -326,6 +303,13 @@ let g:LanguageClient_serverCommands = {
       \ 'lua': ['lua-lsp'],
       \ }
 
+let g:LanguageClient_rootMarkers = {
+      \ 'typescript': ['tsconfig.json'],
+      \ 'javascript': ['package.json'],
+      \ 'cpp': ['compile_commands.json', 'build/CMakeCache.txt'],
+      \ 'rust': ['Cargo.toml'],
+      \ }
+
 let g:ale_fixers = {
       \ '*': ['remove_trailing_lines', 'trim_whitespace']
       \ }
@@ -348,13 +332,6 @@ let g:LanguageClient_loggingLevel = 'WARN'
 let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
 " let g:LanguageClient_waitOutputTimeout = 5
 
-" These can't be disabled so I guess just set them to something I'll never type,
-" since deoplete will handle this stuff anyways.
-let g:UltiSnipsExpandTrigger = '<C-^>X'
-let g:UltiSnipsJumpForwardTrigger = '<C-^>F'
-let g:UltiSnipsJumpBackwardTrigger = "<C-^>B"
-let g:UltiSnipsListSnippets = "<C-^>L"
-
 call plug#end()
 
 if exists('*deoplete#custom#option')
@@ -363,9 +340,9 @@ if exists('*deoplete#custom#option')
                                      \ 'min_pattern_length': 3,
                                      \ 'sources': { '_': s:sources } })
 
-  silent call deoplete#custom#source('_', 'converters',
-                                   \ ['converter_remove_overlap',
-                                   \   'converter_truncate_abbr'])
+  " silent call deoplete#custom#source('_', 'converters',
+  "                                  \ ['converter_remove_overlap',
+  "                                  \   'converter_truncate_abbr'])
   silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
 endif
 
@@ -377,33 +354,6 @@ imap <C-_><Space> <C-space>
 nmap <C-_><Tab> <S-Tab>
 nmap <leader><C-_><Tab> <leader><S-Tab>
 
-function! ExpandLspSnippet()
-  if empty(v:completed_item)
-    return v:false
-  endif
-  let l:value = v:completed_item.word
-  let l:matched = len(l:value)
-  if l:matched <= 0
-    return v:false
-  endif
-  if v:completed_item.menu !=? '[US] '
-    return v:false
-  endif
-
-  " remove inserted chars before expand snippet
-  if col('.') == col('$')
-    exec 'normal! ' . (l:matched - 1) . 'Xx'
-    call cursor(line('.'), col('$'))
-    call UltiSnips#Anon(l:value)
-  else
-    exec 'normal! ' . l:matched . 'X'
-    call UltiSnips#Anon(l:value)
-  endif
-
-  return v:true
-endfunction
-
-let g:ulti_expand_or_jump_res = 0
 function! AutoCompleteSelect()
   if empty(v:completed_item)
     if pumvisible()
@@ -412,52 +362,24 @@ function! AutoCompleteSelect()
     return "\<CR>"
   endif
 
-  if has("*UltiSnips#ExpandSnippetOrJump")
-    call UltiSnips#ExpandSnippetOrJump()
-    if g:ulti_expand_or_jump_res
-      if pumvisible() | return "\<C-y>" | endif
-      return ""
-    endif
-  endif
-
   if !pumvisible()
     return "\<CR>"
   endif
 
-  " if ExpandLspSnippet()
-  "   return "\<C-y>"
-  " endif
-
   return "\<C-y>"
 endfunction
 
-let g:ulti_jump_forwards_res = 0
 function! AutoCompleteJumpForwards()
   if pumvisible()
     return "\<C-n>"
   endif
 
-  if has("*UltiSnips#JumpForwards")
-    call UltiSnips#JumpForwards()
-    if g:ulti_jump_forwards_res
-      return ""
-    endif
-  endif
-
   return "\<Tab>"
 endfunction
 
-let g:ulti_jump_backwards_res = 0
 function! AutoCompleteJumpBackwards()
   if pumvisible()
     return "\<C-p>"
-  endif
-
-  if has("*UltiSnips#JumpBackwards")
-    call UltiSnips#JumpBackwards()
-    if g:ulti_jump_backwards_res
-      return ""
-    endif
   endif
 
   return "\<S-Tab>"
@@ -490,12 +412,14 @@ if exists('*deoplete#custom#buffer_option')
     call deoplete#custom#buffer_option('auto_complete', v:true)
   endfunction
 
-  inoremap <silent> <C-space> <C-o>:call deoplete#manual_complete()<CR>
+  nnoremap <silent> <C-Space> :call deoplete#auto_complete()<CR>
+  inoremap <silent> <C-space> <C-o>:call deoplete#auto_complete()<CR>
   inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
   inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
   inoremap <silent> <C-g> <C-o>:call deoplete#undo_completion()<CR>
   inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
-  inoremap <silent> <M-space> <C-o>:call deoplete#complete_common_string()<CR>
+  nnoremap <silent> <M-Space> :call deoplete#complete_common_string()<CR>
+  inoremap <silent> <M-Space> <C-o>:call deoplete#complete_common_string()<CR>
 endif
 
 if $VIM_LANGCLIENT ==? 'ale'
@@ -580,13 +504,14 @@ nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
 nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
 nnoremap <silent> <leader>p :b#<CR>
 nnoremap <silent> <leader>q :b#<Bar>bd#<CR>
-nnoremap <silent> <leader>Q :b#<Bar>bd!#<CR>
+nnoremap <silent> <leader>q! :b#<Bar>bd!#<CR>
 nnoremap <silent> <leader>n :echo fnamemodify(expand("%"), ":~:.")<CR>
 " nnoremap <silent> <leader>h :A<CR>
 nnoremap <silent> <leader>l :noh<CR>
-nnoremap <leader>: :AsyncRun<space>
-vnoremap <leader>: :AsyncRun<space>
+" nnoremap <leader>: :AsyncRun<space>
+" vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
+nnoremap <silent> <leader>v :Vista!!<CR>
 nnoremap <silent> <leader>P :set paste<CR>"+p:set nopaste<CR>
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
@@ -652,7 +577,7 @@ if exists('&cryptmethod')
   set cryptmethod=blowfish2
 endif
 
-set tgc
+set termguicolors
 let g:colors = []
 silent! let g:colors = readfile(glob('~/local/etc/vimcolor'))
 if len(g:colors) > 0
