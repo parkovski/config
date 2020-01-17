@@ -118,8 +118,9 @@ Set-PSReadlineOption -Colors @{
   error = "darkred";
   continuationprompt = "darkgray"
 }
-Set-PSReadlineOption PromptText 'pwsh> '
-Set-PSReadlineOption ContinuationPrompt '... > '
+# TODO: Find how to get the color back after an error correction.
+Set-PSReadlineOption -PromptText '> '
+Set-PSReadlineOption -ContinuationPrompt '... > '
 
 Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete

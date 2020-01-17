@@ -13,16 +13,16 @@ set showcmd noshowmode showtabline=2
 set splitright splitbelow
 set wildmenu wildmode=longest:full,full
 set complete=.
-" set pumheight=20
 set laststatus=2
 set nobackup nowritebackup noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=1
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
-" set t_Co=256
-" let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-" let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
+set t_Co=256
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 let mapleader="\<space>"
 
@@ -45,11 +45,11 @@ function! g:Chsh(shell)
   let &shell=a:shell
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
     " TODO: Quoting doesn't work right here.
-    set shellquote= shellxquote= shellredir=*> shellpipe=\|\ tee shellxescape=
+    set shellquote= shellxquote= shellredir=*> shellpipe=\|\ tee
     let &shellcmdflag = "-NoLogo -NonInteractive -NoProfile -Command"
   elseif a:shell =~? 'cmd\(\.exe\)\?'
-    set shellquote= shellxquote=( shellredir=>%s\ 2>&1 shellpipe=>
-    let &shellxescape='"&|<>()@^'
+    set shellquote= shellxquote=\" shellredir=>%s\ 2>&1 shellpipe=>
+    let &shellxescape="\"&|<>()@^"
     let &shellcmdflag="/s /c"
   else
     set shellquote= shellxquote= shellpipe=\|\ tee shellredir=>%s\ 2>&1
@@ -178,6 +178,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 " Plug 'skywind3000/asyncrun.vim'
 Plug 'scrooloose/nerdtree'
@@ -195,12 +196,12 @@ Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/vim-color-desert-night'
 
 " Syntaxes
-let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
+" let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
 Plug 'sheerun/vim-polyglot'
-Plug 'leafgarland/typescript-vim'
-Plug 'Quramy/vim-js-pretty-template'
-Plug 'jason0x43/vim-js-indent'
-Plug 'Quramy/tsuquyomi'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'Quramy/vim-js-pretty-template'
+" Plug 'jason0x43/vim-js-indent'
+" Plug 'Quramy/tsuquyomi'
 
 let g:lightline = {
       \ 'colorscheme': 'moonfly',
@@ -300,8 +301,15 @@ let g:LanguageClient_serverCommands = {
       \ 'rust': ['rls'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
+      \ 'typescriptreact': ['javascript-typescript-stdio'],
       \ 'lua': ['lua-lsp'],
       \ }
+
+if has('win32')
+  let g:LanguageClient_serverCommands.javascript[0] .= '.cmd'
+  let g:LanguageClient_serverCommands.typescript[0] .= '.cmd'
+  let g:LanguageClient_serverCommands.typescriptreact[0] .= '.cmd'
+endif
 
 let g:LanguageClient_rootMarkers = {
       \ 'typescript': ['tsconfig.json'],
@@ -404,7 +412,7 @@ inoremap <expr> <Esc> AutoCompleteCancel()
 inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
 inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
-if exists('*deoplete#custom#buffer_option')
+if exists('*deoplete#custom#option')
   function! g:Multiple_cursors_before()
     call deoplete#custom#buffer_option('auto_complete', v:false)
   endfunction
