@@ -17,6 +17,14 @@ function New-SymLink {
   }
 }
 
+function Remove-SymLink {
+  param([Parameter(Mandatory=$true, Position=0)][string]$Path)
+  $item = Get-Item $Path
+  if ($item.Attributes -band 'ReparsePoint' -and $item.LinkType -eq 'SymbolicLink') {
+    $item.Delete()
+  }
+}
+
 function Enter-NewDirectory {
   param([Parameter(Mandatory=$true, Position=0)][string]$Path, [switch]$Push)
   if (-not (Test-Path $Path -PathType Container)) {

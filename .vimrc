@@ -7,7 +7,7 @@ set noerrorbells visualbell t_vb= belloff=all
 set incsearch hlsearch
 set ignorecase smartcase
 set number relativenumber signcolumn=yes
-set colorcolumn=81,101,121
+set colorcolumn=80,100,120
 set cursorline
 set showcmd noshowmode showtabline=2
 set splitright splitbelow
@@ -20,15 +20,20 @@ set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
 
-set t_Co=256
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+if exists('&termguicolors')
+  set termguicolors
+  " if !has('nvim')
+    let &t_Co = 256
+    " let &t_8f = "[38;2;%lu;%lu;%lum"
+    " let &t_8b = "[48;2;%lu;%lu;%lum"
+  " endif
+endif
 
 let mapleader="\<space>"
 
 if has('win32')
   " AAAAAAGGGGGHHHHH
-  nmap <C-z> <Nop>
+  map <C-z> <Nop>
 endif
 
 if !empty($VIMTERM)
@@ -77,7 +82,7 @@ if has('win32')
 
   let g:vimrc_platform.dotvim = glob('~/vimfiles')
   let g:vimrc_platform.temp = $TEMP
-  let g:vimrc_platform.lcinstall = 'powershell -nologo -nop -noni -file install.ps1'
+  let g:vimrc_platform.lcinstall = 'pwsh.exe -nologo -nop -noni -file install.ps1'
   let s:pythonthreehome = ''
   if !empty($PYTHON3HOME)
     let s:pythonthreehome = $PYTHON3HOME
@@ -166,6 +171,7 @@ endif
 " Vimscript autocomplete
 Plug 'Shougo/neco-vim'
 Plug 'Shougo/echodoc.vim'
+Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 
 Plug 'terryma/vim-multiple-cursors'
@@ -185,6 +191,8 @@ Plug 'scrooloose/nerdtree'
 Plug 'sgur/vim-editorconfig'
 " Plug 'michaeljsmith/vim-indent-object'
 Plug 'nathanaelkane/vim-indent-guides'
+Plug 'jeetsukumaran/vim-markology'
+let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
@@ -193,7 +201,8 @@ Plug 'cocopon/iceberg.vim'
 Plug 'chase/focuspoint-vim'
 Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
-Plug 'sainnhe/vim-color-desert-night'
+" Plug 'sainnhe/vim-color-desert-night' " fool removed this repo :(
+Plug 'sainnhe/vim-color-forest-night'
 
 " Syntaxes
 " let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
@@ -202,6 +211,7 @@ Plug 'sheerun/vim-polyglot'
 " Plug 'Quramy/vim-js-pretty-template'
 " Plug 'jason0x43/vim-js-indent'
 " Plug 'Quramy/tsuquyomi'
+" Plug 'ixm-one/vim-cmake'
 
 let g:lightline = {
       \ 'colorscheme': 'moonfly',
@@ -328,6 +338,7 @@ let g:ale_linters = {
       \ 'rust': ['rls'],
       \ 'javascript': ['javascript-typescript-stdio'],
       \ 'typescript': ['javascript-typescript-stdio'],
+      \ 'typescriptreact': ['javascript-typescript-stdio'],
       \ }
 
 let g:ale#util#info_priority = 6
@@ -339,6 +350,7 @@ let g:LanguageClient_loggingFile = g:vimrc_platform.temp . '/lc-neovim.log'
 let g:LanguageClient_loggingLevel = 'WARN'
 let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
 " let g:LanguageClient_waitOutputTimeout = 5
+" let g:LanguageClient_changeThrottle = 0.5
 
 call plug#end()
 
@@ -348,19 +360,21 @@ if exists('*deoplete#custom#option')
                                      \ 'min_pattern_length': 3,
                                      \ 'sources': { '_': s:sources } })
 
-  " silent call deoplete#custom#source('_', 'converters',
-  "                                  \ ['converter_remove_overlap',
-  "                                  \   'converter_truncate_abbr'])
+  silent call deoplete#custom#source('_', 'converters',
+                                     \ ['converter_remove_overlap',
+                                     \   'converter_truncate_abbr'])
   silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
 endif
 
 " set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
-imap <NUL> <C-space>
+imap <NUL> <C-Space>
+" map <NUL> <C-space>
+" map! <NUL> <C-space>
 " Neovim is missing a couple mappings on Windows.
-imap <C-_><Space> <C-space>
-nmap <C-_><Tab> <S-Tab>
-nmap <leader><C-_><Tab> <leader><S-Tab>
+" imap <C-_><Space> <C-space>
+" nmap <C-_><Tab> <S-Tab>
+" nmap <leader><C-_><Tab> <leader><S-Tab>
 
 function! AutoCompleteSelect()
   if empty(v:completed_item)
@@ -454,10 +468,6 @@ nnoremap <M--> <C-w>8-
 nnoremap <M-+> <C-w>8+
 nmap <M-=> <M-+>
 nnoremap <M-lt> <C-w>8<
-nnoremap <M-H> <C-w>H
-nnoremap <M-J> <C-w>J
-nnoremap <M-K> <C-w>K
-nnoremap <M-L> <C-w>L
 
 noremap! <M-h> <Left>
 noremap! <M-j> <Down>
@@ -465,8 +475,8 @@ noremap! <M-k> <Up>
 noremap! <M-l> <Right>
 noremap! <M-b> <S-Left>
 noremap! <M-e> <S-Right>
-noremap! <C-a> <Home>
-noremap! <C-e> <End>
+" noremap! <C-a> <Home>
+" noremap! <C-e> <End>
 
 " Statement
 "map (
@@ -490,6 +500,9 @@ noremap! <C-e> <End>
 "map ]}
 
 " Should do? g[, g], g{, g}
+
+" Swap with deleted text
+xnoremap <C-s> <Esc>`.``gvP``P
 
 function! Align(col, start, end)
   for line in range(a:start, a:end)
@@ -520,13 +533,14 @@ nnoremap <silent> <leader>l :noh<CR>
 " vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
 nnoremap <silent> <leader>v :Vista!!<CR>
-nnoremap <silent> <leader>P :set paste<CR>"+p:set nopaste<CR>
+nnoremap <silent> <leader>P "+p
+" nnoremap <leader>Y "+Y
+" xnoremap <leader>Y "+y
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
 nnoremap <silent> <leader><Tab> :tabnext<CR>
 nnoremap <silent> <leader><S-Tab> :tabprevious<CR>
-nnoremap <silent> <leader>N :tabnew<CR>
-nnoremap <silent> <leader>E :tabedit %<CR>
+nnoremap <silent> <leader>N :tabedit %<CR>
 nnoremap <silent> <leader>Q :tabclose<CR>
 nnoremap <silent> <leader>H :-tabmove<CR>
 nnoremap <silent> <leader>L :+tabmove<CR>
@@ -553,15 +567,17 @@ endf
 augroup VimrcAutoCommands
   autocmd!
 
-  if (has('win32') && has('nvim') && !empty(exepath($GH . "/conutils/isvt.exe")))
-    " Fix some nvim glitches
+  if (has('win32') && !empty(exepath($GH . "/conutils/isvt.exe")))
     command! Conflags exe "!".
           \ $GH."/conutils/isvt.exe -p".
           \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)"
-    autocmd VimEnter * exe "silent !".
-          \ $GH."/conutils/isvt.exe -p".
-          \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)".
-          \ " o=_+DISABLE_NEWLINE_AUTO_RETURN"
+    if has('nvim')
+      " Fix some nvim glitches
+      autocmd VimEnter * exe "silent !".
+            \ $GH."/conutils/isvt.exe -p".
+            \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)".
+            \ " o=_+DISABLE_NEWLINE_AUTO_RETURN"
+    endif
   endif
 
   autocmd FileType cpp set commentstring=//%s
@@ -585,7 +601,6 @@ if exists('&cryptmethod')
   set cryptmethod=blowfish2
 endif
 
-set termguicolors
 let g:colors = []
 silent! let g:colors = readfile(glob('~/local/etc/vimcolor'))
 if len(g:colors) > 0
@@ -595,10 +610,6 @@ if len(g:colors) > 0
   exe 'silent! colorscheme ' . g:colors[0]
   call TryToFixColorScheme(g:colors[0])
 endif
-
-" TODO: Move
-" hi ColorColumn guibg=#203040
-" hi MatchParen guibg=#204090 guifg=#a7bd9a
 
 if exists('&t_SI') && !has('win32')
   let &t_SI = "\<Esc>[5 q"

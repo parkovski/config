@@ -1,5 +1,13 @@
 local starttime=$(date "+%s%3N")
-export EDITOR=vim
+if which nvim >/dev/null 2>&1; then
+  export EDITOR=nvim
+else
+  export EDITOR=vim
+fi
+
+if [[ "$VISUAL" == "" ]]; then
+  export VISUAL=$EDITOR
+fi
 
 export LS_COLORS=$(cat ~/shared/etc/lscolors.txt)
 
@@ -28,6 +36,7 @@ zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p
 zstyle ':completion:*' use-compctl false
 zstyle ':completion:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+# zstyle ':completion:*:in::' environ PWD='$1'
 
 function zle-keymap-select() {
   if [[ $KEYMAP = vicmd ]]; then
@@ -136,6 +145,7 @@ fi
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
     alias ls='ls --color 2>/dev/null'
+    alias ll='ls -al --color 2>/dev/null'
     function start() {
       local winpath="$(wslpath -w $1)"
       shift
@@ -143,9 +153,11 @@ if [[ "$OS_BASE" -eq "Linux" ]]; then
     }
   else
     alias ls='ls --color'
+    alias ll='ls -al --color'
   fi
 else
   alias ls='ls -G'
+  alias ll='ls -alG'
 fi
 
 export GH=$HOME/Documents/GitHub
@@ -166,6 +178,13 @@ function gh() {
   if [[ "$dir" != "" ]]; then
     cd "$GH/$dir"
   fi
+}
+
+function in() {
+  pushd $1 >/dev/null 2>&1
+  shift
+  "$@"
+  popd >/dev/null 2>&1
 }
 
 function mkcd {

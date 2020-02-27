@@ -7,7 +7,7 @@ $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
 Write-Host -NoNewLine "$([char]0x1b)]2;pwsh $($Host.Version.ToString())$([char]0x1b)\"
 
 if (-not ($env:VISUAL)) {
-  $env:VISUAL='vim'
+  $env:VISUAL='nvim'
 }
 if (-not ($env:EDITOR)) {
   $env:EDITOR=$env:VISUAL

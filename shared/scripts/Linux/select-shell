@@ -3,6 +3,9 @@
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "Usage: select-shell [shell] [start-dir]."
   echo "  If shell is empty or '-', the platform default shell is used."
+  echo "  If shell is '-a', the alternative shell is chosen as follows:"
+  echo "    On WSL, the default Linux shell is used."
+  echo "    Otherwise, PowerShell is used if available."
   echo "  If start-dir is empty, the home folder is used."
   exit 1
 fi
@@ -11,31 +14,18 @@ fi
 # other things depend on that name.
 . $(dirname "${BASH_SOURCE[0]}")/../../lib/get-os.zsh
 
-if [[ "$2" ]]; then
+if [[ x"$2" == "x" ]]; then
+  cd
+elif [[ -d "$2" ]]; then
   cd "$2"
+elif [[ "$IS_WSL" == "1" ]]; then
+  wsldir=$(wslpath -u "$2")
+  if [[ -d "$wsldir" ]]; then
+    cd "$wsldir"
+  fi
 fi
 
-if [[ "$1" && "$1" != "-" ]]; then
-  if [[ "$IS_WSL" ]]; then
-    if [[ "$1" == "pwsh" || "$1" == "pwsh.exe" ]]; then
-      if [[ ! "$2" ]]; then
-        exec -c pwsh.exe -wd "$(wslpath -w $USERPROFILE)"
-      else
-        exec -c pwsh.exe -wd "$(wslpath -w $2)"
-      fi
-    fi
-  fi
-
-  exec -c "$1" -l
-fi
-
-if [[ "$IS_WSL" == "1" ]]; then
-  if [[ ! "$2" ]]; then
-    exec -c pwsh.exe -wd "$(wslpath -w $USERPROFILE)"
-  else
-    exec -c pwsh.exe -wd "$(wslpath -w $2)"
-  fi
-elif [[ "$SHELL" == "" ]]; then
+if [[ x"$SHELL" == "x" ]]; then
   if [[ -f /bin/zsh ]]; then
     export SHELL=/bin/zsh
   elif [[ -f /bin/bash ]]; then
@@ -43,8 +33,56 @@ elif [[ "$SHELL" == "" ]]; then
   elif [[ -f /bin/sh ]]; then
     export SHELL=/bin/sh
   else
-    SHELL=sh
+    echo "No shell found!" >&2
+    exit 1
   fi
 fi
 
-exec "$SHELL" -l
+if [[ x"$1" == "x" || "$1" == "-" ]]; then
+  # Platform default shell.
+  if [[ "$IS_WSL" == "1" ]]; then
+    shell="pwsh.exe"
+  else
+    shell="$SHELL"
+  fi
+elif [[ "$1" == "-a" ]]; then
+  # Alternative shell.
+  if [[ "$IS_WSL" == "1" ]]; then
+    shell="$SHELL"
+  else
+    shell="$(/usr/bin/env pwsh)"
+    if [[ ! -x "$1" ]]; then
+      shell="$SHELL"
+    fi
+  fi
+elif [[ ! -x $(which "$1") ]]; then
+  # Oops.
+  echo "Shell does not exist!" >&2
+  exit 1
+else
+  # Custom shell.
+  shell="$1"
+fi
+
+if [[ "$shell" =~ pwsh(\.exe)?$ ]]; then
+  if [[ ! "$2" ]]; then
+    # Default to home dir.
+    exec -c "$shell" -wd "~"
+  elif [[ "$IS_WSL" == "1" && -d "$2" ]]; then
+    # WSL path.
+    exec -c "$shell" -wd "$(wslpath -w $2)"
+  else
+    # Native path
+    exec -c "$shell" -wd "$2"
+  fi
+elif [[ "$shell" =~ cmd\.exe$ ]]; then
+  if [[ ! "$2" ]]; then
+    exec -c "$shell" /k cd %USERPROFILE%
+  elif [[ "$IS_WSL" == "1" && -d "$2" ]]; then
+    exec -c "$shell" /k cd "$(wslpath -w $2)"
+  else
+    exec -c "$shell" /k cd "$2"
+  fi
+fi
+
+exec "$shell" -l

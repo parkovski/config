@@ -1,0 +1,21 @@
+{
+  "name": "Earthsong",
+  "foreground": "#E5C7A9",
+  "background": "#292520",
+  "black": "#121418",
+  "dark_blue": "#1398B9",
+  "dark_green": "#85C54C",
+  "dark_cyan": "#509552",
+  "dark_red": "#C94234",
+  "dark_magenta": "#D0633D",
+  "dark_yellow": "#F5AE2E",
+  "gray": "#E5C6AA",
+  "dark_gray": "#675F54",
+  "blue": "#5FDAFF",
+  "green": "#98E036",
+  "cyan": "#84F088",
+  "red": "#FF645A",
+  "magenta": "#FF9269",
+  "yellow": "#E0D561",
+  "white": "#F6F7EC"
+}
