@@ -23,6 +23,11 @@ function Restore-ConsoleWindow {
   [Console]::SetWindowSize(100, 50)
 }
 
+function wslpath {
+  param([string]$Path)
+  wsl.exe -e wslpath -u ($Path -replace '\\','\\\\')
+}
+
 # Fix missing Set-Clipboard.
 if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
   function Set-Clipboard {

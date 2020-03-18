@@ -1,10 +1,18 @@
 param(
   [switch]$AC, [switch]$DC,
   [switch]$ShowGUIDs, [switch]$Query,
-  [switch]$Force,
+  [switch]$Force, [string]$SchemeGUID,
   [ValidateSet('Hi', 'Lo', $null)][string]$Minimum,
-  [ValidateSet('On', 'Off', $null)][string]$TurboBoost
+  [ValidateSet('On', 'Off', $null)][string]$TurboBoost,
+  [ValidateSet('Lo', 'Med', 'Hi', $null)][string]$IntelThermal
 )
+
+function Write-Stderr {
+  param([Parameter(ValueFromPipeline=$true)][string[]]$Text)
+  foreach ($line in $Text) {
+    [System.Console]::Error.WriteLine($line)
+  }
+}
 
 # GUIDs:
 # - High performance power plan (SCHEME_MIN)
@@ -32,7 +40,7 @@ $HighPerformanceGUID = Get-PowerSchemeGUID -Scheme:'High performance'
 if ($HighPerformanceGUID -eq $null) {
   # SCHEME_MIN
   $HighPerformanceGUID = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
-  Write-Host "High performance GUID not found! Using default: $HighPerformanceGUID"
+  Write-Stderr "High performance GUID not found! Using default: $HighPerformanceGUID"
 }
 $BalancedGUID = Get-PowerSchemeGUID -Scheme:'Balanced'
 # SUB_PROCESSOR
@@ -42,87 +50,112 @@ $ProcThrottleMinGUID = '893dee8e-2bef-41e0-89c6-b55d0929964c'
 # PROCTHROTTLEMAX
 $ProcThrottleMaxGUID = 'bc5038f7-23e0-4960-96da-33abaf5935ec'
 
+# No aliases for these two.
+$IntelThermalSubgroupGUID = 'f1e029fb-fdcb-4d31-b5d9-906e13fe3b67'
+$IntelThermalSettingGUID = 'a4f06079-f3e9-45e0-8562-8aa45ae221fa'
+
+if ([string]::IsNullOrEmpty($SchemeGUID)) {
+  $SchemeGUID = $HighPerformanceGUID
+}
+
 if ($ShowGUIDs) {
-  Write-Host "PowerCfg GUIDs:"
+  Write-Output "PowerCfg GUIDs:"
   if ($BalancedGUID) {
-    Write-Host "Balanced (SCHEME_BALANCED): $BalancedGUID"
+    Write-Output "Balanced (SCHEME_BALANCED): $BalancedGUID"
   }
-  Write-Host "High performance (SCHEME_MIN): $HighPerformanceGUID"
-  Write-Host "SUB_PROCESSOR: $ProcPowerMgmtGUID"
-  Write-Host "PROCTHROTTLEMIN: $ProcThrottleMinGUID"
-  Write-Host "PROCTHROTTLEMAX: $ProcThrottleMaxGUID"
+  Write-Output "High performance (SCHEME_MIN): $HighPerformanceGUID"
+  Write-Output "SUB_PROCESSOR: $ProcPowerMgmtGUID"
+  Write-Output "PROCTHROTTLEMIN: $ProcThrottleMinGUID"
+  Write-Output "PROCTHROTTLEMAX: $ProcThrottleMaxGUID"
+  Write-Output "Intel Thermal subgroup: $IntelThermalSubgroupGUID"
+  Write-Output "Intel Thermal setting: $IntelThermalSettingGUID"
+}
+
+function Set-PowerCfgEx {
+  param([string]$Flag, [string]$Subgroup, [string]$Setting, [uint]$Value)
+
+  powercfg $Flag $SchemeGUID $Subgroup $Setting $Value
+  if ($LASTEXITCODE -ne 0) {
+    Write-Stderr "Failed to set value with powercfg."
+    exit $LASTEXITCODE
+  }
 }
 
 function Set-PowerCfg {
   param([string]$Flag, [string]$SettingGUID, [uint]$Value)
 
-  powercfg $Flag $HighPerformanceGUID $ProcPowerMgmtGUID $SettingGUID $Value
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to set value with powercfg."
-    exit $LASTEXITCODE
-  }
+  Set-PowerCfgEx -Flag:$Flag `
+                 -Subgroup:$ProcPowerMgmtGUID `
+                 -Setting:$SettingGUID `
+                 -Value:$Value
 }
 
-if ($Minimum -ieq 'hi') {
-  if ($AC) {
-    Set-PowerCfg -Flag:'/setacvalueindex' `
-                 -SettingGUID:$ProcThrottleMinGUID `
-                 -Value:99
+if ($Minimum) {
+  switch ($Minimum) {
+    'hi' { $MinThrottleValue = 99 }
+    'lo' { $MinThrottleValue = 5 }
   }
-  if ($DC) {
-    Set-PowerCfg -Flag:'/setdcvalueindex' `
-                 -SettingGUID:$ProcThrottleMinGUID `
-                 -Value:99
-  }
-} elseif ($Minimum -ieq 'lo') {
   if ($AC) {
-    if ($Force) {
+    if ($Minimum -ieq 'hi' -or $Force) {
       Set-PowerCfg -Flag:'/setacvalueindex' `
                    -SettingGUID:$ProcThrottleMinGUID `
-                   -Value:5
+                   -Value:$MinThrottleValue
     } else {
-      Write-Host "Use the -Force to set a low AC value."
+      Write-Stderr "Use the -Force to set a low AC value."
     }
   }
   if ($DC) {
     Set-PowerCfg -Flag:'/setdcvalueindex' `
                  -SettingGUID:$ProcThrottleMinGUID `
-                 -Value:5
+                 -Value:$MinThrottleValue
   }
 }
 
-if ($TurboBoost -ieq 'on') {
+if ($TurboBoost) {
+  switch ($TurboBoost) {
+    'on' { $MaxThrottleValue = 100 }
+    'off' { $MaxThrottleValue = 99 }
+  }
   if ($AC) {
     Set-PowerCfg -Flag:'/setacvalueindex' `
                  -SettingGUID:$ProcThrottleMaxGUID `
-                 -Value:100
+                 -Value:$MaxThrottleValue
   }
   if ($DC) {
     Set-PowerCfg -Flag:'/setdcvalueindex' `
                  -SettingGUID:$ProcThrottleMaxGUID `
-                 -Value:100
+                 -Value:$MaxThrottleValue
   }
-} elseif ($TurboBoost -ieq 'off') {
+}
+
+if ($IntelThermal) {
+  switch ($IntelThermal) {
+    'hi' { $ThermalValue = 2 }
+    'med' { $ThermalValue = 1 }
+    'lo' { $ThermalValue = 0 }
+  }
   if ($AC) {
-    Set-PowerCfg -Flag:'/setacvalueindex' `
-                 -SettingGUID:$ProcThrottleMaxGUID `
-                 -Value:99
+    Set-PowerCfgEx -Flag:'/setacvalueindex' `
+                   -Subgroup:$IntelThermalSubgroupGUID `
+                   -Setting:$IntelThermalSettingGUID `
+                   -Value:$ThermalValue
   }
   if ($DC) {
-    Set-PowerCfg -Flag:'/setdcvalueindex' `
-                 -SettingGUID:$ProcThrottleMaxGUID `
-                 -Value:99
+    Set-PowerCfgEx -Flag:'/setdcvalueindex' `
+                   -Subgroup:$IntelThermalSubgroupGUID `
+                   -Setting:$IntelThermalSettingGUID `
+                   -Value:$ThermalValue
   }
 }
 
 if ($Query) {
-  powercfg /q $HighPerformanceGUID $ProcPowerMgmtGUID
+  powercfg /q $SchemeGUID $ProcPowerMgmtGUID
 } else {
   if (-not $ShowGUIDs) {
     if ((-not ($AC -or $DC)) -or ($TurboBoost -eq $null -and $Minimum -eq $null)) {
-      Write-Host "No args specified!"
-      Write-Host "Use -Query, -ShowGUIDs for info."
-      Write-Host "Use -Minimum=Hi|Lo, -TurboBoost=On|Off with -AC or -DC to change settings."
+      Write-Stderr "No args specified!"
+      Write-Stderr "Use -Query, -ShowGUIDs for info."
+      Write-Stderr "Use -Minimum=Hi|Lo, -TurboBoost=On|Off with -AC or -DC to change settings."
       exit 1
     }
   }

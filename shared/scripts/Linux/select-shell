@@ -67,21 +67,21 @@ fi
 if [[ "$shell" =~ pwsh(\.exe)?$ ]]; then
   if [[ ! "$2" ]]; then
     # Default to home dir.
-    exec -c "$shell" -wd "~"
+    exec "$shell" -wd "~"
   elif [[ "$IS_WSL" == "1" && -d "$2" ]]; then
     # WSL path.
-    exec -c "$shell" -wd "$(wslpath -w $2)"
+    exec "$shell" -wd "$(wslpath -w $2)"
   else
     # Native path
-    exec -c "$shell" -wd "$2"
+    exec "$shell" -wd "$2"
   fi
 elif [[ "$shell" =~ cmd\.exe$ ]]; then
   if [[ ! "$2" ]]; then
-    exec -c "$shell" /k cd %USERPROFILE%
+    exec "$shell" /k cd %USERPROFILE%
   elif [[ "$IS_WSL" == "1" && -d "$2" ]]; then
-    exec -c "$shell" /k cd "$(wslpath -w $2)"
+    exec "$shell" /k cd "$(wslpath -w $2)"
   else
-    exec -c "$shell" /k cd "$2"
+    exec "$shell" /k cd "$2"
   fi
 fi
 
