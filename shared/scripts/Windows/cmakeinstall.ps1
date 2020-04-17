@@ -1,22 +1,24 @@
-if (-not $env:CMAKE_INSTALL_PREFIX) {
-  Write-Output "Error: CMAKE_INSTALL_PREFIX not set"
-  exit 1
+param([string]$File, [string]$Prefix)
+
+if (-not $Prefix) {
+  if (-not $env:CMAKE_INSTALL_PREFIX) {
+    Write-Output "Error: -Prefix and `$CMAKE_INSTALL_PREFIX not set"
+    exit 1
+  }
+  $Prefix = $env:CMAKE_INSTALL_PREFIX
 }
 
-$dir = $pwd
-if ($args[0] -and (test-path -PathType Container $args[0])) {
-  $dir = $args[0]
+if (-not $File) {
+  $File = "$pwd/cmake_install.cmake"
+} elseif (test-path -PathType Container $File) {
+  $File = "$File/cmake_install.cmake"
 }
 
-if (test-path $dir/cmake_install.cmake) {
-  $file = "$dir/cmake_install.cmake"
-} elseif ($args[0] -and (test-path -PathType Leaf $args[0])) {
-  $file = $args[0]
-} else {
+if (-not (test-path -PathType Leaf $File)) {
   Write-Output 'No cmake_install.cmake found in pwd and no valid directory or file given.'
   exit 1
 }
 
 cmake `
-  "-DCMAKE_INSTALL_PREFIX=$($env:CMAKE_INSTALL_PREFIX -replace '\\','/')" `
+  "-DCMAKE_INSTALL_PREFIX=$($Prefix -replace '\\','/')" `
   -P $file

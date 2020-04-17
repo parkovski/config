@@ -12,21 +12,23 @@ set cursorline
 set showcmd noshowmode showtabline=2
 set splitright splitbelow
 set wildmenu wildmode=longest:full,full
-set complete=.
+set complete=. completeopt=menu,preview,noselect
 set laststatus=2
 set nobackup nowritebackup noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=1
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
+set noeol nofixeol
+set cinoptions=g0,N-s,t0,(0,U1,ws,Ws,m1,js,Js
 
 if exists('&termguicolors')
   set termguicolors
-  " if !has('nvim')
+  if !has('nvim')
     let &t_Co = 256
     " let &t_8f = "[38;2;%lu;%lu;%lum"
     " let &t_8b = "[48;2;%lu;%lu;%lum"
-  " endif
+  endif
 endif
 
 let mapleader="\<space>"
@@ -46,7 +48,7 @@ endif
 
 let g:vimrc_platform = {}
 
-function! g:Chsh(shell)
+function! g:Chsh(shell) abort
   let &shell=a:shell
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'
     " TODO: Quoting doesn't work right here.
@@ -66,7 +68,7 @@ function! g:Chsh(shell)
 endfunction
 command! -bar -nargs=1 Chsh call Chsh(<q-args>)
 
-function! g:Shellify(str)
+function! g:Shellify(str) abort
   if &shell =~? 'pwsh' || &shell =~? 'powershell'
     return '"' . substitute(a:str, "[\"`]", "`\1", "g") . '"'
   elseif &shell =~? 'cmd'
@@ -174,6 +176,9 @@ Plug 'Shougo/echodoc.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 
+" Debugger
+" Plug 'puremourning/vimspector'
+
 Plug 'terryma/vim-multiple-cursors'
 Plug 'embear/vim-localvimrc'
 " Symbol browser
@@ -183,7 +188,7 @@ Plug 'mgee/lightline-bufferline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'luochen1990/rainbow'
-Plug 'tpope/vim-fugitive'
+" Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 " Plug 'skywind3000/asyncrun.vim'
@@ -193,6 +198,7 @@ Plug 'sgur/vim-editorconfig'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'jeetsukumaran/vim-markology'
 let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+" Plug 'derekwyatt/vim-fswitch'
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
@@ -205,7 +211,10 @@ Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/vim-color-forest-night'
 
 " Syntaxes
+Plug 'bfrg/vim-cpp-modern'
+" Plug 'condy0919/docom.vim'
 " let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
+let g:polyglot_disabled = ['c', 'cpp']
 Plug 'sheerun/vim-polyglot'
 " Plug 'leafgarland/typescript-vim'
 " Plug 'Quramy/vim-js-pretty-template'
@@ -214,7 +223,7 @@ Plug 'sheerun/vim-polyglot'
 " Plug 'ixm-one/vim-cmake'
 
 let g:lightline = {
-      \ 'colorscheme': 'moonfly',
+      \ 'colorscheme': 'darcula',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
       \ 'component_type': {'buffers': 'tabsel'},
@@ -224,23 +233,27 @@ let g:lightline = {
       \ 'tab': {
       \   'active': ['tabnum', 'name'],
       \   'inactive': ['tabnum', 'name'] },
+      \ 'active': {
+      \   'left': [['mode', 'paste'], ['readonly', 'filename', 'modified']],
+      \   'right': [['lineinfo'], ['percent'],
+      \             ['fileformat', 'eol', 'fileencoding', 'filetype']] },
+      \ 'component': {'eol': '%{&eol?"eol":"noeol"}'},
+      \ 'tab_component_function': {
+      \    'tabnum': 'lightline#tab#tabnum',
+      \    'name': 'LightlineTabName' },
       \ }
-
-let g:lightline.tab_component_function = {
-      \ 'tabnum': 'lightline#tab#tabnum',
-      \ 'name': 'LightlineTabName' }
 
 if !exists('g:lightline#tab#names')
   let g:lightline#tab#names = {}
 endif
-function! LightlineTabName(tabnum)
+function! LightlineTabName(tabnum) abort
   if has_key(g:lightline#tab#names, a:tabnum)
     return g:lightline#tab#names[a:tabnum]
   endif
   return lightline#tab#filename(tabpagenr())
 endfunction
 " au TabClosed...
-function! SetLightlineTabName(cargs)
+function! SetLightlineTabName(cargs) abort
   let l:args = split(a:cargs, '^[0-9]\+\zs')
   if len(l:args) == 1
     let l:num = tabpagenr()
@@ -251,13 +264,12 @@ function! SetLightlineTabName(cargs)
   endif
   let g:lightline#tab#names[l:num] = l:name
   call lightline#update()
-  " execute tabpagenr().'tabn'
-  " Redraw??
+  redrawtabline
 endfunction
 command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
 command! -nargs=1 LightlineColors let g:lightline.colorscheme = <q-args> <bar> call lightline#enable()
 
-function! MakeSession()
+function! MakeSession() abort
   if empty(g:lightline#tab#names)
     return
   endif
@@ -293,7 +305,7 @@ let g:echodoc#type = "floating"
 let g:indent_guides_auto_colors = 0
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_start_level = 2
+let g:indent_guides_start_level = 1
 
 hi link IndentGuidesOdd CursorLine
 hi link IndentGuidesEven CursorLine
@@ -354,7 +366,7 @@ let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
 
 call plug#end()
 
-if exists('*deoplete#custom#option')
+" if exists('*deoplete#custom#option')
   silent call deoplete#custom#option({ 'auto_complete_delay': 50,
                                      \ 'auto_refresh_delay': 200,
                                      \ 'min_pattern_length': 3,
@@ -364,7 +376,7 @@ if exists('*deoplete#custom#option')
                                      \ ['converter_remove_overlap',
                                      \   'converter_truncate_abbr'])
   silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
-endif
+" endif
 
 " set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
@@ -422,11 +434,11 @@ snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
 inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
 snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
 inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
-inoremap <expr> <Esc> AutoCompleteCancel()
-inoremap <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
-inoremap <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
+inoremap <silent> <expr> <Esc> AutoCompleteCancel()
+inoremap <silent> <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
+inoremap <silent> <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
-if exists('*deoplete#custom#option')
+" if exists('*deoplete#custom#option')
   function! g:Multiple_cursors_before()
     call deoplete#custom#buffer_option('auto_complete', v:false)
   endfunction
@@ -436,13 +448,13 @@ if exists('*deoplete#custom#option')
 
   nnoremap <silent> <C-Space> :call deoplete#auto_complete()<CR>
   inoremap <silent> <C-space> <C-o>:call deoplete#auto_complete()<CR>
-  inoremap <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
-  inoremap <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <silent> <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
+  inoremap <silent> <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
   inoremap <silent> <C-g> <C-o>:call deoplete#undo_completion()<CR>
-  inoremap <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
+  inoremap <silent> <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
   nnoremap <silent> <M-Space> :call deoplete#complete_common_string()<CR>
   inoremap <silent> <M-Space> <C-o>:call deoplete#complete_common_string()<CR>
-endif
+" endif
 
 if $VIM_LANGCLIENT ==? 'ale'
   nnoremap K :ALEHover<CR>
@@ -478,6 +490,10 @@ noremap! <M-e> <S-Right>
 " noremap! <C-a> <Home>
 " noremap! <C-e> <End>
 
+noremap! <C-r><C-r> <C-r>"
+noremap! <C-_> <C-r>+
+noremap <C-_> "+
+
 " Statement
 "map (
 "map )
@@ -504,7 +520,7 @@ noremap! <M-e> <S-Right>
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P
 
-function! Align(col, start, end)
+function! Align(col, start, end) abort
   for line in range(a:start, a:end)
     let l:curcol = col('.')
     if a:col < l:curcol
@@ -552,17 +568,57 @@ for nr in range(1, 9)
 endfor
 nnoremap <silent> <leader>0 :b10<CR>
 
-function! TryToFixColorScheme(colors)
-  if empty(a:colors)
-    let l:colors = g:colors_name
-  else
-    let l:colors = a:colors
+let g:colors_opts = {}
+function! TryToFixColorScheme() abort
+  if has_key(g:colors_opts, 'transparent')
+    hi Normal guibg=NONE
+    hi EndOfBuffer guibg=NONE
+    hi LineNr guibg=NONE
+    hi SignColumn guibg=NONE
+    hi FoldColumn guibg=NONE
+    hi VertSplit guibg=NONE guifg=white
   endif
-  let l:fn = glob('~/shared/etc/fix-' . l:colors . '.vim')
+
+  if has_key(g:colors_opts, 'setindentguides')
+    hi IndentGuidesEven guibg=#344162
+    hi IndentGuidesOdd guibg=#344f62
+  endif
+
+  let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
   if filereadable(fn)
     exe 'source ' . l:fn
   endif
-endf
+endfunction
+
+function! SetColorOptions(...) abort
+  if a:0 == 0
+    return
+  endif
+  if type(a:1) == v:t_list && a:0 == 1
+    let l:opts = a:1
+    let l:len = len(l:opts)
+  else
+    let l:opts = a:000
+    let l:len = a:0
+  endif
+
+  let l:i = 1
+  while l:i < l:len
+    if l:opts[l:i] ==# 'dark' || l:opts[l:i] ==# 'light'
+      exe 'silent! set bg='.l:opts[l:i]
+    elseif l:opts[l:i] ==? 'reset'
+      let g:colors_opts = {}
+    elseif !empty(l:opts[l:i])
+      let g:colors_opts[l:opts[l:i]] = 1
+    endif
+    let l:i += 1
+  endwhile
+  if !empty(l:opts[0])
+    exe 'silent! colorscheme '.l:opts[0]
+  elseif l:len > 1
+    exe 'silent! colorscheme '.g:colors_name
+  endif
+endfunction
 
 augroup VimrcAutoCommands
   autocmd!
@@ -593,7 +649,8 @@ augroup VimrcAutoCommands
 
   autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
 
-  autocmd ColorScheme * call TryToFixColorScheme('')
+  autocmd ColorSchemePre * call remove(g:, 'colors_name')
+  autocmd ColorScheme * call TryToFixColorScheme()
 augroup END
 
 noremap! <Char-0x7F> <BS>
@@ -601,15 +658,7 @@ if exists('&cryptmethod')
   set cryptmethod=blowfish2
 endif
 
-let g:colors = []
-silent! let g:colors = readfile(glob('~/local/etc/vimcolor'))
-if len(g:colors) > 0
-  if len(g:colors) > 1
-    let &background=g:colors[1]
-  endif
-  exe 'silent! colorscheme ' . g:colors[0]
-  call TryToFixColorScheme(g:colors[0])
-endif
+silent! call SetColorOptions(readfile(glob('~/local/etc/vimcolor')))
 
 if exists('&t_SI') && !has('win32')
   let &t_SI = "\<Esc>[5 q"
