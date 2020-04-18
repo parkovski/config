@@ -2,6 +2,14 @@ local starttime=$(date "+%s%3N")
 
 export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
 
+export PATH="$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
+if [[ -d "$HOME/bin" ]]; then
+  export PATH="$HOME/bin:$PATH"
+fi
+if [[ -d "$HOME/local/bin" ]]; then
+  export PATH="$HOME/local/bin:$PATH"
+fi
+
 which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
 
 source <(antibody init)
@@ -74,8 +82,6 @@ fi
 if [[ -d "$HOME/n" ]]; then
   export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH="$N_PREFIX/bin:$PATH"
 fi
-
-export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
 
 local totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
