@@ -5,17 +5,13 @@ _gh() {
 
   local -a args
   args=('-t[3rd party repo]: :->third' '-n[New project]: :->new')
-  if [[ "$AUR" != "" ]]; then
-    args+='-aur[AUR repo]: :->aur'
-  fi
   args+='*: :->project'
 
   _arguments $args
 
-  local dir=$HOME/Documents/GitHub
+  local dir=$GH
   case $state in
    (third) dir="$dir/3rd-party" ;;
-   (aur) dir="$dir/3rd-party/aur" ;;
    (new) return ;;
   esac
   compadd "$@" $(ls $dir)
