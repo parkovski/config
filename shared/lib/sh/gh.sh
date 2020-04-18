@@ -10,7 +10,7 @@ function gh() {
     mkdir "$GH/$2"
     cd "$GH/$2"
     git init
-  elif [[ "$1" == "" ]]; then
-    cd $GH
+  else
+    cd "$GH/$1"
   fi
 }
