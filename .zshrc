@@ -79,9 +79,5 @@ else
   alias ll='ls -alG'
 fi
 
-if [[ -d "$HOME/n" ]]; then
-  export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH="$N_PREFIX/bin:$PATH"
-fi
-
 local totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"

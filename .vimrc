@@ -142,12 +142,14 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
 endif
 
 if empty($VIM_LANGCLIENT)
-  let $VIM_LANGCLIENT = 'lcn'
+  let $VIM_LANGCLIENT = 'coc'
 endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
 
-if $VIM_LANGCLIENT ==? 'lcn'
+if $VIM_LANGCLIENT ==? 'coc'
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+elseif $VIM_LANGCLIENT ==? 'lcn'
   Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': g:vimrc_platform.lcinstall,
@@ -163,16 +165,16 @@ elseif $VIM_LANGCLIENT ==? 'ale'
 endif
 
 " Autocomplete popups
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-" Vimscript autocomplete
-Plug 'Shougo/neco-vim'
-Plug 'Shougo/echodoc.vim'
+" if has('nvim')
+"   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" else
+"   Plug 'Shougo/deoplete.nvim'
+"   Plug 'roxma/nvim-yarp'
+"   Plug 'roxma/vim-hug-neovim-rpc'
+" endif
+" " Vimscript autocomplete
+" Plug 'Shougo/neco-vim'
+" Plug 'Shougo/echodoc.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 
@@ -209,21 +211,30 @@ Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
 " Plug 'sainnhe/vim-color-desert-night' " fool removed this repo :(
 Plug 'sainnhe/vim-color-forest-night'
+Plug 'jacoborus/tender.vim'
+Plug 'jaredgorski/spacecamp'
+Plug 'marcopaganini/termschool-vim-theme'
 
 " Syntaxes
 Plug 'bfrg/vim-cpp-modern'
 " Plug 'condy0919/docom.vim'
 " let g:polyglot_disabled = ['javascript', 'jsx', 'typescript', 'tsx']
 let g:polyglot_disabled = ['c', 'cpp']
-Plug 'sheerun/vim-polyglot'
-" Plug 'leafgarland/typescript-vim'
-" Plug 'Quramy/vim-js-pretty-template'
-" Plug 'jason0x43/vim-js-indent'
+" Plug 'sheerun/vim-polyglot'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'Quramy/vim-js-pretty-template'
+Plug 'jason0x43/vim-js-indent'
 " Plug 'Quramy/tsuquyomi'
 " Plug 'ixm-one/vim-cmake'
+Plug 'cespare/vim-toml'
+Plug 'rust-lang/rust.vim'
+Plug 'plasticboy/vim-markdown'
+" Plug 'ilyachur/cmake4vim'
+Plug 'pboettch/vim-cmake-syntax'
 
 let g:lightline = {
-      \ 'colorscheme': 'darcula',
+      \ 'colorscheme': 'snow_dark',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
       \ 'component_type': {'buffers': 'tabsel'},
@@ -367,15 +378,15 @@ let g:LanguageClient_serverStderr = g:vimrc_platform.temp . '/lc-server-err.log'
 call plug#end()
 
 " if exists('*deoplete#custom#option')
-  silent call deoplete#custom#option({ 'auto_complete_delay': 50,
-                                     \ 'auto_refresh_delay': 200,
-                                     \ 'min_pattern_length': 3,
-                                     \ 'sources': { '_': s:sources } })
-
-  silent call deoplete#custom#source('_', 'converters',
-                                     \ ['converter_remove_overlap',
-                                     \   'converter_truncate_abbr'])
-  silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
+"  silent call deoplete#custom#option({ 'auto_complete_delay': 50,
+"                                     \ 'auto_refresh_delay': 200,
+"                                     \ 'min_pattern_length': 3,
+"                                     \ 'sources': { '_': s:sources } })
+"
+"  silent call deoplete#custom#source('_', 'converters',
+"                                     \ ['converter_remove_overlap',
+"                                     \   'converter_truncate_abbr'])
+"  silent call deoplete#enable_logging('WARNING', g:vimrc_platform.temp . '/deoplete.log')
 " endif
 
 " set formatexpr=LanguageClient_textDocument_rangeFormatting()
@@ -439,21 +450,21 @@ inoremap <silent> <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
 inoremap <silent> <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
 " if exists('*deoplete#custom#option')
-  function! g:Multiple_cursors_before()
-    call deoplete#custom#buffer_option('auto_complete', v:false)
-  endfunction
-  function! g:Multiple_cursors_after()
-    call deoplete#custom#buffer_option('auto_complete', v:true)
-  endfunction
-
-  nnoremap <silent> <C-Space> :call deoplete#auto_complete()<CR>
-  inoremap <silent> <C-space> <C-o>:call deoplete#auto_complete()<CR>
-  inoremap <silent> <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
-  inoremap <silent> <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
-  inoremap <silent> <C-g> <C-o>:call deoplete#undo_completion()<CR>
-  inoremap <silent> <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
-  nnoremap <silent> <M-Space> :call deoplete#complete_common_string()<CR>
-  inoremap <silent> <M-Space> <C-o>:call deoplete#complete_common_string()<CR>
+"  function! g:Multiple_cursors_before()
+"    call deoplete#custom#buffer_option('auto_complete', v:false)
+"  endfunction
+"  function! g:Multiple_cursors_after()
+"    call deoplete#custom#buffer_option('auto_complete', v:true)
+"  endfunction
+"
+"  nnoremap <silent> <C-Space> :call deoplete#auto_complete()<CR>
+"  inoremap <silent> <C-space> <C-o>:call deoplete#auto_complete()<CR>
+"  inoremap <silent> <expr> <C-h> deoplete#smart_close_popup()."\<C-h>"
+"  inoremap <silent> <expr> <BS> deoplete#smart_close_popup()."\<C-h>"
+"  inoremap <silent> <C-g> <C-o>:call deoplete#undo_completion()<CR>
+"  inoremap <silent> <expr> <C-l> pumvisible() ? deoplete#refresh() : "\<C-l>"
+"  nnoremap <silent> <M-Space> :call deoplete#complete_common_string()<CR>
+"  inoremap <silent> <M-Space> <C-o>:call deoplete#complete_common_string()<CR>
 " endif
 
 if $VIM_LANGCLIENT ==? 'ale'
@@ -473,6 +484,30 @@ elseif $VIM_LANGCLIENT ==? 'lcn'
   nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
   nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
   imap <silent> <C-s> <C-o><C-s>
+elseif $VIM_LANGCLIENT ==? 'coc'
+  nmap <silent><expr> <C-Space> coc#refresh()
+
+  nmap <silent> [g <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+  " GoTo code navigation.
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+
+  nmap <silent> <F2> <Plug>(coc-rename)
+
+  " Use K to show documentation in preview window.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+  function! s:show_documentation()
+    if (index(['vim','help'], &filetype) >= 0)
+      execute 'h '.expand('<cword>')
+    else
+      call CocAction('doHover')
+    endif
+  endfunction
 endif
 
 nnoremap <M->> <C-w>8>
@@ -570,6 +605,11 @@ nnoremap <silent> <leader>0 :b10<CR>
 
 let g:colors_opts = {}
 function! TryToFixColorScheme() abort
+  let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
+  if filereadable(fn)
+    exe 'source ' . l:fn
+  endif
+
   if has_key(g:colors_opts, 'transparent')
     hi Normal guibg=NONE
     hi EndOfBuffer guibg=NONE
@@ -582,11 +622,6 @@ function! TryToFixColorScheme() abort
   if has_key(g:colors_opts, 'setindentguides')
     hi IndentGuidesEven guibg=#344162
     hi IndentGuidesOdd guibg=#344f62
-  endif
-
-  let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
-  if filereadable(fn)
-    exe 'source ' . l:fn
   endif
 endfunction
 
