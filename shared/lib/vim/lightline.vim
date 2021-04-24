@@ -45,5 +45,5 @@ endfunction
 command! -nargs=1 TabName call SetLightlineTabName(<q-args>)
 command! -nargs=1 LightlineColors let g:lightline.colorscheme = <q-args> <bar> call lightline#enable()
 
-let g:lightline#bufferline#show_number = 1
+let g:lightline#bufferline#show_number = 2 " Bufferline ordinals
 let g:lightline#bufferline#unnamed = '[No Name]'

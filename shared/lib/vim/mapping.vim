@@ -201,6 +201,8 @@ nnoremap <silent> <leader>_ :tabfirst<CR>
 nnoremap <silent> <leader>+ :tablast<CR>
 
 for nr in range(1, 9)
-  exe 'nnoremap <silent> <leader>' . nr . ' :b' . nr . '<CR>'
+  exe 'nmap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
+  " exe 'nnoremap <silent> <leader>' . nr . ' :b' . nr . '<CR>'
 endfor
-nnoremap <silent> <leader>0 :b10<CR>
+" nnoremap <silent> <leader>0 :b10<CR>
+nmap <leader>0 <Plug>lightline#bufferline#go(10)
