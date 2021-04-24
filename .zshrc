@@ -60,6 +60,7 @@ bindkey '^h' backward-delete-char
 . $HOME/shared/lib/sh/prompt.zsh
 . $HOME/shared/lib/sh/gh.sh
 . $HOME/shared/lib/sh/pathutils.sh
+. $HOME/shared/lib/chcl.sh
 
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
@@ -81,3 +82,5 @@ fi
 
 local totaltime=$[$(date "+%s%3N")-$starttime]
 echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
+
+export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH="$N_PREFIX/bin:$PATH"  # Added by n-install (see http://git.io/n-install-repo).

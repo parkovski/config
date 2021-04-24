@@ -1,0 +1,1 @@
+cmake @args "-DCMAKE_TOOLCHAIN_FILE=$HOME\shared\lib\toolchain.cmake"
