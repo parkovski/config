@@ -87,7 +87,8 @@ elseif $VIM_LANGCLIENT ==? 'lcn'
   nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
   imap <silent> <C-s> <C-o><C-s>
 elseif $VIM_LANGCLIENT ==? 'coc'
-  nmap <silent><expr> <C-Space> coc#refresh()
+  nmap <silent> <C-Space> :call coc#refresh()<CR>
+  imap <silent><expr> <C-Space> coc#refresh()<CR>
 
   nmap <silent> [g <Plug>(coc-diagnostic-prev)
   nmap <silent> ]g <Plug>(coc-diagnostic-next)
@@ -97,6 +98,19 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   nmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
+  nmap <silent> gR <Plug>(coc-references-used)
+  nmap <silent> <C-s> :call CocActionAsync('showSignatureHelp')<CR>
+  imap <silent> <C-s> <C-o><C-s>
+
+  nmap <silent> <M-C> <Plug>(coc-codeaction)
+  nmap <silent> <M-a> <Plug>(coc-codeaction-cursor)
+  imap <silent> <M-a> <Plug>(coc-codeaction-cursor)
+  nmap <silent> <M-A> <Plug>(coc-codeaction-line)
+  imap <silent> <M-A> <Plug>(coc-codeaction-line)
+  xmap <silent> <M-a> <Plug>(coc-codeaction-selected)
+  xmap <silent> <M-A> <Plug>(coc-codeaction-line)
+  nmap <silent> <M-F> <Plug>(coc-fix-current)
+  imap <silent> <M-F> <Plug>(coc-fix-current)
 
   nmap <silent> <F2> <Plug>(coc-rename)
 
@@ -156,6 +170,11 @@ noremap <C-_> "+
 
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P
+" Make D/Y like C
+nnoremap D d$
+nnoremap Y y$
+" Keep the last thing copied when we paste.
+xnoremap <expr> p 'pgv"'.v:register.'y'
 
 function! Align(col, start, end) abort
   for line in range(a:start, a:end)
@@ -169,9 +188,6 @@ function! Align(col, start, end) abort
 endfunction
 
 command! -bar -range -nargs=1 Align call Align(<args>, <line1>, <line2>)
-
-" Keep the last thing copied when we paste.
-xnoremap <expr> p 'pgv"'.v:register.'y'
 
 nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
 nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
@@ -187,8 +203,8 @@ nnoremap <silent> <leader>l :noh<CR>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
 nnoremap <silent> <leader>v :Vista!!<CR>
 nnoremap <silent> <leader>P "+p
-" nnoremap <leader>Y "+Y
-" xnoremap <leader>Y "+y
+nnoremap <leader>Y "+Y
+xnoremap <leader>Y "+y
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
 nnoremap <silent> <leader><Tab> :tabnext<CR>
