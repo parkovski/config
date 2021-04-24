@@ -38,7 +38,6 @@ Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
 
 " Editing
-Plug 'andymass/vim-matchup'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'

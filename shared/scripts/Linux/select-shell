@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   echo "Usage: select-shell [shell] [start-dir]."
