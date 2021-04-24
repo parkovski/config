@@ -3,10 +3,8 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
     \ '--create-dirs ' .
     \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   source g:vimrc_platform.dotvim . '/autoload/plug.vim'
-  augroup InstallPlugins
-    autocmd!
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-  augroup END
+  PlugInstall --sync
+  source $MYVIMRC
 endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
@@ -28,35 +26,37 @@ else "if $VIM_LANGCLIENT ==? 'coc'
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 endif
 
+" General
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 
 " Debugger
 " Plug 'puremourning/vimspector'
 
-Plug 'terryma/vim-multiple-cursors'
+" Config
 Plug 'embear/vim-localvimrc'
-" Symbol browser
-Plug 'liuchengxu/vista.vim'
+Plug 'sgur/vim-editorconfig'
 
-Plug 'itchyny/lightline.vim'
-Plug 'mgee/lightline-bufferline'
-
+" Editing
+Plug 'andymass/vim-matchup'
+Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
-
+Plug 'tpope/vim-abolish'
 let g:rainbow_active = 1
+let g:rainbow_conf = {
+      \ 'guifgs': [ 'firebrick', 'orange2', 'gold', 'chartreuse3',
+      \   'deepskyblue2', 'darkorchid1', 'palevioletred1' ],
+      \ 'operators': '_,\|;_',
+      \ 'separately': { 'cmake': 0 } }
+
 Plug 'luochen1990/rainbow'
 " Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 " Plug 'skywind3000/asyncrun.vim'
-Plug 'scrooloose/nerdtree'
-Plug 'sgur/vim-editorconfig'
 " Plug 'michaeljsmith/vim-indent-object'
-
-
-
+let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+Plug 'jeetsukumaran/vim-markology'
 let g:indent_guides_auto_colors = 0
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
@@ -67,10 +67,11 @@ hi link ColorColumn CursorLine
 hi link EchoDocFloat Pmenu
 Plug 'nathanaelkane/vim-indent-guides'
 
-let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-Plug 'jeetsukumaran/vim-markology'
-
-" Plug 'derekwyatt/vim-fswitch'
+" Panes
+Plug 'liuchengxu/vista.vim' " Symbol browser
+Plug 'scrooloose/nerdtree'
+Plug 'itchyny/lightline.vim'
+Plug 'mgee/lightline-bufferline'
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
@@ -84,6 +85,7 @@ Plug 'sainnhe/vim-color-forest-night'
 Plug 'jacoborus/tender.vim'
 Plug 'jaredgorski/spacecamp'
 Plug 'marcopaganini/termschool-vim-theme'
+Plug 'sainnhe/edge'
 
 " Syntaxes
 let g:cpp_class_scope_highlight = 1
@@ -91,7 +93,6 @@ let g:cpp_member_variable_highlight = 1
 let g:cpp_class_decl_highlight = 1
 let g:cpp_concepts_highlight = 1
 Plug 'bfrg/vim-cpp-modern'
-
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 Plug 'Quramy/vim-js-pretty-template'
@@ -102,6 +103,9 @@ Plug 'cespare/vim-toml'
 Plug 'rust-lang/rust.vim'
 Plug 'plasticboy/vim-markdown'
 " Plug 'ilyachur/cmake4vim'
+Plug 'PProvost/vim-ps1'
+Plug 'habamax/vim-godot'
+Plug 'neoclide/jsonc.vim'
 Plug 'pboettch/vim-cmake-syntax'
 
 call plug#end()
