@@ -21,6 +21,8 @@ set encoding=utf8 fileformats=unix,dos
 set mouse=a
 set noeol nofixeol
 set cinoptions=g0,N-s,t0,(0,U1,ws,Ws,m1,js,Js
+set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
+let &showbreak="=>> "
 let mapleader="\<space>"
 
 if exists('&termguicolors')
