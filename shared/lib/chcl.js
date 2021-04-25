@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 const os = require('os');
-const HOME = os.userInfo().homedir;
+let HOME = os.userInfo().homedir;
+if (os.platform() == 'win32') {
+  // CMake doesn't like these and neither do I.
+  HOME = HOME.replace(/\\/g, '/');
+}
 
 const vars = ['CC', 'CFLAGS', 'CXX', 'CXXFLAGS', 'LDFLAGS', 'CMAKE_PREFIX_PATH']
   .reduce((o, v) => { o[v] = null; return o; }, Object.create(null));
@@ -67,14 +71,23 @@ let ioClang = vars.CC.indexOf('clang');
 
 if (~ioClang && vars.CXX == 'libc++') {
   vars.CXX = undefined;
-  vars.CXXFLAGS = `-stdlib=libc++ -I${HOME}/.local/lib.libc++/include `
-    + vars.CXXFLAGS;
+  let new_cxxflags = `-stdlib=libc++ -I${HOME}/.local/lib.libc++/include`;
+  if (os.platform() == 'win32') {
+    new_cxxflags = '-Xclang ' + new_cxxflags;
+  }
+  if (vars.CXXFLAGS) {
+    vars.CXXFLAGS = `${new_cxxflags} ${vars.CXXFLAGS}`;
+  } else {
+    vars.CXXFLAGS = new_cxxflags;
+  }
   vars.LDFLAGS = `-L${HOME}/.local/lib.libc++/lib ` + vars.LDFLAGS;
   vars.CMAKE_PREFIX_PATH = `-L${HOME}/.local/lib.libc++;-L${HOME}/.local`;
 }
 
 if (!vars.CXX) {
-  if (~ioGcc) {
+  if (os.platform() == 'win32' && (vars.CC.endsWith('cl') || vars.CC.endsWith('cl.exe'))) {
+    vars.CXX = vars.CC
+  } else if (~ioGcc) {
     vars.CXX = vars.CC.substring(0, ioGcc + 1) + '++' +
       vars.CC.substring(ioGcc + 3);
   } else if (~ioClang) {
