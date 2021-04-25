@@ -42,6 +42,7 @@ if ($OS -eq "Windows") {
 . $HOME\shared\lib\with.ps1
 Set-Alias with Invoke-WithEnvironment
 Set-Alias senv Set-EnvironmentVariable
+Set-Alias genv Get-EnvironmentVariable
 
 . $HOME/shared/lib/history.ps1
 Set-Alias ^ Invoke-HistoryRecent
