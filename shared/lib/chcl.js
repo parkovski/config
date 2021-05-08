@@ -64,7 +64,7 @@ const local_lib = `-L${HOME}/.local/lib`;
 vars.CFLAGS = vars.CFLAGS || local_include;
 vars.CXXFLAGS = vars.CXXFLAGS || local_include;
 vars.LDFLAGS = vars.LDFLAGS || local_lib;
-vars.CMAKE_PREFIX_PATH = `-L${HOME}/.local`;
+vars.CMAKE_PREFIX_PATH = `${HOME}/.local`;
 
 let ioGcc = vars.CC.indexOf('gcc');
 let ioClang = vars.CC.indexOf('clang');
@@ -81,7 +81,7 @@ if (~ioClang && vars.CXX == 'libc++') {
     vars.CXXFLAGS = new_cxxflags;
   }
   vars.LDFLAGS = `-L${HOME}/.local/lib.libc++/lib ` + vars.LDFLAGS;
-  vars.CMAKE_PREFIX_PATH = `-L${HOME}/.local/lib.libc++;-L${HOME}/.local`;
+  vars.CMAKE_PREFIX_PATH = `${HOME}/.local/lib.libc++;${HOME}/.local`;
 }
 
 if (!vars.CXX) {
