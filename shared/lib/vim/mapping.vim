@@ -1,4 +1,6 @@
-imap <NUL> <C-Space>
+noremap  <NUL> <C-Space>
+noremap! <NUL> <C-Space>
+noremap  <Char-0x7F> <BS>
 noremap! <Char-0x7F> <BS>
 
 function! AutoCompleteSelect()
@@ -42,14 +44,18 @@ function! AutoCompleteCancel()
   return "\<Esc>"
 endfunction
 
-inoremap <silent> <Tab> <C-r>=AutoCompleteJumpForwards()<CR>
-snoremap <silent> <Tab> <Esc>:call AutoCompleteJumpForwards()<CR>
-inoremap <silent> <S-Tab> <C-r>=AutoCompleteJumpBackwards()<CR>
+inoremap <silent> <Tab>        <C-r>=AutoCompleteJumpForwards()<CR>
+snoremap <silent> <Tab>   <Esc>:call AutoCompleteJumpForwards()<CR>
+inoremap <silent> <S-Tab>      <C-r>=AutoCompleteJumpBackwards()<CR>
 snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
-inoremap <silent> <CR> <C-r>=AutoCompleteSelect()<CR>
-inoremap <silent> <expr> <Esc> AutoCompleteCancel()
-inoremap <silent> <expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
-inoremap <silent> <expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
+inoremap <silent> <CR>      <C-r>=AutoCompleteSelect()<CR>
+snoremap <silent> <CR> <Esc>:call AutoCompleteSelect()<CR>
+inoremap <silent><expr> <Esc> AutoCompleteCancel()
+snoremap <silent><expr> <Esc> AutoCompleteCancel()
+inoremap <silent><expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
+snoremap <silent><expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
+inoremap <silent><expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
+snoremap <silent><expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
 
 " if exists('*deoplete#custom#option')
 "  function! g:Multiple_cursors_before()
@@ -87,32 +93,47 @@ elseif $VIM_LANGCLIENT ==? 'lcn'
   nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
   imap <silent> <C-s> <C-o><C-s>
 elseif $VIM_LANGCLIENT ==? 'coc'
-  nmap <silent> <C-Space> :call coc#refresh()<CR>
-  imap <silent><expr> <C-Space> coc#refresh()<CR>
-
-  nmap <silent> [g <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+  nmap <silent>       <C-Space> :call coc#refresh()<CR>
+  imap <silent><expr> <C-Space>       coc#refresh()<CR>
+  smap <silent><expr> <C-Space>       coc#refresh()<CR>
 
   " GoTo code navigation.
   nmap <silent> gd <Plug>(coc-definition)
+  xmap <silent> gd <Plug>(coc-definition)
   nmap <silent> gy <Plug>(coc-type-definition)
+  xmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
+  xmap <silent> gi <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
+  xmap <silent> gr <Plug>(coc-references)
   nmap <silent> gR <Plug>(coc-references-used)
-  nmap <silent> <C-s> :call CocActionAsync('showSignatureHelp')<CR>
+  xmap <silent> gR <Plug>(coc-references-used)
+  map  <silent> <C-s> :call CocActionAsync('showSignatureHelp')<CR>
   imap <silent> <C-s> <C-o><C-s>
 
-  nmap <silent> <M-C> <Plug>(coc-codeaction)
-  nmap <silent> <M-a> <Plug>(coc-codeaction-cursor)
-  imap <silent> <M-a> <Plug>(coc-codeaction-cursor)
-  nmap <silent> <M-A> <Plug>(coc-codeaction-line)
-  imap <silent> <M-A> <Plug>(coc-codeaction-line)
-  xmap <silent> <M-a> <Plug>(coc-codeaction-selected)
-  xmap <silent> <M-A> <Plug>(coc-codeaction-line)
-  nmap <silent> <M-F> <Plug>(coc-fix-current)
-  imap <silent> <M-F> <Plug>(coc-fix-current)
+  set formatexpr=<Plug>(coc-format-selected)
+  map gQ <Plug>(coc-format)
 
-  nmap <silent> <F2> <Plug>(coc-rename)
+  map  <silent> <M-f> <Plug>(coc-fix-current)
+  imap <silent> <M-f> <Plug>(coc-fix-current)
+
+  nmap <silent> <M-c> <Plug>(coc-codeaction-cursor)
+  imap <silent> <M-c> <Plug>(coc-codeaction-cursor)
+  vmap <silent> <M-c> <Plug>(coc-codeaction-selected)
+  map  <silent> <M-C> <Plug>(coc-codeaction-line)
+  imap <silent> <M-C> <Plug>(coc-codeaction-line)
+
+  map  <silent> <M-d> <Plug>(coc-diagnostic-next)
+  imap <silent> <M-d> <Plug>(coc-diagnostic-next)
+  map  <silent> <M-D> <Plug>(coc-diagnostic-prev)
+  imap <silent> <M-D> <Plug>(coc-diagnostic-prev)
+  map  <silent> <M-e> <Plug>(coc-diagnostic-next-error)
+  imap <silent> <M-e> <Plug>(coc-diagnostic-next-error)
+  map  <silent> <M-E> <Plug>(coc-diagnostic-prev-error)
+  imap <silent> <M-E> <Plug>(coc-diagnostic-prev-error)
+
+  map  <silent> <F2> <Plug>(coc-rename)
+  imap <silent> <F2> <Plug>(coc-rename)
 
   " Use K to show documentation in preview window.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -126,24 +147,27 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   endfunction
 endif
 
-nnoremap <M->> <C-w>8>
-nnoremap <M--> <C-w>8-
-nnoremap <M-+> <C-w>8+
-nmap <M-=> <M-+>
-nnoremap <M-lt> <C-w>8<
+noremap  <M->> <C-w>8>
+noremap! <M->> <C-w>8>
+noremap  <M--> <C-w>8-
+noremap! <M--> <C-w>8-
+noremap  <M-=> <C-w>8+
+noremap! <M-=> <C-w>8+
+noremap  <M-lt> <C-w>8<
+noremap! <M-lt> <C-w>8<
 
 noremap! <M-h> <Left>
 noremap! <M-j> <Down>
 noremap! <M-k> <Up>
 noremap! <M-l> <Right>
 noremap! <M-b> <S-Left>
-noremap! <M-e> <S-Right>
-" noremap! <C-a> <Home>
-" noremap! <C-e> <End>
+noremap! <M-w> <S-Right>
+noremap! <C-a> <Home>
+noremap! <C-e> <End>
 
-noremap! <C-r><C-r> <C-r>"
-noremap! <C-_> <C-r>+
-noremap <C-_> "+
+noremap + "+
+noremap! <M-"> <C-r>"
+noremap! <M-+> <C-r>+
 
 " Statement
 "map (
@@ -170,9 +194,11 @@ noremap <C-_> "+
 
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P
+
 " Make D/Y like C
 nnoremap D d$
 nnoremap Y y$
+
 " Keep the last thing copied when we paste.
 xnoremap <expr> p 'pgv"'.v:register.'y'
 
@@ -193,8 +219,8 @@ nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
 nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
 nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
 nnoremap <silent> <leader>p :b#<CR>
-nnoremap <silent> <leader>q :b#<Bar>bd#<CR>
-nnoremap <silent> <leader>q! :b#<Bar>bd!#<CR>
+nnoremap <silent> <leader>q :bn<Bar>bd#<CR>
+nnoremap <silent> <leader>q! :bn<Bar>bd!#<CR>
 nnoremap <silent> <leader>n :echo fnamemodify(expand("%"), ":~:.")<CR>
 " nnoremap <silent> <leader>h :A<CR>
 nnoremap <silent> <leader>l :noh<CR>
@@ -202,9 +228,6 @@ nnoremap <silent> <leader>l :noh<CR>
 " vnoremap <leader>: :AsyncRun<space>
 nnoremap <silent> <leader>b :NERDTreeToggle<CR>
 nnoremap <silent> <leader>v :Vista!!<CR>
-nnoremap <silent> <leader>P "+p
-nnoremap <leader>Y "+Y
-xnoremap <leader>Y "+y
 nnoremap <silent> <leader>r :set relativenumber!<CR>
 
 nnoremap <silent> <leader><Tab> :tabnext<CR>
@@ -216,9 +239,8 @@ nnoremap <silent> <leader>L :+tabmove<CR>
 nnoremap <silent> <leader>_ :tabfirst<CR>
 nnoremap <silent> <leader>+ :tablast<CR>
 
+nmap <silent> <leader>g :<C-U>call lightline#bufferline#go(v:count)<CR>
 for nr in range(1, 9)
   exe 'nmap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
-  " exe 'nnoremap <silent> <leader>' . nr . ' :b' . nr . '<CR>'
 endfor
-" nnoremap <silent> <leader>0 :b10<CR>
 nmap <leader>0 <Plug>lightline#bufferline#go(10)
