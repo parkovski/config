@@ -1,3 +1,5 @@
+using namespace System
+using namespace System.Collections.Generic
 # Base config
 
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'

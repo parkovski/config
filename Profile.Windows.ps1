@@ -146,24 +146,20 @@ function vcvars {
 
     if ($ShowEnv) {
       if ($ProVar.vcvars.Env.Count -eq 0) {
-        Write-Host "Environment:`n* <empty>"
+        Write-Host "Environment: <empty>"
         return
       }
 
       Write-Host "Environment:`n"
       foreach ($k in $ProVar.vcvars.Env.Keys) {
-        $v = $ProVar.vcvars.Env[$k]
-        Write-Host ("* " + $k)
-        if ($v -eq $null) {
-          Write-Host "  - <null>"
+        $old = $ProVar.vcvars.Env[$k]
+        $v = Get-Content "Env:\$k" -ErrorAction Ignore
+        if (-not $v) {
+          Write-Host "- $k"
+        } elseif (-not $old) {
+          Write-Host "+ $k = $v"
         } else {
-          Write-Host ("  - " + $v)
-        }
-        $old = Get-Content "Env:\$k" -ErrorAction Ignore
-        if ($old -eq $null) {
-          Write-Host " + <null>"
-        } else {
-          Write-Host "  + $old`n"
+          Write-Host "= $k = $v"
         }
       }
       return
@@ -176,7 +172,7 @@ function vcvars {
       }
       foreach ($k in $ProVar.vcvars.Env.Keys) {
         $v = $ProVar.vcvars.Env[$k]
-        if ($v -eq $null) {
+        if ([string]::IsNullOrEmpty($v)) {
           Remove-Item "Env:\$k"
         } else {
           Set-Content "Env:\$k" $v
@@ -216,7 +212,7 @@ function vcvars {
       }
     }
     $ProVar.vcvars.IsSet = $true
-    Write-Host "Dawg, vcvars is r-r-r-ready to roll"
+    Write-Host "Dawg, vcvars is r-r-r-ready to roll!"
   }
 }
 

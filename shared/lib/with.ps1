@@ -60,14 +60,9 @@ function Set-EnvironmentVariable {
       $processSameAsScope = $true
     }
   }
-  Write-Host -NoNewline "Warning: This call sometimes takes a million years for unknown reasons... "
-  try {
-    [System.Environment]::SetEnvironmentVariable($Name, $Value, $Scope)
-    if ($processSameAsScope -or $CopyToPS) {
-      Set-Content -Path Env:\$Name -Value $Value
-    }
-  } finally {
-    Write-Host "done!"
+  [System.Environment]::SetEnvironmentVariable($Name, $Value, $Scope)
+  if ($processSameAsScope -or $CopyToPS) {
+    Set-Content -Path Env:\$Name -Value $Value
   }
 }
 
