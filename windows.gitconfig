@@ -10,7 +10,9 @@
   required = true
 [core]
   symlinks = true
-  autocrlf = false
-  filemode = true
+  autocrlf = input
+  filemode = false
 [pull]
   rebase = true
+[credential]
+	helper = manager

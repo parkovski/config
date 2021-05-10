@@ -60,6 +60,20 @@ function read_string {
   $out
 }
 
+function fix_env {
+  param([string]$var, [string]$val)
+  if ($var -ieq 'LDFLAGS') {
+    $flags = $val -split ' '
+    foreach ($flag in $flags) {
+      if ($flag.StartsWith('-L')) {
+        $flag = '/libpath:' + $flag.Substring(2)
+      }
+    }
+    $val = $flags -join ' '
+  }
+  return $val
+}
+
 $out = node $HOME\shared\lib\chcl.js @args
 $out = $out -split "`n"
 foreach ($line in $out) {
@@ -85,6 +99,7 @@ foreach ($line in $out) {
     }
     $var = $right.Substring(0, $eq)
     $val = read_string($right.Substring($eq + 1))
+    $val = fix_env($var, $val)
     Set-EnvironmentVariable $var $val
   } elseif ($left -eq 'echo') {
     $right = read_string($right)
