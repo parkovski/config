@@ -40,11 +40,18 @@ function Invoke-WithEnvironment {
 
 function Set-EnvironmentVariable {
   param(
-    [Parameter(Mandatory=$true,  Position=0)][string]$Name,
+    [Parameter(Mandatory=$true,  Position=0)]
+    [string]$Name,
+
     [Parameter(Mandatory=$true,  Position=1, ValueFromPipeline=$true)]
+    [AllowNull()]
+    [AllowEmptyString()]
     [string]$Value,
-    [Parameter(Mandatory=$false, Position=2)][Alias('s')]
+
+    [Parameter(Mandatory=$false, Position=2)]
+    [Alias('s')]
     [System.EnvironmentVariableTarget]$Scope='Process',
+
     [Parameter(Mandatory=$false,
       HelpMessage='Always on if Scope value is the same as current PS value.')]
     [Alias('p')]
@@ -87,22 +94,7 @@ function Remove-EnvironmentVariable {
   param(
     [Parameter(Mandatory=$true, Position=0)][string]$Name,
     [Parameter(Mandatory=$false)][Alias('s')]
-    [System.EnvironmentVariableTarget]$Scope='Process',
-    [Parameter(Mandatory=$false, HelpMessage='Always on if Scope is Process.')]
-    [Alias('p')][switch]$RemoveFromPS=$false
+    [System.EnvironmentVariableTarget]$Scope='Process'
   )
-  $processSameAsScope = $false
-  if ($Scope -eq 'Process') {
-    $processSameAsScope = $true
-  } else {
-    $scorig = [System.Environment]::GetEnvironmentVariable($Name, $Scope)
-    $psorig = Get-Content -Path Env:\$Name -ErrorAction Ignore
-    if ([string]::IsNullOrEmpty($psorig) -or $scorig -eq $psorig) {
-      $processSameAsScope = $true
-    }
-  }
   [System.Environment]::SetEnvironmentVariable($Name, $null, $Scope)
-  if ($processSameAsScope -or $RemoveFromPS) {
-    Remove-Item -Pat Env:\$Name
-  }
 }

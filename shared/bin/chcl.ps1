@@ -64,9 +64,9 @@ function fix_env {
   param([string]$var, [string]$val)
   if ($var -ieq 'LDFLAGS') {
     $flags = $val -split ' '
-    foreach ($flag in $flags) {
-      if ($flag.StartsWith('-L')) {
-        $flag = '/libpath:' + $flag.Substring(2)
+    for ($i = 0; $i -lt $flags.Length; $i += 1) {
+      if ($flags[$i].StartsWith('-L')) {
+        $flags[$i] = '/libpath:' + $flags[$i].Substring(2)
       }
     }
     $val = $flags -join ' '
@@ -99,8 +99,12 @@ foreach ($line in $out) {
     }
     $var = $right.Substring(0, $eq)
     $val = read_string($right.Substring($eq + 1))
-    $val = fix_env($var, $val)
-    Set-EnvironmentVariable $var $val
+    $val = fix_env $var $val
+    if ([string]::IsNullOrEmpty($val)) {
+      Remove-EnvironmentVariable $var
+    } else {
+      Set-EnvironmentVariable $var $val
+    }
   } elseif ($left -eq 'echo') {
     $right = read_string($right)
     if ($right.StartsWith('-n ')) {
