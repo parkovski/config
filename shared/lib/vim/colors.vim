@@ -1,5 +1,9 @@
 let g:colors_opts = {}
 function! TryToFixColorScheme() abort
+  if !has_key(g:, 'colors_name')
+    return
+  endif
+
   let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
   if filereadable(fn)
     exe 'source ' . l:fn

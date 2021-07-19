@@ -71,7 +71,10 @@ Plug 'liuchengxu/vista.vim' " Symbol browser
 Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
-Plug 'preservim/vimux'
+
+if exepath('tmux')
+  Plug 'preservim/vimux'
+endif
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
