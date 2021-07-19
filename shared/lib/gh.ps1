@@ -3,15 +3,15 @@ function gh {
   param(
     [Alias('t')][switch]$ThirdParty,
     [Alias('n')][switch]$NewProject,
-    [Alias('d')][switch]$DevExternal,
+    [Alias('a')][switch]$AltDir,
     [Alias('c')][switch]$Clone
   )
   dynamicparam {
     $Projects = $null
     if ((-not $NewProject) -and (-not $Clone)) {
       $Dir = $GH
-      if ($DevExternal -and [bool]$DDev) {
-        $Dir = $DDev
+      if ($AltDir) {
+        $Dir = $GH2
       } elseif ($ThirdParty) {
         $Dir = "$GH\3rd-party"
       }
@@ -34,13 +34,13 @@ function gh {
     $p
   }
   begin {
-    if ($DevExternal) {
-      if (-not $DDev) {
+    if ($AltDir) {
+      if (-not $GH2) {
         Write-Output "External dev directory is not set up."
         return
       }
-      $Dir = $DDev
-    }  else {
+      $Dir = $GH2
+    } else {
       $Dir = $GH
     }
     if ($ThirdParty) {

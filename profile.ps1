@@ -50,11 +50,14 @@ Set-Alias genv Get-EnvironmentVariable
 Set-Alias ^ Invoke-HistoryRecent
 
 function dirs { Get-Location -Stack }
-function touch { echo '' >> $args[0] }
+function touch { New-Item -Path $args[0] -ItemType File }
 
-$GH = "$HOME\Documents\GitHub"
-$env:GH = $GH
-# Note: $DDev is a secondary project dir.
+if (![string]::IsNullOrEmpty($env:GH)) {
+  $GH = $env:GH
+}
+if (![string]::IsNullOrEmpty($env:GH2)) {
+  $GH2 = $env:GH2
+}
 . $HOME/shared/lib/gh.ps1
 
 # Add ~/shared/lib/paths.txt to $PATH.
@@ -137,7 +140,7 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
 Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
 Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
 Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
-Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
 
 # Set-PSReadlineKeyHandler -Key 'Ctrl+]' -Function CopyScreen
 # Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function Left
