@@ -1,9 +1,9 @@
-param([Nullable[boolean]]$Set)
+param([Alias('v')][Nullable[boolean]]$Value)
 
 $key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System'
 $prop = 'VerboseStatus'
-if ($Set -eq $null) {
+if ($Value -eq $null) {
   Write-Host $(try { (Get-ItemProperty $key $prop -ErrorAction Stop).$prop } catch { 0 })
 } else {
-  Set-ItemProperty $key $prop ([int]$Set) -Type DWord
+  Set-ItemProperty $key $prop ([int]$Value) -Type DWord
 }

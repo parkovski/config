@@ -1,30 +1,35 @@
 const fs = require('fs');
 const path = require('path');
 const spawnSync = require('child_process').spawnSync;
+const os = require('os');
+const WIN32 = os.platform() === 'win32';
+const HOME = os.homedir();
+const CURL = WIN32 ? 'curl.exe' : 'curl';
 
-const listpath = path.resolve(__dirname, '../etc/vimcolors.txt');
-const colorspath = path.resolve(process.env.HOME, '.vim/colors');
+const listpath = path.resolve(HOME, 'shared/etc/vimcolors.txt');
+const colorspath = path.resolve(HOME, WIN32 ? 'vimfiles' : '.vim', 'colors');
+if (!fs.existsSync(colorspath)) {
+  fs.mkdirSync(colorspath);
+}
 let colors
   = fs.readFileSync(listpath, 'utf-8')
-    .split('\n')
+    .split(/\r?\n/)
     .filter(x => x);
 
+process.stdout.write(`${colors.length} colors to download.\n`);
 colors.forEach(c => {
   const shortname = c.substr(c.lastIndexOf('/') + 1);
   if (fs.existsSync(path.resolve(colorspath, shortname))) {
-    console.log('Skipping ' + shortname + ' because it already exists.');
+    process.stdout.write('Skipping ' + shortname + ' because it already exists.\n');
     return;
   }
-  process.stdout.write('Downloading ' + shortname + '... ');
-  const res = spawnSync('curl', ['-sLO', c], { cwd: colorspath });
-  if (res.error) {
-    process.stdout.write('\n');
-    throw res.error;
-  }
+  process.stdout.write('Downloading ' + shortname + '... \n');
+  const res = spawnSync(CURL, ['-sLO', c], { cwd: colorspath });
   if (res.status) {
-    process.stdout.write('\n');
-    process.exit(res.status);
+    process.stdout.write('Curl returned ' + res.status + '.\n');
   }
-  process.stdout.write('done.\n');
+  if (res.error) {
+    process.stdout.write(res.error.toString());
+    process.stdout.write('\n');
+  }
 });
-
