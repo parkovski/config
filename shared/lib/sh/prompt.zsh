@@ -63,7 +63,7 @@ function precmd() {
     fi
   fi
 
-  local piznath=$(echo -n ${PWD/~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
+  local piznath=$(echo -n ${PWD/#~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
   print -P "%F{10}%n%F{8}@%F{10}%m%f$prompt_gitstr %F{12}$piznath%f"
   PS1="%F{8}${exitcode}zsh%%%f "
 }
