@@ -2,13 +2,7 @@ local starttime=$(date "+%s%3N")
 
 export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
 
-export PATH="$HOME/shared/bin:$HOME/shared/scripts/Linux:$PATH"
-if [[ -d "$HOME/bin" ]]; then
-  export PATH="$HOME/bin:$PATH"
-fi
-if [[ -d "$HOME/local/bin" ]]; then
-  export PATH="$HOME/local/bin:$PATH"
-fi
+export PATH="$HOME/local/bin:$HOME/shared/bin:$PATH"
 
 which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
 
