@@ -71,4 +71,5 @@ augroup VimrcAutoCommands
   endif
 
   autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+  autocmd TermOpen * startinsert
 augroup END

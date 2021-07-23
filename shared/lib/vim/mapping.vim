@@ -147,14 +147,14 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   endfunction
 endif
 
-noremap  <M->> <C-w>8>
-noremap! <M->> <C-w>8>
-noremap  <M--> <C-w>8-
-noremap! <M--> <C-w>8-
-noremap  <M-=> <C-w>8+
-noremap! <M-=> <C-w>8+
-noremap  <M-lt> <C-w>8<
-noremap! <M-lt> <C-w>8<
+noremap <M-lt> <C-w>5<
+map!    <M-lt> <C-o><M-lt>
+noremap <M->> <C-w>5>
+map!    <M->> <C-o><M->>
+noremap <M-V> <C-w>5-
+map!    <M-V> <C-o><M-V>
+noremap <M-^> <C-w>5+
+map!    <M-^> <C-o><M-^>
 
 noremap! <M-h> <Left>
 noremap! <M-j> <Down>
@@ -167,7 +167,9 @@ noremap! <C-e> <End>
 
 noremap + "+
 noremap! <M-"> <C-r>"
+map!     <M-'> <M-">
 noremap! <M-+> <C-r>+
+map!     <M-=> <M-+>
 
 " Statement
 "map (
@@ -200,7 +202,8 @@ nnoremap D d$
 nnoremap Y y$
 
 " Keep the last thing copied when we paste.
-xnoremap <expr> p 'pgv"'.v:register.'y'
+xnoremap <expr> p 'pgv"'.v:register.'yg`]'
+xnoremap <expr> P 'Pgv"'.v:register.'y'
 
 function! Align(col, start, end) abort
   for line in range(a:start, a:end)
