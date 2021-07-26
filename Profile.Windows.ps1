@@ -41,7 +41,6 @@ if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
   }
 }
 
-$global:DDev = "D:\dev"
 $global:LocalPrograms = "$HOME\AppData\Local\Programs"
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
@@ -49,14 +48,22 @@ $global:LocalPrograms = "$HOME\AppData\Local\Programs"
 $ProVar.vcvars = @{
   Base = "C:\Program Files (x86)\Microsoft Visual Studio";
   Toolsets = @{
+    # 32 bit compiler
     cpp32host32 = "VC\Auxiliary\Build\vcvars32.bat";
-    cpp32host64 = "VC\Auxiliary\Build\vcvarsx86_amd64.bat";
-    cpp64host32 = "VC\Auxiliary\Build\vcvarsamd64_x86.bat";
-    cpp64host64 = "VC\Auxiliary\Build\vcvars64.bat";
+    cpp64host32 = "VC\Auxiliary\Build\vcvarsx86_amd64.bat";
     cpparmhost32 = "VC\Auxiliary\Build\vcvarsx86_arm.bat";
+    cpparm64host32 = "VC\Auxiliary\Build\vcvarsx86_arm64.bat";
+
+    # 64 bit compiler
+    cpp64host64 = "VC\Auxiliary\Build\vcvars64.bat";
+    cpp32host64 = "VC\Auxiliary\Build\vcvarsamd64_x86.bat";
     cpparmhost64 = "VC\Auxiliary\Build\vcvarsamd64_arm.bat";
+    cpparm64host64 = "VC\Auxiliary\Build\vcvarsamd64_arm64.bat";
+
+    #launchdevcmd = "Common7\Tools\LaunchDevCmd.bat";
     msbuild = "Common7\Tools\VsMSBuildCmd.bat";
     vsdevcmd = "Common7\Tools\VsDevCmd.bat";
+    #launchvsdevshell = "Common7\Tools\Launch-VsDevShell.ps1";
   }
   IsSet = $false;
   Env = @{};
@@ -67,23 +74,26 @@ $ProVar.vcvars = @{
     $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host64
     $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host64
     $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost64
+    $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host64
     $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp64host64
   } else {
     $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host32
     $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host32
     $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost32
+    $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host32
     $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp32host32
   }
-  $ProVar.vcvars.Versions = @(Get-ChildItem $ProVar.vcvars.Base | % {
-    $i = 0
-    [int]::TryParse($_.Name, [ref]$i)
+  $ProVar.vcvars.Versions = @(Get-ChildItem $ProVar.vcvars.Base | ForEach-Object {
     return @{
       Name = $_.Name;
-      Rank = $i;
-      Editions = @(Get-ChildItem -Directory ($ProVar.vcvars.Base + '\' + $_.Name) | % Name);
+      Editions = @( `
+        Get-ChildItem -Directory $_ `
+        | Where-Object { Test-Path -PathType Container "$_\Common7\Tools" } `
+        | ForEach-Object Name `
+      );
     }
-  }) | Where { $_.Editions -and $_.Editions.Length -gt 0 } `
-     | Sort-Object -Descending -Property Rank
+  }) | Where-Object { $_.Editions -and $_.Editions.Length -gt 0 } `
+     | Sort-Object -Descending -Property Name
 }
 # TODO: Make this look for more versions/editions
 function vcvars {
@@ -134,11 +144,11 @@ function vcvars {
 
     if ($List) {
       Write-Host "Versions:"
-      $ProVar.vcvars.Versions | % {
+      $ProVar.vcvars.Versions | ForEach-Object {
         Write-Host ("* " + $_.Name + ": " + ($_.Editions -join ', '))
       }
       Write-Host "Toolsets:"
-      $ProVar.vcvars.Toolsets.Keys | % {
+      $ProVar.vcvars.Toolsets.Keys | ForEach-Object {
         Write-Host ("* " + $_ + ": " + $ProVar.vcvars.Toolsets[$_])
       }
       return
