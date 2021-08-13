@@ -1,23 +1,19 @@
-$OS_BASE = [System.Environment]::OSVersion.Platform
+$global:OS_BASE = [System.Environment]::OSVersion.Platform
+$global:OS = "Unknown"
 
 if ($OS_BASE -eq "Unix") {
   $OS_BASE = uname -s
   if ($OS_BASE -eq "Darwin") {
     $OS = $OS_BASE = "macOS"
   } elseif ($OS_BASE -eq "Linux") {
-    $OS = ((Get-Content /etc/os-release) -split '`n') | ? { $_ -match "^NAME=`".+`"" }
-    if ($OS) {
-      $OS = $OS.Substring(6, $OS.Length - 6 - 1)
-    } else {
-      $OS = "Unknown"
+    $MaybeOS = ((Get-Content /etc/os-release) -split '`n') | `
+      Where-Object { $_ -match "^NAME=`".+`"" }
+    if ($MaybeOS) {
+      $OS = $MaybeOS.Substring(6, $OS.Length - 6 - 1)
     }
-  } else {
-    $OS = "Unknown"
   }
 } elseif ($OS_BASE -eq "Win32NT") {
   $OS = $OS_BASE = "Windows"
-} else {
-  $OS = $OS_BASE = "Unknown"
 }
 
 $env:OS = $OS

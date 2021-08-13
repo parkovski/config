@@ -10,6 +10,21 @@
   }
 }
 
+function local:TryToImport {
+  param([Parameter(Position=0)][string]$Path)
+  if (Test-Path $Path) {
+    Import-Module $Path
+  }
+}
+
+TryToImport "$GH\3rd-party\vcpkg\scripts\posh-vcpkg"
+TryToImport "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+
+function Restart-Explorer {
+  Stop-Process -Name explorer.exe
+}
+Set-Alias rsex Restart-Explorer
+
 function Open-PowerShell {
   param([switch]$Admin)
   if ($Admin) {
@@ -41,7 +56,7 @@ if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
   }
 }
 
-$global:LocalPrograms = "$HOME\AppData\Local\Programs"
+Set-Alias which where.exe
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
@@ -69,33 +84,32 @@ $ProVar.vcvars = @{
   Env = @{};
   DefaultVersion = '2019';
 }
-& {
-  if ([System.Environment]::Is64BitOperatingSystem) {
-    $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host64
-    $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host64
-    $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost64
-    $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host64
-    $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp64host64
-  } else {
-    $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host32
-    $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host32
-    $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost32
-    $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host32
-    $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp32host32
-  }
-  $ProVar.vcvars.Versions = @(Get-ChildItem $ProVar.vcvars.Base | ForEach-Object {
-    return @{
-      Name = $_.Name;
-      Editions = @( `
-        Get-ChildItem -Directory $_ `
-        | Where-Object { Test-Path -PathType Container "$_\Common7\Tools" } `
-        | ForEach-Object Name `
-      );
-    }
-  }) | Where-Object { $_.Editions -and $_.Editions.Length -gt 0 } `
-     | Sort-Object -Descending -Property Name
+
+if ([System.Environment]::Is64BitOperatingSystem) {
+  $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host64
+  $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host64
+  $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost64
+  $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host64
+  $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp64host64
+} else {
+  $ProVar.vcvars.Toolsets.cpp32 = $ProVar.vcvars.Toolsets.cpp32host32
+  $ProVar.vcvars.Toolsets.cpp64 = $ProVar.vcvars.Toolsets.cpp64host32
+  $ProVar.vcvars.Toolsets.cpparm = $ProVar.vcvars.Toolsets.cpparmhost32
+  $ProVar.vcvars.Toolsets.cpparm64 = $ProVar.vcvars.Toolsets.cpparm64host32
+  $ProVar.vcvars.Toolsets.cpp = $ProVar.vcvars.Toolsets.cpp32host32
 }
-# TODO: Make this look for more versions/editions
+$ProVar.vcvars.Versions = @(Get-ChildItem $ProVar.vcvars.Base | ForEach-Object {
+  return @{
+    Name = $_.Name;
+    Editions = @( `
+      Get-ChildItem -Directory $_ `
+      | Where-Object { Test-Path -PathType Container "$_\Common7\Tools" } `
+      | ForEach-Object Name `
+    );
+  }
+}) | Where-Object { $_.Editions -and $_.Editions.Length -gt 0 } `
+   | Sort-Object -Descending -Property Name
+
 function vcvars {
   [CmdletBinding()]
   param(
@@ -112,7 +126,9 @@ function vcvars {
     if ([string]::IsNullOrEmpty($Version)) {
       $Version = $ProVar.vcvars.DefaultVersion
     }
-    $editions = @($ProVar.vcvars.Versions | Where Name -ieq $Version | % Editions)
+    $editions = @($ProVar.vcvars.Versions `
+      | Where-Object Name -ieq $Version `
+      | ForEach-Object Editions)
     $params = New-DynamicParams `
             | Add-DynamicParam Toolset -Alias 't' -Type:([string]) `
               -Values $ProVar.vcvars.Toolsets.Keys `
@@ -209,7 +225,7 @@ function vcvars {
       Write-Host "Aw hell nah dawg stuff didn't work!"
       return
     }
-    $output | ?{$_ -match "^[A-Za-z_0-9]+="} | %{
+    $output | Where-Object {$_ -match "^[A-Za-z_0-9]+="} | ForEach-Object {
       $var = $_
       $eq = $var.IndexOf('=');
       $key = $var.Substring(0, $eq);
@@ -224,11 +240,4 @@ function vcvars {
     $ProVar.vcvars.IsSet = $true
     Write-Host "Dawg, vcvars is r-r-r-ready to roll!"
   }
-}
-
-Set-Alias which where.exe
-
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
 }

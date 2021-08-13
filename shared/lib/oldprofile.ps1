@@ -1,6 +1,6 @@
 # Fix cd on old PowerShell.
 if (test-path Alias:cd) {
-  rm -force Alias:cd
+  Remove-Item -force Alias:cd
 }
 function cd {
   if ($args.Length -eq 0) {
@@ -64,9 +64,9 @@ function prompt {
         $remote = $(git rev-parse --abbrev-ref --symbolic-full-name '@{u}')
         if ($remote) {
           $ahead_str = git rev-list --count "$remote..HEAD"
-          $_ = [int]::TryParse($ahead_str.Trim(), [ref]$ahead)
+          [int]::TryParse($ahead_str.Trim(), [ref]$ahead) > $null
           $behind_str = git rev-list --count "HEAD..$remote"
-          $_ = [int]::TryParse($behind_str.Trim(), [ref]$behind)
+          [int]::TryParse($behind_str.Trim(), [ref]$behind) > $null
         }
       }
     }

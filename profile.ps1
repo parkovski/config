@@ -15,10 +15,10 @@ if (-not ($env:EDITOR)) {
   $env:EDITOR=$env:VISUAL
 }
 
-$PowerShell = (Get-Process -Id $PID).MainModule.FileName
+$global:PowerShell = (Get-Process -Id $PID).MainModule.FileName
 
 # Profile config.
-$ProVar = @{
+$global:ProVar = @{
   ghuser = 'parkovski'
 }
 
@@ -30,8 +30,10 @@ Set-Alias in Invoke-InDirectory
 . $HOME/shared/lib/Get-OS.ps1
 # Find if we're Admin/root.
 if ($OS -eq "Windows") {
-  $user = [Security.Principal.WindowsIdentity]::GetCurrent();
-  $ProVar.admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+  $ProVar.user = [Security.Principal.WindowsIdentity]::GetCurrent();
+  $ProVar.admin = `
+    (New-Object Security.Principal.WindowsPrincipal $ProVar.user). `
+      IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
   # This has the right capitalization
   $ProVar.hostname = (Get-CimInstance -ClassName Win32_ComputerSystem).DNSHostName
 } else {
@@ -53,18 +55,22 @@ function dirs { Get-Location -Stack }
 function touch { New-Item -Path $args[0] -ItemType File }
 
 if (![string]::IsNullOrEmpty($env:GH)) {
-  $GH = $env:GH
+  $global:GH = $env:GH
+  if (![string]::IsNullOrEmpty($env:GH2)) {
+    $global:GH2 = $env:GH2
+  }
+  . $HOME/shared/lib/gh.ps1
+} else {
+  function gh {
+    Write-Error "`$env:GH is not defined"
+  }
 }
-if (![string]::IsNullOrEmpty($env:GH2)) {
-  $GH2 = $env:GH2
-}
-. $HOME/shared/lib/gh.ps1
 
 # Add ~/shared/lib/paths.txt to $PATH.
 & {
   $fpaths = $null
   if (Test-Path "$HOME\shared\lib\paths.txt") {
-    $fpaths = (gc "$HOME\shared\lib\paths.txt") -split "`n"
+    $fpaths = (Get-Content "$HOME\shared\lib\paths.txt") -split "`n"
     if ($env:PATH.IndexOf($fpaths[-1]) -ne -1) {
       return;
     }
@@ -84,7 +90,7 @@ $ProVar.PromptOpts = @{
 }
 
 # For compatibility with older powershell
-if ($Host.Version.Major -lt 6) {
+if ($Host.Runspace.Version.Major -lt 6) {
   . "$HOME/shared/lib/oldprofile.ps1"
   exit
 }

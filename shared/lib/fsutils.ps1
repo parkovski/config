@@ -44,8 +44,8 @@ function Enter-ParentDirectory {
 
 function Invoke-InDirectory {
   $dir = $pwd
-  cd $args[0]
+  Set-Location $args[0]
   $result = &$args[1] $args[2..($args.Length-1)]
-  cd $dir
+  Set-Location $dir
   $result
 }

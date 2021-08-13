@@ -12,10 +12,11 @@ function gh {
       $Dir = $GH
       if ($AltDir) {
         $Dir = $GH2
-      } elseif ($ThirdParty) {
-        $Dir = "$GH\3rd-party"
       }
-      $Projects = $(Get-ChildItem $Dir | % Name)
+      if ($ThirdParty) {
+        $Dir = "$Dir\3rd-party"
+      }
+      $Projects = $(Get-ChildItem $Dir | ForEach-Object Name)
     }
     $p = New-DynamicParams
     if ($NewProject) {
@@ -36,7 +37,7 @@ function gh {
   begin {
     if ($AltDir) {
       if (-not $GH2) {
-        Write-Output "External dev directory is not set up."
+        Write-Output "External dev directory (env GH2) is not set up."
         return
       }
       $Dir = $GH2
@@ -65,20 +66,20 @@ function gh {
   }
   process {
     if ($NewProject) {
-      cd $Dir
+      Set-Location $Dir
       mkdir $Project
-      cd $Project
+      Set-Location $Project
       git init
     } elseif ($Clone) {
       if (-not ($Project -match "[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+")) {
         Write-Host "Repo name is invalid."
         return
       }
-      cd $Dir
+      Set-Location $Dir
       git clone $Repo $LocalDir
-      cd $LocalDir
+      Set-Location $LocalDir
     } else {
-      cd "$Dir\$Project"
+      Set-Location "$Dir\$Project"
     }
   }
 }
