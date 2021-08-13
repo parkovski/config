@@ -165,11 +165,25 @@ noremap! <M-w> <S-Right>
 noremap! <C-a> <Home>
 noremap! <C-e> <End>
 
-noremap + "+
+" Swap with deleted text
+xnoremap <C-s> <Esc>`.``gvP``P
+
+" Make D/Y like C
+nnoremap D d$
+nnoremap Y y$
+
+" Keep the last thing copied when we paste.
+xnoremap <expr> p 'pgv"'.v:register.'yg`]'
+xnoremap <expr> P 'Pgv"'.v:register.'y'
+
+xnoremap <expr> <M-=> '"+pgv"+yg`]'
+
+noremap  +     "+
 noremap! <M-"> <C-r>"
 map!     <M-'> <M-">
 noremap! <M-+> <C-r>+
 map!     <M-=> <M-+>
+
 
 " Statement
 "map (
@@ -193,17 +207,6 @@ map!     <M-=> <M-+>
 "map ]}
 
 " Should do? g[, g], g{, g}
-
-" Swap with deleted text
-xnoremap <C-s> <Esc>`.``gvP``P
-
-" Make D/Y like C
-nnoremap D d$
-nnoremap Y y$
-
-" Keep the last thing copied when we paste.
-xnoremap <expr> p 'pgv"'.v:register.'yg`]'
-xnoremap <expr> P 'Pgv"'.v:register.'y'
 
 function! Align(col, start, end) abort
   for line in range(a:start, a:end)

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+pwsh=$(which pwsh.exe)
+if [ ! -x "$pwsh" ]; then
+  echo "pwsh.exe not found or not executable"
+  exit 1
+fi
+
+if [ "$1" == "-h" ]; then
+  echo "register pwsh.exe to handle .ps1 files"
+  echo "use -r to remove the entry"
+  echo "must be run as root"
+  exit
+fi
+
+if [ "$(id -u)" != 0 ]; then
+  echo "must be run as root"
+  exit 1
+fi
+
+if [ "$1" == "-r" ]; then
+  echo "remove /proc/sys/fs/binfmt_misc/pwsh.exe"
+  echo -n '-1' > /proc/sys/fs/binfmt_misc/pwsh.exe
+  exit
+fi
+
+echo "this is broken. needs an executable to forward to powershell with -c argument"
+exit 1
+s=":pwsh.exe:E::ps1::$pwsh:F"
+echo "register $s"
+echo "$s" > /proc/sys/fs/binfmt_misc/register
