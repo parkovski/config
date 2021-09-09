@@ -1,12 +1,11 @@
 using namespace System
 using namespace System.Collections.Generic
-# Base config
 
+$time__ = [DateTime]::UtcNow
+
+# Base config
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
-
-# Stop it from adding backslashes to the title.
-Write-Host -NoNewLine "$([char]0x1b)]2;pwsh $($Host.Version.ToString())$([char]0x1b)\"
 
 if (-not ($env:VISUAL)) {
   $env:VISUAL='nvim'
@@ -21,6 +20,8 @@ $global:PowerShell = (Get-Process -Id $PID).MainModule.FileName
 $global:ProVar = @{
   ghuser = 'parkovski'
 }
+
+Set-Alias = Select-Object
 
 . $HOME/shared/lib/fsutils.ps1
 Set-Alias mkcd Enter-NewDirectory
@@ -111,9 +112,9 @@ Set-PSReadlineOption -ViModeIndicator Cursor
 Set-PSReadlineOption -ViModeIndicator Script -ErrorAction Ignore
 Set-PSReadlineOption -ViModeChangeHandler {
   if ($args[0] -eq 'Command') {
-    Write-Host -NoNewLine "`e[1 q"
+    [System.Console]::Out.Write("`e[1 q")
   } else {
-    Write-Host -NoNewLine "`e[5 q"
+    [System.Console]::Out.Write("`e[5 q")
   }
 } -ErrorAction Ignore
 Set-PSReadlineOption -Colors @{
@@ -130,13 +131,14 @@ Set-PSReadlineOption -Colors @{
   error = "darkred";
   continuationprompt = "darkgray"
 }
-# TODO: Find how to get the color back after an error correction.
-Set-PSReadlineOption -PromptText '> '
-Set-PSReadlineOption -ContinuationPrompt '... > '
+
+Set-PSReadlineOption -PromptText @("`e[33m> `e[5 q`e[0m", "`e[31m> `e[0m")
+Set-PSReadlineOption -ContinuationPrompt "`e[33m-> `e[0m"
 
 Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadlineKeyHandler -Key 'Ctrl+d' -Function ViExit
+Set-PSReadlineKeyHandler -Key 'Ctrl+k' -Function DeleteLine
 
 Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Command -Function ScrollDisplayUp
 Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Command -Function ScrollDisplayDown
@@ -146,7 +148,8 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+b' -ViMode Insert -Function ScrollDisplayUp
 Set-PSReadlineKeyHandler -Key 'Ctrl+f' -ViMode Insert -Function ScrollDisplayDown
 Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpLine
 Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
-Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Insert -Function ViCommandMode
 
 # Set-PSReadlineKeyHandler -Key 'Ctrl+]' -Function CopyScreen
 # Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function Left
@@ -156,9 +159,34 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+[' -Function ViCommandMode
 # Set-PSReadlineKeyHandler -Key 'z,z' -ViMode Command -Function ScrollToMiddle
 # Set-PSReadlineKeyHandler -Key 'z,t' -ViMode Command -Function ScrollToTop
 
-if (Import-Module Get-ChildItemColor -PassThru -ErrorAction Ignore) {
-  Remove-Item -Force -ea Ignore Alias:\ls
-  Remove-Item -Force -ea Ignore Alias:\sl
-  Set-Alias ls Get-ChildItemColorFormatWide
-  Set-Alias ll Get-ChildItemColor
+Remove-Alias -Force -ea Ignore ls
+function ls {
+  Get-ChildItem @args | ForEach-Object {
+    $name = $_.Name
+    $islink = $_.LinkType -eq 'SymbolicLink'
+    $isdir = ($_.Attributes -band [System.IO.FileAttributes]::Directory) -ne 0
+    $isexe = (($env:PATHEXT + ';.PS1') -split ';') -contains $_.Extension.ToUpper()
+
+    if ($isdir) {
+      $name = "`e[36m$name`e[m"
+    } elseif ($isexe) {
+      $name = "`e[38;5;208m$name`e[m"
+    }
+
+    if ($islink) {
+      $name += "@"
+    } elseif (($_.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+      $name += "?"
+    } elseif ($isdir) {
+      $name += [System.IO.Path]::DirectorySeparatorChar
+    } elseif ($isexe) {
+      $name += "*"
+    }
+    [PSCustomObject]@{ Name = $name }
+  } | Format-Wide -AutoSize -Property Name
 }
+Set-Alias ll Get-ChildItem
+
+$time__ = [DateTime]::UtcNow - $time__
+Write-Output "`e[G`e[2KProfile loaded in `e[32m$($time__.Seconds).$($time__.Milliseconds)s`e[m."
+Remove-Item Variable:\time__

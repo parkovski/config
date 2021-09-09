@@ -64,20 +64,20 @@ function prompt {
   }
   Write-Host -NoNewLine (
     "`e[${c}m$([System.Environment]::UserName)" +
-    "`e[90m@" +
-    "`e[${c}m$($ProVar.hostname) `e[m"
+    "`e[30m@" +
+    "`e[${c}m$($ProVar.hostname)`e[30m:`e[m "
   )
 
   # Git
   if ($isgit) {
     Write-Host -NoNewLine "`e[33m$branch"
     if ($ahead -gt 0) {
-      Write-Host -NoNewLine "`e[90m: `e[34m+$ahead"
+      Write-Host -NoNewLine "`e[30m: `e[34m+$ahead"
       if ($behind -gt 0) {
-        Write-Host -NoNewLine "`e[90m/`e[35m-$behind"
+        Write-Host -NoNewLine "`e[30m/`e[35m-$behind"
       }
     } elseif ($behind -gt 0) {
-      Write-Host -NoNewLine "`e[90m: `e[35m-$behind"
+      Write-Host -NoNewLine "`e[30m: `e[35m-$behind"
     }
 
     $colors = @{
@@ -86,12 +86,12 @@ function prompt {
       "?" = "`e[38;5;202m"; # Orange
     }
     if ($gitfiles.keys.Count -ne 0) {
-      Write-Host -NoNewLine "`e[90m:"
+      Write-Host -NoNewLine "`e[30m:"
       foreach ($k in $gitfiles.keys) {
         Write-Host -NoNewLine (" " + $colors["" + $k[1]] + $k[0] + $gitfiles[$k])
       }
     }
-    Write-Host -NoNewLine "`e[90m: "
+    Write-Host -NoNewLine "`e[30m: "
   }
 
   if ($components[0] -match ':$') {
@@ -123,9 +123,10 @@ function prompt {
     $ec = "$exitCode"
   }
   if (-not ([string]::IsNullOrEmpty($ec))) {
-    $ec = "[`e[31m$ec`e[90m] "
+    $ec = "`e[30m[`e[31m$ec`e[30m] "
+    Write-Host -NoNewline $ec
   }
-  $prompt = "`e[90m${ec}pwsh$('>' * ($NestedPromptLevel + 1))`e[m`e[5 q "
+  $prompt = "`e[33m> `e[0m"
   $global:LastExitCode = $exitCode
   $prompt
 }

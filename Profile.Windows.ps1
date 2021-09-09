@@ -21,7 +21,7 @@ TryToImport "$GH\3rd-party\vcpkg\scripts\posh-vcpkg"
 TryToImport "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 
 function Restart-Explorer {
-  Stop-Process -Name explorer.exe
+  Stop-Process -Name explorer
 }
 Set-Alias rsex Restart-Explorer
 

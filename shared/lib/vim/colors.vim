@@ -18,6 +18,12 @@ function! TryToFixColorScheme() abort
     hi VertSplit guibg=NONE guifg=white
   endif
 
+  if has_key(g:colors_opts, 'linenrtoactive')
+    hi! link LineNr CursorLineNr
+  elseif has_key(g:colors_opts, 'linenrtocursor')
+    hi! link LineNr CursorLine
+  endif
+
   if has_key(g:colors_opts, 'setindentguides')
     hi IndentGuidesEven guibg=#344162
     hi IndentGuidesOdd guibg=#344f62

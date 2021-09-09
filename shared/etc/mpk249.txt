@@ -1,0 +1,37 @@
+Mod wheel - CC 1
+Expression - CC 11
+Sustain - CC 64
+
+Keyboard channel aftertouch.
+All pads poly aftertouch.
+
+Bank A (Ch10) - Drums
+C#3 G_3 D#3 F_3
+C_3 B_2 A_2 G_2
+E_2 D_2 A#2 G#2
+C#2 C_2 F#2 A#5
+
+Bank B (Ch10)
+
+Bank C (Ch08) - Chromatic
+C_4 C#4 D_4 D#4
+G#3 A_3 A#3 B_3
+E_3 F_3 F#3 G_3
+C_3 C#3 D_3 D#3
+
+Bank D (Ch09)
+
+Ctrl Bank A (Ch01)
+K: 03 09 14 15 16 17 18 19
+F: 20 21 22 23 24 25 26 27
+S: 28 29 30 31 35 41 46 47
+
+Ctrl Bank B (Ch01)
+K: 52 53 54 55 57 58 59 60
+F: 43 62 63 70 71 72 73 74
+S: 75 76 77 78 79 80 81 82
+
+Ctrl Bank C (Ch01)
+K: 83 85 86 87  88  89  90  91
+F: 92 93 94 95 102 103 104 105
+S: Prg Chg 0-7 Ch Common (orig CC 106-113 Ch 01)
