@@ -4,7 +4,7 @@ function precmd() {
   if [[ "$exitcode" -eq "0" ]]; then
     exitcode=
   else
-    exitcode="[%F{1}$exitcode%F{8}] "
+    exitcode="[%F{1}$exitcode%F{0}] "
   fi
   local prompt_gitstr=
 
@@ -18,16 +18,16 @@ function precmd() {
       local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
       local ahead_str=$(git rev-list --count $remote..HEAD 2>/dev/null)
       local behind_str=$(git rev-list --count HEAD..$remote 2>/dev/null)
-      prompt_gitstr=" %F{3}$branch%F{8}:%f"
+      prompt_gitstr=" %F{3}$branch%F{0}:%f"
       if [[ "$ahead_str" -gt "0" ]]; then
         prompt_gitstr+=" %F{4}+$ahead_str"
         if [[ "$behind_str" -gt "0" ]]; then
-          prompt_gitstr+="%F{11}/%F{5}-$behind_str%F{8}:%f"
+          prompt_gitstr+="%F{11}/%F{5}-$behind_str%F{0}:%f"
         else
-          prompt_gitstr+="%F{8}:%f"
+          prompt_gitstr+="%F{0}:%f"
         fi
       elif [[ "$behind_str" -gt "0" ]]; then
-        prompt_gitstr+=" %F{5}-$behind_str%F{8}:%f"
+        prompt_gitstr+=" %F{5}-$behind_str%F{0}:%f"
       fi
       local -a items
       items=(${(f)gitstatus})
@@ -58,12 +58,12 @@ function precmd() {
         prompt_gitstr+=" $gcol${key[1]}${map[$key]}"
       done
       if [[ "$#keys" -gt "0" ]]; then
-        prompt_gitstr+="%F{8}:%f"
+        prompt_gitstr+="%F{0}:%f"
       fi
     fi
   fi
 
   local piznath=$(echo -n ${PWD/#~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  print -P "%F{10}%n%F{8}@%F{10}%m%f$prompt_gitstr %F{12}$piznath%f"
-  PS1="%F{8}${exitcode}zsh%%%f "
+  print -P "%F{10}%n%F{0}@%F{10}%m%F{0}:$prompt_gitstr %F{12}$piznath%f"
+  PS1="%F{0}${exitcode}%F{3}%%%f "
 }

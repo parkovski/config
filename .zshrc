@@ -1,4 +1,4 @@
-local starttime=$(date "+%s%3N")
+local starttime=$(date "+%s%4N")
 
 export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
 
@@ -49,6 +49,8 @@ bindkey '^r' history-incremental-search-backward
 bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 
+bindkey '^k' vi-kill-line
+
 . $HOME/shared/lib/sh/os.sh
 . $HOME/shared/lib/sh/completion.zsh
 . $HOME/shared/lib/sh/prompt.zsh
@@ -58,23 +60,25 @@ bindkey '^h' backward-delete-char
 
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
-    alias ls='ls --color=auto 2>/dev/null'
-    alias ll='ls -al --color=auto 2>/dev/null'
+    alias ls='ls -F --color=auto 2>/dev/null'
+    alias ll='ls -Alh --color=auto 2>/dev/null'
     function start() {
       local winpath="$(wslpath -w $1)"
       shift
-      cmd.exe /c start $winpath $@
+      pushd "$USERPROFILE"
+      cmd.exe /c start "$winpath" "$@"
+      popd
     }
   else
-    alias ls='ls --color=auto'
-    alias ll='ls -al --color=auto'
+    alias ls='ls -F --color=auto'
+    alias ll='ls -Alh --color=auto'
   fi
 else
-  alias ls='ls -G'
-  alias ll='ls -alG'
+  alias ls='ls -FG'
+  alias ll='ls -AlhG'
 fi
 
-local totaltime=$[$(date "+%s%3N")-$starttime]
-echo "Starting zsh took $[$totaltime/1000].$[$totaltime%1000]s"
+local totaltime=$[$(date "+%s%4N")-$starttime]
+echo "\e[G\e[2KProfile loaded in \e[32m$[$totaltime/1000].$[$totaltime%1000]s\e[m."
 
 export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH="$N_PREFIX/bin:$PATH"  # Added by n-install (see http://git.io/n-install-repo).
