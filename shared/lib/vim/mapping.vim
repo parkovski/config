@@ -3,7 +3,7 @@ noremap! <NUL> <C-Space>
 noremap  <Char-0x7F> <BS>
 noremap! <Char-0x7F> <BS>
 
-function! AutoCompleteSelect()
+function! s:AutoCompleteSelect()
   if empty(v:completed_item)
     if pumvisible()
       return "\<C-e>\<CR>"
@@ -18,7 +18,7 @@ function! AutoCompleteSelect()
   return "\<C-y>"
 endfunction
 
-function! AutoCompleteJumpForwards()
+function! s:AutoCompleteJumpForwards()
   if pumvisible()
     return "\<C-n>"
   endif
@@ -26,7 +26,7 @@ function! AutoCompleteJumpForwards()
   return "\<Tab>"
 endfunction
 
-function! AutoCompleteJumpBackwards()
+function! s:AutoCompleteJumpBackwards()
   if pumvisible()
     return "\<C-p>"
   endif
@@ -34,7 +34,7 @@ function! AutoCompleteJumpBackwards()
   return "\<S-Tab>"
 endfunction
 
-function! AutoCompleteCancel()
+function! s:AutoCompleteCancel()
   if pumvisible()
     if empty(v:completed_item)
       return "\<C-e>\<Esc>"
@@ -44,18 +44,38 @@ function! AutoCompleteCancel()
   return "\<Esc>"
 endfunction
 
-inoremap <silent> <Tab>        <C-r>=AutoCompleteJumpForwards()<CR>
-snoremap <silent> <Tab>   <Esc>:call AutoCompleteJumpForwards()<CR>
-inoremap <silent> <S-Tab>      <C-r>=AutoCompleteJumpBackwards()<CR>
-snoremap <silent> <S-Tab> <Esc>:call AutoCompleteJumpBackwards()<CR>
-inoremap <silent> <CR>      <C-r>=AutoCompleteSelect()<CR>
-snoremap <silent> <CR> <Esc>:call AutoCompleteSelect()<CR>
-inoremap <silent><expr> <Esc> AutoCompleteCancel()
-snoremap <silent><expr> <Esc> AutoCompleteCancel()
-inoremap <silent><expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
-snoremap <silent><expr> <C-d> pumvisible() ? "\<PageDown>" : "\<C-d>"
-inoremap <silent><expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
-snoremap <silent><expr> <C-u> pumvisible() ? "\<PageUp>" : "\<C-u>"
+function! s:ScrollDown()
+  if coc#float#has_scroll()
+    call coc#float#scroll(1)
+  elseif pumvisible()
+    return "\<PageDown>"
+  else
+    return "\<C-d>"
+  endif
+endfunction
+
+function! s:ScrollUp()
+  if coc#float#has_scroll()
+    call coc#float#scroll(0)
+  elseif pumvisible()
+    return "\<PageUp>"
+  else
+    return "\<C-u>"
+  endif
+endfunction
+
+inoremap <silent>       <Tab>        <C-r>=<SID>AutoCompleteJumpForwards()<CR>
+snoremap <silent>       <Tab>   <Esc>:call <SID>AutoCompleteJumpForwards()<CR>
+inoremap <silent>       <S-Tab>      <C-r>=<SID>AutoCompleteJumpBackwards()<CR>
+snoremap <silent>       <S-Tab> <Esc>:call <SID>AutoCompleteJumpBackwards()<CR>
+inoremap <silent>       <CR>         <C-r>=<SID>AutoCompleteSelect()<CR>
+snoremap <silent>       <CR>    <Esc>:call <SID>AutoCompleteSelect()<CR>
+inoremap <silent><expr> <Esc>              <SID>AutoCompleteCancel()
+snoremap <silent><expr> <Esc>              <SID>AutoCompleteCancel()
+inoremap <silent><expr> <C-d>              <SID>ScrollDown()
+snoremap <silent><expr> <C-d>              <SID>ScrollDown()
+inoremap <silent><expr> <C-u>              <SID>ScrollUp()
+snoremap <silent><expr> <C-u>              <SID>ScrollUp()
 
 " if exists('*deoplete#custom#option')
 "  function! g:Multiple_cursors_before()
@@ -108,8 +128,8 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   xmap <silent> gr <Plug>(coc-references)
   nmap <silent> gR <Plug>(coc-references-used)
   xmap <silent> gR <Plug>(coc-references-used)
-  map  <silent> <C-s> :call CocActionAsync('showSignatureHelp')<CR>
-  imap <silent> <C-s> <C-o><C-s>
+  map  <silent> gh :call CocActionAsync('showSignatureHelp')<CR>
+  imap <silent> <C-s> <C-o>gh
 
   set formatexpr=<Plug>(coc-format-selected)
   map gQ <Plug>(coc-format)
@@ -173,10 +193,10 @@ nnoremap D d$
 nnoremap Y y$
 
 " Keep the last thing copied when we paste.
-xnoremap <expr> p 'pgv"'.v:register.'yg`]'
 xnoremap <expr> P 'Pgv"'.v:register.'y'
-
-xnoremap <expr> <M-=> '"+pgv"+yg`]'
+xmap p Pg`]
+xmap <M-=> "+p
+xmap <M-+> <M-=>
 
 noremap  +     "+
 noremap! <M-"> <C-r>"
@@ -223,10 +243,9 @@ command! -bar -range -nargs=1 Align call Align(<args>, <line1>, <line2>)
 
 nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
 nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
-nnoremap <silent> <leader>= :<C-U><C-R>=v:count<CR>b<CR>
 nnoremap <silent> <leader>p :b#<CR>
-nnoremap <silent> <leader>q :bn<Bar>bd#<CR>
-nnoremap <silent> <leader>q! :bn<Bar>bd!#<CR>
+nnoremap <silent> <leader>q :b#<Bar>bd#<CR>
+nnoremap <silent> <leader>Q :b#<Bar>bd!#<CR>
 nnoremap <silent> <leader>n :echo fnamemodify(expand("%"), ":~:.")<CR>
 " nnoremap <silent> <leader>h :A<CR>
 nnoremap <silent> <leader>l :noh<CR>
@@ -239,13 +258,30 @@ nnoremap <silent> <leader>r :set relativenumber!<CR>
 nnoremap <silent> <leader><Tab> :tabnext<CR>
 nnoremap <silent> <leader><S-Tab> :tabprevious<CR>
 nnoremap <silent> <leader>N :tabedit %<CR>
-nnoremap <silent> <leader>Q :tabclose<CR>
+nnoremap <silent> <leader>X :tabclose<CR>
 nnoremap <silent> <leader>H :-tabmove<CR>
 nnoremap <silent> <leader>L :+tabmove<CR>
 nnoremap <silent> <leader>_ :tabfirst<CR>
 nnoremap <silent> <leader>+ :tablast<CR>
 
-nmap <silent> <leader>g :<C-U>call lightline#bufferline#go(v:count)<CR>
+function! s:GoToBuffer() abort
+  let l:inp = input("buffer? ")
+  " Clear the command line.
+  normal :<Esc>
+
+  if empty(l:inp)
+    return
+  endif
+
+  let l:num = lightline#bufferline#get_buffer_for_ordinal_number(l:inp)
+  if (l:num != -1)
+    exe l:num."b"
+  else
+    echo "That buffer doesn't exist."
+  endif
+endfunction
+nnoremap <silent> <leader>= :<C-U>call <SID>GoToBuffer()<CR>
+
 for nr in range(1, 9)
   exe 'nmap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
 endfor

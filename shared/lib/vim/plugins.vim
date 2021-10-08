@@ -24,6 +24,7 @@ elseif $VIM_LANGCLIENT ==? 'ale'
   let g:vista_default_executive = 'ale'
 else "if $VIM_LANGCLIENT ==? 'coc'
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  Plug 'antoinemadec/coc-fzf'
 endif
 
 " General
@@ -42,20 +43,19 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-abolish'
+Plug 'bronson/vim-visual-star-search'
+
 let g:rainbow_active = 1
 let g:rainbow_conf = {
       \ 'guifgs': [ 'firebrick', 'orange2', 'gold', 'chartreuse3',
       \   'deepskyblue2', 'darkorchid1', 'palevioletred1' ],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
-
 Plug 'luochen1990/rainbow'
-" Plug 'tpope/vim-fugitive'
-Plug 'bronson/vim-visual-star-search'
-" Plug 'skywind3000/asyncrun.vim'
-" Plug 'michaeljsmith/vim-indent-object'
+
 let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 Plug 'jeetsukumaran/vim-markology'
+
 let g:indent_guides_auto_colors = 0
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
