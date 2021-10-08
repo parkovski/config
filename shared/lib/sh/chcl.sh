@@ -8,5 +8,5 @@ function chcl {
   fi
   script_dir=$(dirname $script_name)
 
-  source <($script_dir/chcl.js "$@")
+  source <($script_dir/../chcl.js "$@")
 }

@@ -23,13 +23,13 @@ $global:ProVar = @{
 
 Set-Alias = Select-Object
 
-. $HOME/shared/lib/fsutils.ps1
+. $HOME/shared/lib/pwsh/fsutils.ps1
 Set-Alias mkcd Enter-NewDirectory
 Set-Alias up Enter-ParentDirectory
 Set-Alias swapd Enter-AlternateDirectory
 Set-Alias in Invoke-InDirectory
 
-. $HOME/shared/lib/Get-OS.ps1
+. $HOME/shared/lib/pwsh/Get-OS.ps1
 # Find if we're Admin/root.
 if ($OS -eq "Windows") {
   $ProVar.user = [Security.Principal.WindowsIdentity]::GetCurrent();
@@ -43,14 +43,14 @@ if ($OS -eq "Windows") {
   $ProVar.hostname = hostname
 }
 
-. $HOME\shared\lib\dynparams.ps1
+. $HOME\shared\lib\pwsh\dynparams.ps1
 
-. $HOME\shared\lib\with.ps1
+. $HOME\shared\lib\pwsh\with.ps1
 Set-Alias with Invoke-WithEnvironment
 Set-Alias senv Set-EnvironmentVariable
 Set-Alias genv Get-EnvironmentVariable
 
-. $HOME/shared/lib/history.ps1
+. $HOME/shared/lib/pwsh/history.ps1
 Set-Alias ^ Invoke-HistoryRecent
 
 function dirs { Get-Location -Stack }
@@ -61,7 +61,7 @@ if (![string]::IsNullOrEmpty($env:GH)) {
   if (![string]::IsNullOrEmpty($env:GH2)) {
     $global:GH2 = $env:GH2
   }
-  . $HOME/shared/lib/gh.ps1
+  . $HOME/shared/lib/pwsh/gh.ps1
 } else {
   function gh {
     Write-Error "`$env:GH is not defined"
@@ -93,7 +93,7 @@ $ProVar.PromptOpts = @{
 
 # For compatibility with older powershell
 if ($Host.Runspace.Version.Major -lt 6) {
-  . "$HOME/shared/lib/oldprofile.ps1"
+  . "$HOME/shared/lib/pwsh/oldprofile.ps1"
   exit
 }
 
@@ -105,7 +105,7 @@ if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
   . "$GH/config/Profile.$OS.ps1"
 }
 
-. $HOME/shared/lib/prompt.ps1
+. $HOME/shared/lib/pwsh/prompt.ps1
 
 Set-PSReadlineOption -BellStyle None
 Set-PSReadlineOption -EditMode vi 

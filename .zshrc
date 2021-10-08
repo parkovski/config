@@ -56,7 +56,7 @@ bindkey '^k' vi-kill-line
 . $HOME/shared/lib/sh/prompt.zsh
 . $HOME/shared/lib/sh/gh.sh
 . $HOME/shared/lib/sh/pathutils.sh
-. $HOME/shared/lib/chcl.sh
+. $HOME/shared/lib/sh/chcl.sh
 
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
