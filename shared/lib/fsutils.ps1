@@ -26,7 +26,10 @@ function Remove-SymLink {
 }
 
 function Enter-NewDirectory {
-  param([Parameter(Mandatory=$true, Position=0)][string]$Path, [switch]$Push)
+  param(
+    [Parameter(Mandatory=$true, Position=0)][string]$Path,
+    [Alias('p')][switch]$Push
+  )
   if (-not (Test-Path $Path -PathType Container)) {
     New-Item $Path -ItemType Directory
   }
@@ -38,14 +41,30 @@ function Enter-NewDirectory {
 }
 
 function Enter-ParentDirectory {
-  param([int]$Levels = 1)
-  Set-Location ("../" * $Levels)
+  param([int]$Levels = 1, [Alias('p')][switch]$Push)
+  if ($Push) {
+    Push-Location ("../" * $Levels)
+  } else {
+    Set-Location ("../" * $Levels)
+  }
+}
+
+function Enter-AlternateDirectory {
+  $prevd = Get-Location
+  Pop-Location
+  $curdir = Get-Location
+  Set-Location $prevd
+  Push-Location $curdir
 }
 
 function Invoke-InDirectory {
-  $dir = $pwd
+  $curdir = Get-Location
+  $pargs = $args[2..($args.Length - 1)]
   Set-Location $args[0]
-  $result = &$args[1] $args[2..($args.Length-1)]
-  Set-Location $dir
+  try {
+    $result = &$args[1] @pargs
+  } finally {
+    Set-Location $curdir
+  }
   $result
 }
