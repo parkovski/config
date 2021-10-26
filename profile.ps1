@@ -220,7 +220,11 @@ function ls {
     $name = $_.Name
     $islink = $_.LinkType -eq 'SymbolicLink'
     $isdir = ($_.Attributes -band [System.IO.FileAttributes]::Directory) -ne 0
-    $isexe = (($env:PATHEXT + ';.PS1') -split ';') -contains $_.Extension.ToUpper()
+    if ($_.Extension) {
+      $isexe = (($env:PATHEXT + ';.PS1') -split ';') -contains $_.Extension.ToUpper()
+    } else {
+      $isexe = $false
+    }
 
     if ($isdir) {
       $name = "`e[36m$name`e[m"

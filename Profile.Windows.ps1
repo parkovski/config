@@ -220,6 +220,8 @@ function vcvars {
       Write-Host "Aw dawg you savin like 3 to 4 seconds cuz its already set!"
       return;
     }
+    # I hate you guys
+    $env:VSCMD_SKIP_SENDTELEMETRY=1
     $output = cmd /c "`"$dir`" & set"
     if ($LASTEXITCODE -ne 0) {
       Write-Host "Aw hell nah dawg stuff didn't work!"
