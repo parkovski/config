@@ -55,7 +55,7 @@ function! SetColorOptions(...) abort
   endwhile
   if !empty(l:opts[0])
     exe 'silent! colorscheme '.l:opts[0]
-  elseif l:len > 1
+  elseif l:len > 1 && has_key(g:, 'colors_name')
     exe 'silent! colorscheme '.g:colors_name
   endif
 endfunction
@@ -63,7 +63,7 @@ endfunction
 augroup VimrcColors
   autocmd!
 
-  autocmd ColorSchemePre * silent call remove(g:, 'colors_name')
+  autocmd ColorSchemePre * silent! call remove(g:, 'colors_name')
   autocmd ColorScheme * call TryToFixColorScheme()
 augroup END
 

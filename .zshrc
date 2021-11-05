@@ -4,13 +4,13 @@ export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
 
 export PATH="$HOME/local/bin:$HOME/shared/bin:$PATH"
 
-which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s"
+which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s - -b $HOME/local/bin"
 
 source <(antibody init)
 
 antibody bundle ael-code/zsh-colored-man-pages
 antibody bundle chrissicool/zsh-256color
-antibody bundle zdharma/fast-syntax-highlighting
+antibody bundle zdharma-continuum/fast-syntax-highlighting
 
 export fpath=($HOME/shared/lib/sh/zcomp $fpath)
 setopt histignorealldups sharehistory
@@ -56,7 +56,7 @@ bindkey '^k' vi-kill-line
 . $HOME/shared/lib/sh/prompt.zsh
 . $HOME/shared/lib/sh/gh.sh
 . $HOME/shared/lib/sh/pathutils.sh
-. $HOME/shared/lib/sh/chcl.sh
+#. $HOME/shared/lib/sh/chcl.sh
 
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then

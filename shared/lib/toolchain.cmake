@@ -7,11 +7,16 @@ endif()
 set(CMAKE_PREFIX_PATH "${HOME}/local;${CMAKE_PREFIX_PATH}")
 
 if(DEFINED ENV{VCPKG_ROOT})
-  string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})
+  if(WIN32)
+    string(REPLACE "\\" "/" VCPKG_ROOT $ENV{VCPKG_ROOT})
+  else()
+    set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+  endif()
   include("${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  # /utf-8 ??
   add_compile_options(/diagnostics:caret)
 endif()
 

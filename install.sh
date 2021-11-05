@@ -1,20 +1,42 @@
 #!/bin/bash
 
-function linkf {
+function setup {
   if [[ -e "$1" ]]; then
     return
   fi
-  ln -s "$2" "$1"
+  if [[ "$2" == "" ]]; then
+    echo "make $1"
+    mkdir -p "$1"
+  else
+    echo "link $2 --> $1"
+    ln -s "$2" "$1"
+  fi
 }
 
-linkf "$HOME/.gitconfig" "$PWD/linux.gitconfig"
-linkf "$HOME/.vimrc" "$PWD/.vimrc"
-linkf "$HOME/.gvimrc" "$PWD/.gvimrc"
-linkf "$HOME/.zshrc" "$PWD/.zshrc"
-linkf "$HOME/.tmux.conf" "$PWD/.tmux.conf"
-linkf "$HOME/shared" "$PWD/shared"
+setup "$HOME/.gitconfig" "$PWD/linux.gitconfig"
+setup "$HOME/.vimrc" "$PWD/.vimrc"
+setup "$HOME/.gvimrc" "$PWD/.gvimrc"
+setup "$HOME/.zshrc" "$PWD/.zshrc"
+setup "$HOME/.tmux.conf" "$PWD/.tmux.conf"
+setup "$HOME/shared" "$PWD/shared"
 
-mkdir -p $HOME/.vim/colors 2>/dev/null
+setup $HOME/local/bin
+setup $HOME/local/etc
 
-mkdir -p $HOME/.config/nvim 2>/dev/null
-linkf "$HOME/.config/nvim/init.vim" "$PWD/init.vim"
+setup $HOME/.vim/colors
+
+setup $HOME/.config/nvim
+setup $HOME/.config/nvim/init.vim "$PWD/init.vim"
+
+if [[ -e $HOME/.zshenv ]]; then
+  . ~/.zshenv
+else
+  touch $HOME/.zshenv
+fi
+
+if [[ "$EDITOR" == "" ]]; then
+  echo "export EDITOR=nvim" >> $HOME/.zshenv
+fi
+if [[ "$VISUAL" == "" ]]; then
+  echo "export VISUAL=nvim" >> $HOME/.zshenv
+fi
