@@ -1,6 +1,0 @@
-{
-  "initializationOptions": {
-    "cacheDirectory": "C:/Users/parker/AppData/Local/Temp/cquery",
-    "extraClangArguments": ["-std=c++17", "-fno-delayed-template-parsing"]
-  }
-}

@@ -3,6 +3,8 @@ function precmd() {
   local exitcode="$?"
   if [[ "$exitcode" -eq "0" ]]; then
     exitcode=
+  elif [[ "$exitcode" -eq "130" ]]; then
+    exitcode="[%F{1}^C%F{0}] "
   else
     exitcode="[%F{1}$exitcode%F{0}] "
   fi
