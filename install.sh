@@ -13,20 +13,20 @@ function setup {
   fi
 }
 
-setup "$HOME/.gitconfig" "$PWD/linux.gitconfig"
-setup "$HOME/.vimrc" "$PWD/.vimrc"
-setup "$HOME/.gvimrc" "$PWD/.gvimrc"
-setup "$HOME/.zshrc" "$PWD/.zshrc"
-setup "$HOME/.tmux.conf" "$PWD/.tmux.conf"
-setup "$HOME/shared" "$PWD/shared"
+setup $HOME/.gitconfig $PWD/linux.gitconfig
+setup $HOME/.zshrc $PWD/.zshrc
+setup $HOME/.tmux.conf $PWD/.tmux.conf
 
 setup $HOME/local/bin
 setup $HOME/local/etc
+setup $HOME/shared $PWD/shared
 
+setup $HOME/.vimrc $PWD/.vimrc
+setup $HOME/.gvimrc $PWD/.gvimrc
 setup $HOME/.vim/colors
 
 setup $HOME/.config/nvim
-setup $HOME/.config/nvim/init.vim "$PWD/init.vim"
+setup $HOME/.config/nvim/init.vim $PWD/init.vim
 
 if [[ -e $HOME/.zshenv ]]; then
   . ~/.zshenv

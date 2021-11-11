@@ -1,37 +1,44 @@
-function link {
+$isadmin = `
+  (New-Object Security.Principal.WindowsPrincipal `
+    ([Security.Principal.WindowsIdentity]::GetCurrent())). `
+  IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+function install {
   param([string]$link, [string]$target)
 
   if (test-path $link) {
     return
   }
-
-  if (test-path -pathtype container $target) {
-    cmd /c mklink /d $link $target
+  if ([string]::IsNullOrWhiteSpace($target)) {
+    Write-Output "make $target"
+    mkdir $target -ErrorAction Ignore
   } else {
-    cmd /c mklink $link $target
+    Write-Output "link $target --> $link"
+    New-Item -Path $target -ItemType SymbolicLink -Value $link
   }
 }
 
-link $home\.gitconfig $pwd\windows.gitconfig
-link $home\_gvimrc $pwd\.gvimrc
-link $home\.gvimrc $pwd\.gvimrc
-link $home\_vimrc $pwd\.vimrc
-link $home\.vimrc $pwd\.vimrc
-# link $home\config.xlaunch $pwd\config.xlaunch
+install $home\.gitconfig $pwd\windows.gitconfig
 
-mkdir $home\.vim -ea ignore
-link $home\vimfiles $home\.vim
+install $home\local\bin
+install $home\local\etc
+install $home\shared $pwd\shared
 
-mkdir $home\AppData\Local\nvim -ea ignore
-link $home\AppData\Local\nvim\init.vim $pwd\init.vim
+install $home\_vimrc $pwd\.vimrc
+install $home\.vimrc $pwd\.vimrc
+install $home\_gvimrc $pwd\.gvimrc
+install $home\.gvimrc $pwd\.gvimrc
+install $home\.vim\colors
+install $home\vimfiles $home\.vim
 
-mkdir $home\Documents\WindowsPowerShell -ea ignore
-link $home\Documents\WindowsPowerShell\profile.ps1 $pwd\profile.ps1
+install $home\AppData\Local\nvim
+install $home\AppData\Local\nvim\init.vim $pwd\init.vim
 
-mkdir $home\Documents\PowerShell -ea ignore
-link $home\Documents\PowerShell\profile.ps1 $pwd\profile.ps1
+install $home\Documents\WindowsPowerShell
+install $home\Documents\WindowsPowerShell\profile.ps1 $pwd\profile.ps1
 
-link $home\shared $pwd\shared
+install $home\Documents\PowerShell
+install $home\Documents\PowerShell\profile.ps1 $pwd\profile.ps1
 
 $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
 if ($userenv -inotcontains "$Home\shared\bin") {
@@ -46,6 +53,20 @@ if (-not (test-path Env:\VCPKG_DEFAULT_TRIPLET)) {
   [System.Environment]::SetEnvironmentVariable('VCPKG_DEFAULT_TRIPLET', 'x64-windows', 'User')
 }
 
-#.\install-apps.ps1
+[System.Environment]::SetEnvironmentVariable('EDITOR', 'nvim.exe', 'User')
+[System.Environment]::SetEnvironmentVariable('VISUAL', 'nvim.exe', 'User')
 
-# . "$pwd\profile.ps1"
+if (!$isadmin) {
+  Write-Output "Run this from an admin shell for further setup"
+  return
+}
+
+&"$PSScriptRoot\shared\scripts\Windows\Enable-LongPaths.ps1"
+&"$PSScriptRoot\shared\scripts\Windows\verbose-boot.ps1" -v $true
+
+if (test-path HKLM:\SOFTWARE\WOW6432Node\WinFsp) {
+  Set-ItemProperty HKLM:\SOFTWARE\WOW6432Node\WinFsp DistinctPermsForSameOwnerGroup -Type DWord -Value 1
+}
+if (test-path HKLM:\SOFTWARE\OpenSSH) {
+  Set-ItemProperty HKLM:\SOFTWARE\OpenSSH DefaultShell 'C:\Program Files\PowerShell\7\pwsh.exe'
+}
