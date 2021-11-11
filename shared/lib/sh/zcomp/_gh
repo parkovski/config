@@ -4,15 +4,16 @@ _gh() {
   local state
 
   local -a args
-  args=('-t[3rd party repo]: :->third' '-n[New project]: :->new')
+  args=('-t[3rd party repo]: :->third' '-a[Alternate dir]: :->alt')
   args+='*: :->project'
 
   _arguments $args
 
-  local dir=$GH
+  local basedir=$GH
+  local subdir=
   case $state in
-   (third) dir="$dir/3rd-party" ;;
-   (new) return ;;
+   (third) subdir="/3rd-party" ;;
+   (alt) basedir=$GH2 ;;
   esac
-  compadd "$@" $(ls $dir)
+  compadd "$@" $(ls "$basedir$subdir")
 }

@@ -1,16 +1,28 @@
 function gh() {
-  if [[ "$GH" == "" ]]; then
-    echo "\$GH not defined." >&2
+  basevar=GH
+  dir=
+
+  while [[ "$1" != "" ]]; do
+    case "$1" in
+      "-a") basevar=GH2;;
+      "-t") dir="/3rd-party$subdir";;
+         *) dir="$dir/$1";;
+    esac
+    shift
+  done
+
+  if [[ -n "$ZSH_VERSION" ]]; then
+    basedir=${(P)basevar}
+  elif [[ -n "$BASH_VERSION" ]]; then
+    basedir=${!basevar}
+  fi
+
+  if [[ -n "$basedir" ]]; then
+    dir="$basedir$dir"
+  else
+    echo "\$$basevar not defined." >&2
     return 1
   fi
 
-  if [[ "$1" == "-t" ]]; then
-    cd "$GH/3rd-party/$2"
-  elif [[ "$1" == "-n" ]]; then
-    mkdir "$GH/$2"
-    cd "$GH/$2"
-    git init
-  else
-    cd "$GH/$1"
-  fi
+  cd $dir
 }
