@@ -73,8 +73,13 @@ Plug 'liuchengxu/vista.vim' " Symbol browser
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 "Plug 'scrooloose/nerdtree'
-Plug 'itchyny/lightline.vim'
-Plug 'mgee/lightline-bufferline'
+Plug 'kyazdani42/nvim-web-devicons'
+if has("nvim") || has("lua")
+  Plug 'nvim-lualine/lualine.nvim'
+else
+  Plug 'itchyny/lightline.vim'
+  Plug 'mgee/lightline-bufferline'
+endif
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}

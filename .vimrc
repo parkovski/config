@@ -53,8 +53,13 @@ let $VIM_LANGCLIENT='coc'
 source $HOME/shared/lib/vim/platform.vim
 source $HOME/shared/lib/vim/mapping.vim
 source $HOME/shared/lib/vim/headerguard.vim
-source $HOME/shared/lib/vim/lightline.vim
+if !has("nvim") && !has("lua")
+  source $HOME/shared/lib/vim/lightline.vim
+endif
 source $HOME/shared/lib/vim/plugins.vim
+if has("nvim") || has("lua")
+  source $HOME/shared/lib/vim/lualine.vim
+endif
 source $HOME/shared/lib/vim/colors.vim
 
 augroup VimrcAutoCommands
