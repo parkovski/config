@@ -1,0 +1,1 @@
+hi Normal guibg=#1a1a1a

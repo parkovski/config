@@ -25,6 +25,7 @@ elseif $VIM_LANGCLIENT ==? 'ale'
 else "if $VIM_LANGCLIENT ==? 'coc'
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
+  let g:vista_default_executive = 'coc'
 endif
 
 " General
@@ -39,16 +40,17 @@ Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
 
 " Editing
-Plug 'terryma/vim-multiple-cursors'
+" Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 
 let g:rainbow_active = 1
+" Colors = indigo, blue, green, yellow, orange, red, violet (backwards rainbow)
 let g:rainbow_conf = {
-      \ 'guifgs': [ 'firebrick', 'orange2', 'gold', 'chartreuse3',
-      \   'deepskyblue2', 'darkorchid1', 'palevioletred1' ],
+      \ 'guifgs': ['#7424F0', '#207AF4', 'chartreuse3', 'gold', 'orange2',
+      \   'firebrick', 'palevioletred1'],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
 Plug 'luochen1990/rainbow'
@@ -68,47 +70,50 @@ Plug 'nathanaelkane/vim-indent-guides'
 
 " Panes
 Plug 'liuchengxu/vista.vim' " Symbol browser
-Plug 'scrooloose/nerdtree'
+Plug 'kyazdani42/nvim-web-devicons' " for file icons
+Plug 'kyazdani42/nvim-tree.lua'
+"Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
 Plug 'mgee/lightline-bufferline'
-
-if exepath('tmux')
-  Plug 'preservim/vimux'
-endif
 
 " Color schemes
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'cocopon/iceberg.vim'
-Plug 'chase/focuspoint-vim'
 Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/everforest'
-Plug 'sainnhe/sonokai'
 Plug 'jacoborus/tender.vim'
 Plug 'jaredgorski/spacecamp'
 Plug 'marcopaganini/termschool-vim-theme'
 Plug 'sainnhe/edge'
 
 " Syntaxes
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_class_decl_highlight = 1
-let g:cpp_concepts_highlight = 1
-Plug 'bfrg/vim-cpp-modern'
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
-Plug 'Quramy/vim-js-pretty-template'
-Plug 'jason0x43/vim-js-indent'
+" let g:cpp_class_scope_highlight = 1
+" let g:cpp_member_variable_highlight = 1
+" let g:cpp_class_decl_highlight = 1
+" let g:cpp_concepts_highlight = 1
+Plug 'sheerun/vim-polyglot'
+" Plug 'bfrg/vim-cpp-modern'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
+" Plug 'Quramy/vim-js-pretty-template'
+" Plug 'jason0x43/vim-js-indent'
 " Plug 'Quramy/tsuquyomi'
 " Plug 'ixm-one/vim-cmake'
-Plug 'cespare/vim-toml'
-Plug 'rust-lang/rust.vim'
-Plug 'plasticboy/vim-markdown'
+" Plug 'cespare/vim-toml'
+" Plug 'rust-lang/rust.vim'
+" Plug 'plasticboy/vim-markdown'
 " Plug 'ilyachur/cmake4vim'
-Plug 'PProvost/vim-ps1'
-Plug 'habamax/vim-godot'
-Plug 'neoclide/jsonc.vim'
-Plug 'pboettch/vim-cmake-syntax'
+" Plug 'PProvost/vim-ps1'
+" Plug 'habamax/vim-godot'
+" Plug 'neoclide/jsonc.vim'
+" Plug 'pboettch/vim-cmake-syntax'
+" Plug 'condy0919/docom.vim'
+" Plug 'cstrahan/vim-capnp'
 
 call plug#end()
+
+if has('nvim') || has('lua')
+  lua require'nvim-tree'.setup { open_on_setup = true }
+endif

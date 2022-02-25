@@ -1,5 +1,5 @@
 let g:lightline = {
-      \ 'colorscheme': 'snow_dark',
+      \ 'colorscheme': 'moonfly',
       \ 'tabline': {'left': [['buffers']], 'right': [['tabs']]},
       \ 'component_expand': {'buffers': 'lightline#bufferline#buffers'},
       \ 'component_type': {'buffers': 'tabsel'},

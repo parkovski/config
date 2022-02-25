@@ -13,6 +13,8 @@ antibody bundle chrissicool/zsh-256color
 antibody bundle zdharma-continuum/fast-syntax-highlighting
 
 export fpath=($HOME/shared/lib/sh/zcomp $fpath)
+setopt cbases
+setopt autocd
 setopt histignorealldups sharehistory
 HISTSIZE=1000
 SAVEHIST=1000
@@ -60,8 +62,13 @@ bindkey '^k' vi-kill-line
 
 if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
-    alias ls='ls -F --color=auto 2>/dev/null'
-    alias ll='ls -Alh --color=auto 2>/dev/null'
+    if which exa >/dev/null; then
+      alias ls='exa -F 2>/dev/null'
+      alias ll='exa -al@Fg 2>/dev/null'
+    else
+      alias ls='ls -F --color=auto 2>/dev/null'
+      alias ll='ls -AlhF --color=auto 2>/dev/null'
+    fi
     function start() {
       local winpath="$(wslpath -w $1)"
       shift
@@ -70,12 +77,22 @@ if [[ "$OS_BASE" -eq "Linux" ]]; then
       popd
     }
   else
-    alias ls='ls -F --color=auto'
-    alias ll='ls -Alh --color=auto'
+    if which exa >/dev/null; then
+      alias ls='exa -F'
+      alias ll='exa -al@Fg'
+    else
+      alias ls='ls -F --color=auto'
+      alias ll='ls -AlhF --color=auto'
+    fi
   fi
 else
-  alias ls='ls -FG'
-  alias ll='ls -AlhG'
+  if which exa >/dev/null; then
+    alias ls='exa -F'
+    alias ll='exa -al@Fg'
+  else
+    alias ls='ls -FG'
+    alias ll='ls -Alh'
+  fi
 fi
 
 local totaltime=$[$(date "+%s%4N")-$starttime]

@@ -8,6 +8,7 @@ set incsearch hlsearch
 set ignorecase smartcase
 set number relativenumber signcolumn=yes
 set colorcolumn=80,100,120
+set textwidth=79
 set cursorline
 set showcmd noshowmode showtabline=2
 set splitright splitbelow
@@ -15,12 +16,12 @@ set wildmenu wildmode=longest:full,full
 set complete=. completeopt=menu,preview,noselect
 set laststatus=2
 set nobackup nowritebackup noswapfile backupdir-=.
-set foldmethod=marker nofoldenable foldcolumn=1
+set foldmethod=marker nofoldenable foldcolumn=1 foldopen-=block foldlevel=99
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
 set noeol nofixeol
-set cinoptions=g0,N-s,t0,(0,U1,ws,Ws,m1,js,Js
+set cinoptions=g0,N-s,t0,(0,U1,ws,Ws,m1,j1,J1
 set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
 let &showbreak="=>> "
 let mapleader="\<space>"
@@ -50,9 +51,10 @@ endif
 let $VIM_LANGCLIENT='coc'
 
 source $HOME/shared/lib/vim/platform.vim
+source $HOME/shared/lib/vim/mapping.vim
+source $HOME/shared/lib/vim/headerguard.vim
 source $HOME/shared/lib/vim/lightline.vim
 source $HOME/shared/lib/vim/plugins.vim
-source $HOME/shared/lib/vim/mapping.vim
 source $HOME/shared/lib/vim/colors.vim
 
 augroup VimrcAutoCommands

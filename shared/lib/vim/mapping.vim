@@ -96,26 +96,24 @@ snoremap <silent><expr> <C-u>              <SID>ScrollUp()
 " endif
 
 if $VIM_LANGCLIENT ==? 'ale'
-  nnoremap K :ALEHover<CR>
-  nnoremap gd :ALEGoToDefinition<CR>
-  nnoremap gD :ALEDocumentation<CR>
-  nnoremap gr :ALEFindReferences<CR>
-  nnoremap gs :ALESymbolSearch<Space>
-  nnoremap gt :ALEGoToTypeDefinition<CR>
-  " inoremap <C-space> <C-\><C-o>:ALEComplete<CR>
+  nnoremap K <Cmd>ALEHover<CR>
+  nnoremap gd <Cmd>ALEGoToDefinition<CR>
+  nnoremap gD <Cmd>ALEDocumentation<CR>
+  nnoremap gr <Cmd>ALEFindReferences<CR>
+  nnoremap gs <Cmd>ALESymbolSearch<Space>
+  nnoremap gt <Cmd>ALEGoToTypeDefinition<CR>
+  inoremap <C-space> <Cmd>ALEComplete<CR>
 elseif $VIM_LANGCLIENT ==? 'lcn'
-  nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-  nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-  nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>
-  nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
-  nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
-  nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
-  nnoremap <silent> <C-s> :call LanguageClient#textDocument_signatureHelp()<CR>
+  nnoremap <silent> K <Cmd>call LanguageClient#textDocument_hover()<CR>
+  nnoremap <silent> gd <Cmd>call LanguageClient#textDocument_definition()<CR>
+  nnoremap <silent> gi <Cmd>call LanguageClient#textDocument_implementation()<CR>
+  nnoremap <silent> gr <Cmd>call LanguageClient#textDocument_references()<CR>
+  nnoremap <silent> gs <Cmd>call LanguageClient#textDocument_documentSymbol()<CR>
+  nnoremap <silent> <F2> <Cmd>call LanguageClient#textDocument_rename()<CR>
+  nnoremap <silent> <C-s> <Cmd>call LanguageClient#textDocument_signatureHelp()<CR>
   imap <silent> <C-s> <C-o><C-s>
 elseif $VIM_LANGCLIENT ==? 'coc'
-  nmap <silent>       <C-Space> :call coc#refresh()<CR>
-  imap <silent><expr> <C-Space>       coc#refresh()<CR>
-  smap <silent><expr> <C-Space>       coc#refresh()<CR>
+  imap <silent><expr> <C-Space> coc#refresh()
 
   " GoTo code navigation.
   nmap <silent> gd <Plug>(coc-definition)
@@ -128,7 +126,7 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   xmap <silent> gr <Plug>(coc-references)
   nmap <silent> gR <Plug>(coc-references-used)
   xmap <silent> gR <Plug>(coc-references-used)
-  map  <silent> gh :call CocActionAsync('showSignatureHelp')<CR>
+  map  <silent> gh <Cmd>call CocActionAsync('showSignatureHelp')<CR>
   imap <silent> <C-s> <C-o>gh
 
   set formatexpr=<Plug>(coc-format-selected)
@@ -156,7 +154,7 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   imap <silent> <F2> <Plug>(coc-rename)
 
   " Use K to show documentation in preview window.
-  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  nnoremap K <Cmd>call <SID>show_documentation()<CR>
 
   function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
@@ -241,33 +239,33 @@ endfunction
 
 command! -bar -range -nargs=1 Align call Align(<args>, <line1>, <line2>)
 
-nnoremap <silent> <leader>T :<C-U><C-R>=v:count<CR>bp<CR>
-nnoremap <silent> <leader>t :<C-U><C-R>=v:count<CR>bn<CR>
-nnoremap <silent> <leader>p :b#<CR>
-nnoremap <silent> <leader>q :b#<Bar>bd#<CR>
-nnoremap <silent> <leader>Q :b#<Bar>bd!#<CR>
-nnoremap <silent> <leader>n :echo fnamemodify(expand("%"), ":~:.")<CR>
-" nnoremap <silent> <leader>h :A<CR>
-nnoremap <silent> <leader>l :noh<CR>
-" nnoremap <leader>: :AsyncRun<space>
-" vnoremap <leader>: :AsyncRun<space>
-nnoremap <silent> <leader>b :NERDTreeToggle<CR>
-nnoremap <silent> <leader>v :Vista!!<CR>
-nnoremap <silent> <leader>r :set relativenumber!<CR>
+nnoremap <expr> <leader>T "\<Cmd>".v:count."bp\<CR>"
+nnoremap <expr> <leader>t "\<Cmd>".v:count."bn\<CR>"
+nnoremap <leader>p <Cmd>b#<CR>
+nnoremap <leader>q <Cmd>b#<Bar>bd#<CR>
+nnoremap <leader>Q <Cmd>b#<Bar>bd!#<CR>
+nnoremap <leader>n <Cmd>echo fnamemodify(expand("%"), ":~:.")<CR>
+nnoremap <leader>l <Cmd>noh<CR>
+nnoremap <leader>b <Cmd>NvimTreeToggle<CR>
+nnoremap <leader>v <Cmd>Vista!!<CR>
+nnoremap <leader>r <Cmd>set relativenumber!<CR>
 
-nnoremap <silent> <leader><Tab> :tabnext<CR>
-nnoremap <silent> <leader><S-Tab> :tabprevious<CR>
-nnoremap <silent> <leader>N :tabedit %<CR>
-nnoremap <silent> <leader>X :tabclose<CR>
-nnoremap <silent> <leader>H :-tabmove<CR>
-nnoremap <silent> <leader>L :+tabmove<CR>
-nnoremap <silent> <leader>_ :tabfirst<CR>
-nnoremap <silent> <leader>+ :tablast<CR>
+nnoremap <leader><Tab> <Cmd>tabnext<CR>
+nnoremap <leader><S-Tab> <Cmd>tabprevious<CR>
+nnoremap <leader>N <Cmd>tabedit %<CR>
+nnoremap <leader>X <Cmd>tabclose<CR>
+nnoremap <leader>H <Cmd>-tabmove<CR>
+nnoremap <leader>L <Cmd>+tabmove<CR>
+nnoremap <leader>_ <Cmd>tabfirst<CR>
+nnoremap <leader>+ <Cmd>tablast<CR>
 
-function! s:GoToBuffer() abort
-  let l:inp = input("buffer? ")
-  " Clear the command line.
-  normal :<Esc>
+function! s:GoToBuffer(nr) abort
+  let l:inp = v:count
+  if l:inp == 0
+    let l:inp = input("buffer? ")
+    " Clear the command line.
+    normal :<Esc>
+  endif
 
   if empty(l:inp)
     return
@@ -280,7 +278,7 @@ function! s:GoToBuffer() abort
     echo "That buffer doesn't exist."
   endif
 endfunction
-nnoremap <silent> <leader>= :<C-U>call <SID>GoToBuffer()<CR>
+nnoremap <leader>= <Cmd>call <SID>GoToBuffer(v:count)<CR>
 
 for nr in range(1, 9)
   exe 'nmap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'

@@ -1,12 +1,15 @@
 let g:colors_opts = {}
 function! TryToFixColorScheme() abort
-  if !has_key(g:, 'colors_name')
-    return
-  endif
+  if has_key(g:, 'colors_name')
+    " if has_key(g:, 'lightline#colorscheme#'.g:colors_name.'#palette')
+    "   let g:lightline.colorscheme = g:colors_name
+    "   silent! call lightline#enable()
+    " endif
 
-  let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
-  if filereadable(fn)
-    exe 'source ' . l:fn
+    let l:fn = glob('~/shared/etc/fix-' . g:colors_name . '.vim')
+    if filereadable(fn)
+      exe 'source ' . l:fn
+    endif
   endif
 
   if has_key(g:colors_opts, 'transparent')
@@ -27,6 +30,12 @@ function! TryToFixColorScheme() abort
   if has_key(g:colors_opts, 'setindentguides')
     hi IndentGuidesEven guibg=#344162
     hi IndentGuidesOdd guibg=#344f62
+  endif
+
+  if has_key(g:colors_opts, 'run')
+    for l:cmd in g:colors_opts.run
+      silent! exe l:cmd
+    endfor
   endif
 endfunction
 
@@ -49,7 +58,16 @@ function! SetColorOptions(...) abort
     elseif l:opts[l:i] ==? 'reset'
       let g:colors_opts = {}
     elseif !empty(l:opts[l:i])
-      let g:colors_opts[l:opts[l:i]] = 1
+      if l:opts[l:i][0] == ':'
+        if !has_key(g:colors_opts, 'run')
+          let g:colors_opts.run = []
+        endif
+        call add(g:colors_opts.run, strpart(l:opts[l:i], 1))
+      elseif l:opts[l:i][0] == '"'
+        " comment
+      else
+        let g:colors_opts[l:opts[l:i]] = 1
+      endif
     endif
     let l:i += 1
   endwhile
@@ -57,6 +75,8 @@ function! SetColorOptions(...) abort
     exe 'silent! colorscheme '.l:opts[0]
   elseif l:len > 1 && has_key(g:, 'colors_name')
     exe 'silent! colorscheme '.g:colors_name
+  else
+    call TryToFixColorScheme()
   endif
 endfunction
 

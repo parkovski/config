@@ -21,7 +21,22 @@ function mkcd {
 
 function up {
   local amt=$1
-  [[ ! $amt ]] && amt=1
+  local cmd=cd
+  if [[ $amt == "-p" ]]; then
+    cmd=pushd
+    amt=$2
+  fi
+  [[ -z "$amt" ]] && amt=1
   local s=$(printf "%${amt}s")
-  cd ${s// /..\/}
+  $cmd ${s// /..\/}
+}
+
+function dcat {
+  if [[ "x$1" == x ]]; then
+    ll
+  elif [[ -d "$1" ]]; then
+    ll $1
+  else
+    cat $1
+  fi
 }
