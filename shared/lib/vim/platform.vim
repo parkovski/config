@@ -1,5 +1,11 @@
 let g:vimrc_platform = {}
 
+if has("nvim") || has("lua")
+  let g:vimrc_platform.status_plugin = 'lualine'
+else
+  let g:vimrc_platform.status_plugin = 'lightline'
+endif
+
 function! g:Chsh(shell) abort
   let &shell=a:shell
   if a:shell =~? 'pwsh\(\.exe\)\?' || a:shell =~? 'powershell\(\.exe\)\?'

@@ -23,6 +23,8 @@ require('lualine').setup {
     lualine_a = {
       {
         'buffers',
+        mode = 2,
+        icons_enabled = false,
         buffers_color = {
           active = 'lualine_a_normal',
           inactive = 'lualine_b_inactive',

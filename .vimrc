@@ -21,7 +21,7 @@ set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
 set noeol nofixeol
-set cinoptions=g0,N-s,t0,(0,U1,ws,Ws,m1,j1,J1
+set cinoptions=:0,g0,N-s,E-s,t0,is,(0,U1,w1,Ws,ks,m1,j1,J1
 set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
 let &showbreak="=>> "
 let mapleader="\<space>"
@@ -53,11 +53,11 @@ let $VIM_LANGCLIENT='coc'
 source $HOME/shared/lib/vim/platform.vim
 source $HOME/shared/lib/vim/mapping.vim
 source $HOME/shared/lib/vim/headerguard.vim
-if !has("nvim") && !has("lua")
+if g:vimrc_platform.status_plugin ==? 'lightline'
   source $HOME/shared/lib/vim/lightline.vim
 endif
 source $HOME/shared/lib/vim/plugins.vim
-if has("nvim") || has("lua")
+if g:vimrc_platform.status_plugin ==? 'lualine'
   source $HOME/shared/lib/vim/lualine.vim
 endif
 source $HOME/shared/lib/vim/colors.vim
@@ -66,6 +66,8 @@ augroup VimrcAutoCommands
   autocmd!
   autocmd FileType cpp set commentstring=//%s
   autocmd FileType cmake set commentstring=#%s
+  autocmd FileType javascriptreact,typescriptreact 
+        \ setl cinoptions-=(0 cinoptions+=(s
 
   autocmd StdinReadPre * let s:std_in=1
   if exists("b:NERDTree")

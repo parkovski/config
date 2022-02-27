@@ -259,28 +259,53 @@ nnoremap <leader>L <Cmd>+tabmove<CR>
 nnoremap <leader>_ <Cmd>tabfirst<CR>
 nnoremap <leader>+ <Cmd>tablast<CR>
 
+function! s:FilterBuffer(nr)
+  return bufexists(a:nr) && buflisted(a:nr) &&
+        \ getbufvar(a:nr, "buftype") !=? "quickfix"
+endfunction
+
+function! s:GetBufferLineNumber(nr) abort
+  let l:buffers = filter(range(1, bufnr("$")), "s:FilterBuffer(v:val)")
+  let l:i = index(l:buffers, a:nr)
+  if l:i >= 0
+    return l:i + 1
+  endif
+  return -1
+endfunction
+
 function! s:GoToBuffer(nr) abort
-  let l:inp = v:count
+  let l:inp = a:nr
   if l:inp == 0
     let l:inp = input("buffer? ")
     " Clear the command line.
     normal :<Esc>
+    if empty(l:inp)
+      return
+    endif
+    let l:inp = 0+l:inp
   endif
 
-  if empty(l:inp)
-    return
+  if g:vimrc_platform.status_plugin ==? 'lightline'
+    let l:num = lightline#bufferline#get_buffer_for_ordinal_number(l:inp)
+  elseif g:vimrc_platform.status_plugin ==? 'lualine'
+    let l:num = <SID>GetBufferLineNumber(l:inp)
   endif
-
-  let l:num = lightline#bufferline#get_buffer_for_ordinal_number(l:inp)
   if (l:num != -1)
     exe l:num."b"
   else
-    echo "That buffer doesn't exist."
+    echo "Buffer " . l:inp . " doesn't exist."
   endif
 endfunction
 nnoremap <leader>= <Cmd>call <SID>GoToBuffer(v:count)<CR>
 
-for nr in range(1, 9)
-  exe 'nmap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
-endfor
-nmap <leader>0 <Plug>lightline#bufferline#go(10)
+if g:vimrc_platform.status_plugin ==? 'lightline'
+  for nr in range(1, 9)
+    exe 'nnoremap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
+  endfor
+  nnoremap <leader>0 <Plug>lightline#bufferline#go(10)
+elseif g:vimrc_platform.status_plugin ==? 'lualine'
+  for nr in range(1, 9)
+    exe 'nnoremap <leader>' . nr . ' <Cmd>call <SID>GoToBuffer(' . nr . ')<CR>'
+  endfor
+  nnoremap <leader>0 <Cmd>call <SID>GoToBuffer(10)<CR>
+endif
