@@ -118,6 +118,8 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   " GoTo code navigation.
   nmap <silent> gd <Plug>(coc-definition)
   xmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gD <Plug>(coc-declaration)
+  xmap <silent> gD <Plug>(coc-declaration)
   nmap <silent> gy <Plug>(coc-type-definition)
   xmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
@@ -266,11 +268,10 @@ endfunction
 
 function! s:GetBufferLineNumber(nr) abort
   let l:buffers = filter(range(1, bufnr("$")), "s:FilterBuffer(v:val)")
-  let l:i = index(l:buffers, a:nr)
-  if l:i >= 0
-    return l:i + 1
+  if a:nr <= 0 || a:nr > len(l:buffers)
+    return -1
   endif
-  return -1
+  return l:buffers[a:nr - 1]
 endfunction
 
 function! s:GoToBuffer(nr) abort

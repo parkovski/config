@@ -1,0 +1,101 @@
+# See /usr/share/doc/alacritty/example/alacritty.yml
+
+window:
+  startup_mode: Maximized
+  gtk_theme_variant: dark
+  opacity: .75
+  padding:
+    x: 1
+    y: 1
+  class:
+    general: Alacritty
+    instance: Alacritty
+  decorations: None
+
+font:
+  normal:
+    family: Iosevka Medium
+  size: 12
+
+shell:
+  program: tmux
+  args: [new, -A, -s, default]
+
+colors:
+  primary:
+    background: '#040410'
+    foreground: '#bbbbbb'
+    dim_foreground: '#828482'
+    bright_foreground: '#eaeaea'
+
+  cursor:
+    text: CellBackground
+    cursor: CellForeground
+
+  vi_mode_cursor:
+    text: CellBackground
+    cursor: CellForeground
+
+  search:
+    matches:
+      foreground: '#000000'
+      background: '#ffffff'
+    focused_match:
+      foreground: '#ffffff'
+      background: '#000000'
+    bar:
+      background: '#c5c8c6'
+      foreground: '#1d1f21'
+
+  hints:
+    start:
+      foreground: '#1d1f21'
+      background: '#e9ff5e'
+    end:
+      foreground: '#e9ff5e'
+      background: '#1d1f21'
+
+  line_indicator:
+    foreground: None
+    background: None
+
+  selection:
+    text: CellBackground
+    background: CellForeground
+
+  normal:
+    black: '#000000'
+    red: '#e52222'
+    green: '#a6e32d'
+    yellow: '#fc951e'
+    blue: '#c48dff'
+    magenta: '#fa2573'
+    cyan: '#67d9f0'
+    white: '#f2f2f2'
+
+  bright:
+    black: '#555555'
+    red: '#ff5555'
+    green: '#55ff55'
+    yellow: '#ffff55'
+    blue: '#5555ff'
+    magenta: '#ff55ff'
+    cyan: '#55ffff'
+    white: '#ffffff'
+
+  dim:
+    black: '#131415'
+    red: '#864343'
+    green: '#777c44'
+    yellow: '#9e824c'
+    blue: '#556a7d'
+    magenta: '#75617b'
+    cyan: '#5b7d78'
+    white: '#828482'
+
+  indexed_colors: []
+
+  transparent_background_colors: true
+
+key_bindings:
+  - { key: Return, mods: Control|Shift, action: ToggleFullscreen }

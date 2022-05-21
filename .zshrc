@@ -2,7 +2,7 @@ local starttime=$(date "+%s%4N")
 
 export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
 
-export PATH="$HOME/local/bin:$HOME/shared/bin:$PATH"
+export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/.local/bin:$PATH"
 
 which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s - -b $HOME/local/bin"
 
@@ -64,9 +64,11 @@ if [[ "$OS_BASE" -eq "Linux" ]]; then
   if (( $IS_WSL )); then
     if which exa >/dev/null; then
       alias ls='exa -F 2>/dev/null'
+      alias la='exa -aF 2>/dev/null'
       alias ll='exa -al@Fg 2>/dev/null'
     else
       alias ls='ls -F --color=auto 2>/dev/null'
+      alias la='ls -AF --color=auto 2>/dev/null'
       alias ll='ls -AlhF --color=auto 2>/dev/null'
     fi
     function start() {
@@ -79,19 +81,23 @@ if [[ "$OS_BASE" -eq "Linux" ]]; then
   else
     if which exa >/dev/null; then
       alias ls='exa -F'
+      alias la='exa -aF'
       alias ll='exa -al@Fg'
     else
       alias ls='ls -F --color=auto'
+      alias la='ls -AF --color=auto'
       alias ll='ls -AlhF --color=auto'
     fi
   fi
 else
   if which exa >/dev/null; then
     alias ls='exa -F'
+    alias la='exa -aF'
     alias ll='exa -al@Fg'
   else
     alias ls='ls -FG'
-    alias ll='ls -Alh'
+    alias la='ls -AFG'
+    alias ll='ls -AlhFG'
   fi
 fi
 

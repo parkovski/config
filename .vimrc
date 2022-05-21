@@ -20,11 +20,13 @@ set foldmethod=marker nofoldenable foldcolumn=1 foldopen-=block foldlevel=99
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
-set noeol nofixeol
+set eol nofixeol
 set cinoptions=:0,g0,N-s,E-s,t0,is,(0,U1,w1,Ws,ks,m1,j1,J1
-set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
-let &showbreak="=>> "
+set list listchars=tab:⇥\ ,nbsp:␣,trail:‣,precedes:«,extends:»
+let &showbreak="⇒  "
 let mapleader="\<space>"
+
+"set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
 
 if exists('&termguicolors')
   set termguicolors

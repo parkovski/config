@@ -45,11 +45,12 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
+Plug 'mg979/vim-visual-multi'
 
 let g:rainbow_active = 1
 " Colors = indigo, blue, green, yellow, orange, red, violet (backwards rainbow)
 let g:rainbow_conf = {
-      \ 'guifgs': ['#7424F0', '#207AF4', 'chartreuse3', 'gold', 'orange2',
+      \ 'guifgs': ['#b657fa', '#2590fa', 'chartreuse3', 'gold', 'orange2',
       \   'firebrick', 'palevioletred1'],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
@@ -58,12 +59,12 @@ Plug 'luochen1990/rainbow'
 let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 Plug 'jeetsukumaran/vim-markology'
 
-let g:indent_guides_auto_colors = 0
+let g:indent_guides_auto_colors = 1
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_start_level = 2
-hi link IndentGuidesOdd CursorLine
-hi link IndentGuidesEven CursorLine
+" hi link IndentGuidesOdd CursorLine
+" hi link IndentGuidesEven CursorLine
 hi link ColorColumn CursorLine
 hi link EchoDocFloat Pmenu
 Plug 'nathanaelkane/vim-indent-guides'
@@ -82,15 +83,15 @@ else
 endif
 
 " Color schemes
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
+" Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
-Plug 'cocopon/iceberg.vim'
-Plug 'nightsense/snow'
-Plug 'rakr/vim-two-firewatch'
+" Plug 'cocopon/iceberg.vim'
+" Plug 'nightsense/snow'
+" Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/everforest'
-Plug 'jacoborus/tender.vim'
-Plug 'jaredgorski/spacecamp'
-Plug 'marcopaganini/termschool-vim-theme'
+" Plug 'jacoborus/tender.vim'
+" Plug 'jaredgorski/spacecamp'
+" Plug 'marcopaganini/termschool-vim-theme'
 Plug 'sainnhe/edge'
 
 " Syntaxes

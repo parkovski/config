@@ -1,10 +1,16 @@
 if(WIN32)
-  string(REPLACE "\\" "/" HOME $ENV{USERPROFILE})
+  string(REPLACE "\\" "/" TOOLCHAIN_HOME $ENV{USERPROFILE})
 else()
-  set(HOME $ENV{HOME})
+  set(TOOLCHAIN_HOME $ENV{HOME})
 endif()
 
-set(CMAKE_PREFIX_PATH "${HOME}/local;${CMAKE_PREFIX_PATH}")
+set(CMAKE_PREFIX_PATH "${TOOLCHAIN_HOME}/local;${CMAKE_PREFIX_PATH}")
+
+if (NOT CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX "${TOOLCHAIN_HOME}/local")
+endif()
+
+set(TOOLCHAIN_HOME)
 
 if(DEFINED ENV{VCPKG_ROOT})
   if(WIN32)
@@ -15,33 +21,10 @@ if(DEFINED ENV{VCPKG_ROOT})
   include("${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 endif()
 
-if(DEFINED CMAKE_SYSTEM_NAME)
-  set(TCSYS ${CMAKE_SYSTEM_NAME})
-elseif(DEFINED CMAKE_HOST_SYSTEM_NAME)
-  set(TCSYS ${CMAKE_HOST_SYSTEM_NAME})
-endif()
-
-if(ENV{CC} MATCHES "clang" OR ENV{CXX} MATCHES "clang" OR CMAKE_C_COMPILER MATCHES "clang" OR CMAKE_CXX_COMPILER MATCHES "clang")
-  set(TCCOMPILER clang)
-elseif(ENV{CC} MATCHES "gcc" OR ENV{CXX} MATCHES "g\\+\\+" OR CMAKE_C_COMPILER MATCHES "gcc" OR CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
-  set(TCCOMPILER gcc)
-elseif(TCSYS STREQUAL "Linux")
-  set(TCCOMPILER gcc)
-elseif(TCSYS STREQUAL "Windows")
-  set(TCCOMPILER msvc)
-elseif(TCSYS MATCHES "Darwin|Android|iOS|Emscripten")
-  set(TCCOMPILER clang)
-endif()
-
-if(TCCOMPILER STREQUAL clang)
-  add_compile_options(-fcolor-diagnostics)
-elseif(TCCOMPILER STREQUAL gcc)
-  add_compile_options(-fdiagnostics-color=always)
-elseif(TCCOMPILER STREQUAL msvc)
-  add_compile_options(/diagnostics:caret)
-endif()
-
-unset(TCCOMPILER)
-unset(TCSYS)
+add_compile_options(
+  $<$<OR:$<C_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:GNU>>:-fdiagnostics-color=always>
+  $<$<OR:$<C_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:Clang>>:-fcolor-diagnostics>
+  $<$<OR:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>:/diagnostics:caret>
+)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

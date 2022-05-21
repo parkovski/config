@@ -15,4 +15,5 @@ export OS
 if [[ $OS_BASE == Linux ]]; then
   cat /proc/version 2>/dev/null | grep -iq Microsoft
   export IS_WSL=$[! $?]
+  alias start='xdg-open >/dev/null 2>&1'
 fi

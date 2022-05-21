@@ -66,11 +66,12 @@ function precmd() {
   fi
 
   local piznath=$(echo -n ${PWD/#~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
+  PS1=
   if [[ "$USER" == root ]]; then
-    print -Pn "%F{1}%n%F{7}@%F{1}%m%F{7}:"
+    PS1+="%F{1}%n%F{7}@%F{1}%m%F{7}:"
   else
-    print -Pn "%F{10}%n%F{7}@%F{10}%m%F{7}:"
+    PS1+="%F{10}%n%F{7}@%F{10}%m%F{7}:"
   fi
-  print -P "$prompt_gitstr %F{12}$piznath%f"
-  PS1="%F{7}${exitcode}%F{3}%%%f "
+  PS1+="$prompt_gitstr %F{12}$piznath%f"$'\n'
+  PS1+="%F{7}${exitcode}%F{3}%%%f "
 }

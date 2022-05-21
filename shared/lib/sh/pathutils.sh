@@ -33,9 +33,9 @@ function up {
 
 function dcat {
   if [[ "x$1" == x ]]; then
-    ll
+    ls -lah
   elif [[ -d "$1" ]]; then
-    ll $1
+    ls -lah $1
   else
     cat $1
   fi

@@ -28,6 +28,12 @@ setup $HOME/.vim/colors
 setup $HOME/.config/nvim
 setup $HOME/.config/nvim/init.vim $PWD/init.vim
 
+setup $HOME/.config/alacritty
+setup $HOME/.config/alacritty/alacritty.yml $PWD/alacritty.yml
+
+setup $HOME/.config/environment.d
+setup $HOME/.config/environment.d/00-shared.conf $PWD/env.conf
+
 if [[ -e $HOME/.zshenv ]]; then
   . ~/.zshenv
 else

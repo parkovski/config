@@ -10,4 +10,5 @@ zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p
 zstyle ':completion:*' use-compctl false
 zstyle ':completion:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
-# zstyle ':completion:*:in::' environ PWD='$1'
+# zstyle ':completion:*:*:in:argument-1' file-patterns '*(-/):directories'
+# zstyle ':completion:*:*:in:*' environ 'PWD=$1'
