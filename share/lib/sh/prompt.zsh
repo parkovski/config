@@ -4,9 +4,9 @@ function precmd() {
   if [[ "$exitcode" -eq "0" ]]; then
     exitcode=
   elif [[ "$exitcode" -eq "130" ]]; then
-    exitcode="[%F{1}^C%F{7}] "
+    exitcode="[%F{1}^C%F{8}] "
   else
-    exitcode="[%F{1}$exitcode%F{7}] "
+    exitcode="[%F{1}$exitcode%F{8}] "
   fi
   local prompt_gitstr=
 
@@ -20,16 +20,16 @@ function precmd() {
       local remote=$(git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null)
       local ahead_str=$(git rev-list --count $remote..HEAD 2>/dev/null)
       local behind_str=$(git rev-list --count HEAD..$remote 2>/dev/null)
-      prompt_gitstr=" %F{3}$branch%F{7}:%f"
+      prompt_gitstr=" %F{3}$branch%F{8}:%f"
       if [[ "$ahead_str" -gt "0" ]]; then
         prompt_gitstr+=" %F{4}+$ahead_str"
         if [[ "$behind_str" -gt "0" ]]; then
-          prompt_gitstr+="%F{11}/%F{5}-$behind_str%F{7}:%f"
+          prompt_gitstr+="%F{8}/%F{5}-$behind_str%F{8}:%f"
         else
-          prompt_gitstr+="%F{7}:%f"
+          prompt_gitstr+="%F{8}:%f"
         fi
       elif [[ "$behind_str" -gt "0" ]]; then
-        prompt_gitstr+=" %F{5}-$behind_str%F{7}:%f"
+        prompt_gitstr+=" %F{5}-$behind_str%F{8}:%f"
       fi
       local -a items
       items=(${(f)gitstatus})
@@ -60,18 +60,25 @@ function precmd() {
         prompt_gitstr+=" $gcol${key[1]}${map[$key]}"
       done
       if [[ "$#keys" -gt "0" ]]; then
-        prompt_gitstr+="%F{7}:%f"
+        prompt_gitstr+="%F{8}:%f"
       fi
     fi
   fi
 
-  local piznath=$(echo -n ${PWD/#~/\~} | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
-  PS1=
-  if [[ "$USER" == root ]]; then
-    PS1+="%F{1}%n%F{7}@%F{1}%m%F{7}:"
-  else
-    PS1+="%F{10}%n%F{7}@%F{10}%m%F{7}:"
+  local ppath=${PWD/#~/\~}
+  if [[ "$PROMPT_CONDENSE_PATH" ]]; then
+    ppath=$(echo -n "$ppath" | sed "s/\\([^\\/]\\)[^\\/]*\\//\\1\\//g")
   fi
-  PS1+="$prompt_gitstr %F{12}$piznath%f"$'\n'
-  PS1+="%F{7}${exitcode}%F{3}%%%f "
+
+  if [[ "$USER" == root ]]; then
+    PS1="%F{1}"
+  else
+    PS1="%F{2}"
+  fi
+
+  # "name"@"host":
+  PS1+="%n%F{8}@%F{2}%m%F{8}:"
+
+  PS1+="$prompt_gitstr %F{4}$ppath%f"$'\n'
+  PS1+="%F{8}${exitcode}%f%% "
 }

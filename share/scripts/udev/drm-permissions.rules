@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="card0-HDMI-*", SUBSYSTEM=="drm", KERNELS=="card0", SUBSYSTEMS=="drm", RUN+="/usr/bin/chgrp video /sys%p/status", RUN+="/usr/bin/chmod g+w /sys%p/status" 

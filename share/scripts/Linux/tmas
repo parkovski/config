@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$1" = -a ]; then
+  export TMUX_ALT_STATUS=$[! ${TMUX_ALT_STATUS:-0}]
+  shift
+fi
+
+exec tmux new -A -s ${1:-default}

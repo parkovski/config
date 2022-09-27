@@ -1,0 +1,12 @@
+[Unit]
+Description=Kill hanging wineserver / winedevice.exe
+DefaultDependencies=no
+Before=exit.target shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/wineboot -kf
+RemainAfterExit=no
+
+[Install]
+WantedBy=exit.target shutdown.target

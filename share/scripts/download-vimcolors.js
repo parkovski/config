@@ -8,7 +8,7 @@ const WIN32 = os.platform() === 'win32';
 const HOME = os.homedir();
 const CURL = WIN32 ? 'curl.exe' : 'curl';
 
-const listpath = path.resolve(HOME, 'shared/etc/vimcolors.txt');
+const listpath = path.resolve(HOME, '.share/etc/vimcolors.txt');
 const colorspath = path.resolve(HOME, WIN32 ? 'vimfiles' : '.vim', 'colors');
 if (!fs.existsSync(colorspath)) {
   fs.mkdirSync(colorspath);

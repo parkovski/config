@@ -24,6 +24,7 @@ require('lualine').setup {
       {
         'buffers',
         mode = 2,
+        max_length = vim.o.columns - 32,
         icons_enabled = false,
         buffers_color = {
           active = 'lualine_a_normal',
@@ -31,7 +32,7 @@ require('lualine').setup {
         },
       },
     },
-    lualine_z = {'tabs'},
+    lualine_z = {{'tabs', max_length = 32}},
   },
 }
 END

@@ -74,7 +74,7 @@ function fix_env {
   return $val
 }
 
-$out = node $HOME\shared\lib\chcl.js @args
+$out = node $HOME\.share\lib\chcl.js @args
 $out = $out -split "`n"
 foreach ($line in $out) {
   $spc = $line.IndexOf(' ')

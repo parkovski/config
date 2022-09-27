@@ -1,20 +1,38 @@
+# Reads these files in order from $ZDOTDIR (default $HOME):
+# - .zshenv   (all shells)
+# - .zprofile (login shells only, usage not preferred)
+# - .zshrc    (interactive shells)
+# - .zlogin   (login shells only)
+# - .zlogout  (before exit)
+
 local starttime=$(date "+%s%4N")
 
-export LS_COLORS=$(cat $HOME/shared/etc/lscolors.txt)
+export COLORTERM=truecolor
 
-export PATH="$HOME/local/bin:$HOME/shared/bin:$HOME/.local/bin:$PATH"
+if which vivid >/dev/null; then
+  export LS_COLORS=$(vivid generate iceberg-dark)
+else
+  export LS_COLORS=$(cat $HOME/.share/etc/lscolors.txt)
+fi
 
-which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s - -b $HOME/local/bin"
+if ! [[ -z "$GH" ]]; then
+  if ! [[ -e $GH/3rd-party/antidote ]]; then
+    git clone https://github.com/mattmc3/antidote.git $GH/3rd-party/antidote
+  fi
 
-source <(antibody init)
+  source $GH/3rd-party/antidote/antidote.zsh
+  antidote load
+fi
 
-antibody bundle ael-code/zsh-colored-man-pages
-antibody bundle chrissicool/zsh-256color
-antibody bundle zdharma-continuum/fast-syntax-highlighting
+# which antibody &>/dev/null || eval "curl -sL git.io/antibody | sh -s - -b $HOME/.local/bin"
 
-export fpath=($HOME/shared/lib/sh/zcomp $fpath)
+# source <(antibody init)
+
+# antibody bundle ael-code/zsh-colored-man-pages
+# antibody bundle zdharma-continuum/fast-syntax-highlighting
+
+export fpath=($HOME/.share/lib/sh/zcomp $fpath)
 setopt cbases
-setopt autocd
 setopt histignorealldups sharehistory
 HISTSIZE=1000
 SAVEHIST=1000
@@ -53,56 +71,16 @@ bindkey '^h' backward-delete-char
 
 bindkey '^k' vi-kill-line
 
-. $HOME/shared/lib/sh/os.sh
-. $HOME/shared/lib/sh/completion.zsh
-. $HOME/shared/lib/sh/prompt.zsh
-. $HOME/shared/lib/sh/gh.sh
-. $HOME/shared/lib/sh/pathutils.sh
-#. $HOME/shared/lib/sh/chcl.sh
+. $HOME/.share/lib/sh/os.sh
+. $HOME/.share/lib/sh/completion.zsh
+. $HOME/.share/lib/sh/prompt.zsh
+. $HOME/.share/lib/sh/pathutils.sh
+. $HOME/.share/lib/sh/gh.sh
+. $HOME/.share/lib/sh/os-alias.sh
+#. $HOME/.share/lib/sh/chcl.sh
 
-if [[ "$OS_BASE" -eq "Linux" ]]; then
-  if (( $IS_WSL )); then
-    if which exa >/dev/null; then
-      alias ls='exa -F 2>/dev/null'
-      alias la='exa -aF 2>/dev/null'
-      alias ll='exa -al@Fg 2>/dev/null'
-    else
-      alias ls='ls -F --color=auto 2>/dev/null'
-      alias la='ls -AF --color=auto 2>/dev/null'
-      alias ll='ls -AlhF --color=auto 2>/dev/null'
-    fi
-    function start() {
-      local winpath="$(wslpath -w $1)"
-      shift
-      pushd "$USERPROFILE"
-      cmd.exe /c start "$winpath" "$@"
-      popd
-    }
-  else
-    if which exa >/dev/null; then
-      alias ls='exa -F'
-      alias la='exa -aF'
-      alias ll='exa -al@Fg'
-    else
-      alias ls='ls -F --color=auto'
-      alias la='ls -AF --color=auto'
-      alias ll='ls -AlhF --color=auto'
-    fi
-  fi
-else
-  if which exa >/dev/null; then
-    alias ls='exa -F'
-    alias la='exa -aF'
-    alias ll='exa -al@Fg'
-  else
-    alias ls='ls -FG'
-    alias la='ls -AFG'
-    alias ll='ls -AlhFG'
-  fi
-fi
-
-local totaltime=$[$(date "+%s%4N")-$starttime]
 if [[ -t 0 ]]; then
+  local totaltime=$[$(date "+%s%4N")-$starttime]
   echo "\e[G\e[2KProfile loaded in \e[32m$[$totaltime/1000].$[$totaltime%1000]s\e[m."
 fi
 

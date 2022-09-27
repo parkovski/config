@@ -20,9 +20,9 @@ function install {
 
 install $home\.gitconfig $pwd\windows.gitconfig
 
-install $home\local\bin
-install $home\local\etc
-install $home\shared $pwd\shared
+install $home\.local\bin
+install $home\.local\etc
+install $home\.share $pwd\share
 
 install $home\_vimrc $pwd\.vimrc
 install $home\.vimrc $pwd\.vimrc
@@ -41,12 +41,12 @@ install $home\Documents\PowerShell
 install $home\Documents\PowerShell\profile.ps1 $pwd\profile.ps1
 
 $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-if ($userenv -inotcontains "$Home\shared\bin") {
-  [System.Environment]::SetEnvironmentVariable("Path", "$Home\shared\bin;$userenv", "User")
+if ($userenv -inotcontains "$Home\.share\bin") {
+  [System.Environment]::SetEnvironmentVariable("Path", "$Home\.share\bin;$userenv", "User")
 }
 
-if ($userenv -inotcontains "$Home\local\bin") {
-  [System.Environment]::SetEnvironmentVariable("Path", "$Home\local\bin;$userenv", "User")
+if ($userenv -inotcontains "$Home\.local\bin") {
+  [System.Environment]::SetEnvironmentVariable("Path", "$Home\.local\bin;$userenv", "User")
 }
 
 if (-not (test-path Env:\VCPKG_DEFAULT_TRIPLET)) {
@@ -61,8 +61,8 @@ if (!$isadmin) {
   return
 }
 
-&"$PSScriptRoot\shared\scripts\Windows\Enable-LongPaths.ps1"
-&"$PSScriptRoot\shared\scripts\Windows\verbose-boot.ps1" -v $true
+&"$PSScriptRoot\.share\scripts\Windows\Enable-LongPaths.ps1"
+&"$PSScriptRoot\.share\scripts\Windows\verbose-boot.ps1" -v $true
 
 if (test-path HKLM:\SOFTWARE\WOW6432Node\WinFsp) {
   Set-ItemProperty HKLM:\SOFTWARE\WOW6432Node\WinFsp DistinctPermsForSameOwnerGroup -Type DWord -Value 1

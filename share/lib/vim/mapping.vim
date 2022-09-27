@@ -3,23 +3,29 @@ noremap! <NUL> <C-Space>
 noremap  <Char-0x7F> <BS>
 noremap! <Char-0x7F> <BS>
 
+tnoremap <M-Esc> <C-\><C-n>
+
+function! s:CocPumVisible()
+  return exists('*coc#pum#visible') && coc#pum#visible()
+endfunction
+
 function! s:AutoCompleteSelect()
-  if empty(v:completed_item)
-    if pumvisible()
+  if <SID>CocPumVisible()
+    return coc#pum#confirm()
+  elseif pumvisible()
+    if empty(v:completed_item)
       return "\<C-e>\<CR>"
     endif
-    return "\<CR>"
+    return "\<C-y>"
   endif
 
-  if !pumvisible()
-    return "\<CR>"
-  endif
-
-  return "\<C-y>"
+  return "\<CR>"
 endfunction
 
 function! s:AutoCompleteJumpForwards()
-  if pumvisible()
+  if <SID>CocPumVisible()
+    return coc#pum#next(1)
+  elseif pumvisible()
     return "\<C-n>"
   endif
 
@@ -27,7 +33,9 @@ function! s:AutoCompleteJumpForwards()
 endfunction
 
 function! s:AutoCompleteJumpBackwards()
-  if pumvisible()
+  if <SID>CocPumVisible()
+    return coc#pum#prev(1)
+  elseif pumvisible()
     return "\<C-p>"
   endif
 
@@ -35,18 +43,20 @@ function! s:AutoCompleteJumpBackwards()
 endfunction
 
 function! s:AutoCompleteCancel()
-  if pumvisible()
+  if <SID>CocPumVisible()
+    call coc#pum#cancel()
+  elseif pumvisible()
     if empty(v:completed_item)
       return "\<C-e>\<Esc>"
     endif
-    return "\<Esc>"
   endif
+
   return "\<Esc>"
 endfunction
 
 function! s:ScrollDown()
-  if coc#float#has_scroll()
-    call coc#float#scroll(1)
+  if <SID>CocPumVisible()
+    return coc#pum#scroll(1)
   elseif pumvisible()
     return "\<PageDown>"
   else
@@ -55,8 +65,8 @@ function! s:ScrollDown()
 endfunction
 
 function! s:ScrollUp()
-  if coc#float#has_scroll()
-    call coc#float#scroll(0)
+  if <SID>CocPumVisible()
+    return coc#pum#scroll(0)
   elseif pumvisible()
     return "\<PageUp>"
   else
@@ -64,18 +74,18 @@ function! s:ScrollUp()
   endif
 endfunction
 
-inoremap <silent>       <Tab>        <C-r>=<SID>AutoCompleteJumpForwards()<CR>
-snoremap <silent>       <Tab>   <Esc>:call <SID>AutoCompleteJumpForwards()<CR>
-inoremap <silent>       <S-Tab>      <C-r>=<SID>AutoCompleteJumpBackwards()<CR>
-snoremap <silent>       <S-Tab> <Esc>:call <SID>AutoCompleteJumpBackwards()<CR>
-inoremap <silent>       <CR>         <C-r>=<SID>AutoCompleteSelect()<CR>
-snoremap <silent>       <CR>    <Esc>:call <SID>AutoCompleteSelect()<CR>
-inoremap <silent><expr> <Esc>              <SID>AutoCompleteCancel()
-snoremap <silent><expr> <Esc>              <SID>AutoCompleteCancel()
-inoremap <silent><expr> <C-d>              <SID>ScrollDown()
-snoremap <silent><expr> <C-d>              <SID>ScrollDown()
-inoremap <silent><expr> <C-u>              <SID>ScrollUp()
-snoremap <silent><expr> <C-u>              <SID>ScrollUp()
+inoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
+snoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
+inoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
+snoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
+inoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
+snoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
+inoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
+snoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
+inoremap <silent><expr> <C-d>   <SID>ScrollDown()
+snoremap <silent><expr> <C-d>   <SID>ScrollDown()
+inoremap <silent><expr> <C-u>   <SID>ScrollUp()
+snoremap <silent><expr> <C-u>   <SID>ScrollUp()
 
 " if exists('*deoplete#custom#option')
 "  function! g:Multiple_cursors_before()
@@ -194,16 +204,21 @@ nnoremap Y y$
 
 " Keep the last thing copied when we paste.
 xnoremap <expr> P 'Pgv"'.v:register.'y'
-xmap p Pg`]
-xmap <M-=> "+p
-xmap <M-+> <M-=>
 
+" Hmm...
+" xmap p Pg`]
+
+" System clipboard
 noremap  +     "+
-noremap! <M-"> <C-r>"
-map!     <M-'> <M-">
 noremap! <M-+> <C-r>+
 map!     <M-=> <M-+>
 
+" Paste while editing
+noremap! <M-"> <C-r>"
+map!     <M-'> <M-">
+
+" Null clipboard
+noremap  _    "_
 
 " Statement
 "map (

@@ -1,0 +1,2 @@
+# lsusb | rg -i bluetooth | rg -o -e '(\d{4}):(\d{4})' -r 'ATTRS{idVendor}=="$1", ATTRS{idProduct}=="$2"'
+SUBSYSTEM=="usb", ATTRS{idVendor}=="8087", ATTRS{idProduct}=="0026" RUN+="/bin/sh -c 'echo enabled > /sys$env{DEVPATH}/../power/wakeup'"

@@ -3,11 +3,15 @@ if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
     \ '--create-dirs ' .
     \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   source g:vimrc_platform.dotvim . '/autoload/plug.vim'
-  PlugInstall --sync
-  source $MYVIMRC
+  echo "Needs PlugInstall"
+  " PlugInstall --sync
 endif
 
 call plug#begin(g:vimrc_platform.dotvim . '/bundle')
+
+" General
+"Plug 'junegunn/fzf'
+"Plug 'junegunn/fzf.vim'
 
 if $VIM_LANGCLIENT ==? 'lcn'
   Plug 'autozimu/LanguageClient-neovim', {
@@ -22,20 +26,22 @@ elseif $VIM_LANGCLIENT ==? 'ale'
   Plug 'w0rp/ale'
   let s:sources = ['ale']
   let g:vista_default_executive = 'ale'
-else "if $VIM_LANGCLIENT ==? 'coc'
+elseif $VIM_LANGCLIENT ==? 'coc'
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  Plug 'antoinemadec/coc-fzf'
+  "Plug 'antoinemadec/coc-fzf'
   let g:vista_default_executive = 'coc'
+elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
+  Plug 'neovim/nvim-lspconfig'
 endif
-
-" General
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
 
 " Debugger
 " Plug 'puremourning/vimspector'
 
 " Config
+let g:localvimrc_persistent = 1
+let g:localvimrc_persistence_file = fnamemodify("~/.local/etc/localvimrc_persistent", ":p")
+let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3rd-party/\)\@!.*'
+" let g:localvimrc_sandbox = 0
 Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
 
@@ -48,10 +54,11 @@ Plug 'bronson/vim-visual-star-search'
 Plug 'mg979/vim-visual-multi'
 
 let g:rainbow_active = 1
-" Colors = indigo, blue, green, yellow, orange, red, violet (backwards rainbow)
+
+" Colors = blue, green, yellow, orange, red, violet, indigo
 let g:rainbow_conf = {
-      \ 'guifgs': ['#b657fa', '#2590fa', 'chartreuse3', 'gold', 'orange2',
-      \   'firebrick', 'palevioletred1'],
+      \ 'guifgs': ['#2590fa', 'chartreuse3', 'gold', 'orange2',
+      \   'firebrick', 'palevioletred1', '#8840f8'],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
 Plug 'luochen1990/rainbow'
@@ -85,7 +92,16 @@ endif
 " Color schemes
 " Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
-" Plug 'cocopon/iceberg.vim'
+Plug 'cocopon/iceberg.vim'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'rhysd/vim-color-spring-night'
+Plug 'joshdick/onedark.vim'
+Plug 'cormacrelf/vim-colors-github'
+Plug 'ajmwagar/vim-deus'
+Plug 'tyrannicaltoucan/vim-quantum'
+Plug 'savq/melange'
+Plug 'keith/parsec.vim'
+Plug 'mhartington/oceanic-next'
 " Plug 'nightsense/snow'
 " Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/everforest'

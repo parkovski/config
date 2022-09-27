@@ -1,0 +1,2 @@
+#!/bin/sh
+exec cmake "$@" -DCMAKE_INSTALL_PREFIX=$HOME/.local

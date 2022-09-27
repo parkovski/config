@@ -1,0 +1,4 @@
+#!/bin/sh
+my_session=$(loginctl list-sessions | rg -r '$1' " +(\d+) $(id -u) .+\$")
+[ -z "$my_session" ] && exit 1
+loginctl unlock-session $my_session

@@ -15,7 +15,7 @@ set splitright splitbelow
 set wildmenu wildmode=longest:full,full
 set complete=. completeopt=menu,preview,noselect
 set laststatus=2
-set nobackup nowritebackup noswapfile backupdir-=.
+set noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=1 foldopen-=block foldlevel=99
 set autoread
 set encoding=utf8 fileformats=unix,dos
@@ -29,12 +29,16 @@ let mapleader="\<space>"
 "set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
 
 if exists('&termguicolors')
-  set termguicolors
   if !has('nvim')
     let &t_Co = 256
-    " let &t_8f = "[38;2;%lu;%lu;%lum"
-    " let &t_8b = "[48;2;%lu;%lu;%lum"
+    let &t_8f = "[38;2;%lu;%lu;%lum"
+    let &t_8b = "[48;2;%lu;%lu;%lum"
   endif
+  set termguicolors
+endif
+
+if exists('&guifont')
+  set guifont=Iosevka\ Medium:h12
 endif
 
 if exists('+pyxversion')
@@ -52,17 +56,17 @@ endif
 
 let $VIM_LANGCLIENT='coc'
 
-source $HOME/shared/lib/vim/platform.vim
-source $HOME/shared/lib/vim/mapping.vim
-source $HOME/shared/lib/vim/headerguard.vim
+source $HOME/.share/lib/vim/platform.vim
+source $HOME/.share/lib/vim/headerguard.vim
 if g:vimrc_platform.status_plugin ==? 'lightline'
-  source $HOME/shared/lib/vim/lightline.vim
+  source $HOME/.share/lib/vim/lightline.vim
 endif
-source $HOME/shared/lib/vim/plugins.vim
+source $HOME/.share/lib/vim/plugins.vim
 if g:vimrc_platform.status_plugin ==? 'lualine'
-  source $HOME/shared/lib/vim/lualine.vim
+  source $HOME/.share/lib/vim/lualine.vim
 endif
-source $HOME/shared/lib/vim/colors.vim
+source $HOME/.share/lib/vim/colors.vim
+source $HOME/.share/lib/vim/mapping.vim
 
 augroup VimrcAutoCommands
   autocmd!
@@ -70,6 +74,8 @@ augroup VimrcAutoCommands
   autocmd FileType cmake set commentstring=#%s
   autocmd FileType javascriptreact,typescriptreact 
         \ setl cinoptions-=(0 cinoptions+=(s
+
+  autocmd BufNewFile,BufRead *.S set filetype=asm
 
   autocmd StdinReadPre * let s:std_in=1
   if exists("b:NERDTree")

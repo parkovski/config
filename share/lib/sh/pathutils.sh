@@ -1,4 +1,4 @@
-function in() {
+function in {
   pushd $1 >/dev/null 2>&1
   shift
   "$@"
@@ -31,12 +31,15 @@ function up {
   $cmd ${s// /..\/}
 }
 
-function dcat {
-  if [[ "x$1" == x ]]; then
+function show {
+  if [[ -z "$1" ]]; then
     ls -lah
   elif [[ -d "$1" ]]; then
-    ls -lah $1
+    ls -laah "$1"
+  elif [[ -f "$1" ]]; then
+    cat "$1"
   else
-    cat $1
+    echo "show: not a dir or a file: $1" >&2
+    return 2 # ENOENT
   fi
 }

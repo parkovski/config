@@ -2,29 +2,25 @@
 
 window:
   startup_mode: Maximized
-  gtk_theme_variant: dark
-  opacity: .75
+  opacity: .85
   padding:
     x: 1
     y: 1
-  class:
-    general: Alacritty
-    instance: Alacritty
   decorations: None
 
 font:
   normal:
     family: Iosevka Medium
-  size: 12
+  size: 13
 
-shell:
-  program: tmux
-  args: [new, -A, -s, default]
+# shell:
+#   program: tmux
+#   args: [new, -A, -s, default]
 
 colors:
   primary:
-    background: '#040410'
-    foreground: '#bbbbbb'
+    background: '#283033'
+    foreground: '#cdcdcd'
     dim_foreground: '#828482'
     bright_foreground: '#eaeaea'
 
@@ -38,11 +34,11 @@ colors:
 
   search:
     matches:
-      foreground: '#000000'
-      background: '#ffffff'
+      foreground: '#141C38'
+      background: '#feffff'
     focused_match:
-      foreground: '#ffffff'
-      background: '#000000'
+      foreground: '#feffff'
+      background: '#141C38'
     bar:
       background: '#c5c8c6'
       foreground: '#1d1f21'
@@ -65,20 +61,20 @@ colors:
 
   normal:
     black: '#000000'
-    red: '#e52222'
-    green: '#a6e32d'
-    yellow: '#fc951e'
-    blue: '#c48dff'
-    magenta: '#fa2573'
-    cyan: '#67d9f0'
-    white: '#f2f2f2'
+    red: '#a60001'
+    green: '#00bb00'
+    yellow: '#fecd22'
+    blue: '#3a9bdb'
+    magenta: '#bb00bb'
+    cyan: '#00bbbb'
+    white: '#bbbbbb'
 
   bright:
     black: '#555555'
-    red: '#ff5555'
-    green: '#55ff55'
-    yellow: '#ffff55'
-    blue: '#5555ff'
+    red: '#ff0003'
+    green: '#93c863'
+    yellow: '#fef874'
+    blue: '#a1d7ff'
     magenta: '#ff55ff'
     cyan: '#55ffff'
     white: '#ffffff'
@@ -98,4 +94,4 @@ colors:
   transparent_background_colors: true
 
 key_bindings:
-  - { key: Return, mods: Control|Shift, action: ToggleFullscreen }
+- {key: Return, mods: Control|Shift, action: ToggleFullscreen}

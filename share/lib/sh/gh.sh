@@ -1,6 +1,6 @@
-function gh() {
-  basevar=GH
-  dir=
+function gh {
+  local basevar=GH
+  local dir=
 
   while [[ "$1" != "" ]]; do
     case "$1" in

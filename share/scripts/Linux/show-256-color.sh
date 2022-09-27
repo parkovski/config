@@ -19,7 +19,7 @@ for ((i=0; i<2; i++)); do
   for ((j=0; j<8; j++)); do
     n=$[$i*8+$j]
     case $n in
-      [79]|1[0-5]) printf "\e[30m";;
+      [1-79]|1[0-5]) printf "\e[30m";;
     esac
     putcell $n 2
     # printf "\e[48;5;${n}m %2s \e[m" $n

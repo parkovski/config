@@ -1,0 +1,5 @@
+include "%L"
+
+<Multi_key> <dollar> <E> : "Ξ"
+<Multi_key> <dollar> <B> : "₿"
+<Multi_key> <dollar> <D> : "◈"

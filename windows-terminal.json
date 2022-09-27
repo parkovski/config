@@ -56,7 +56,7 @@
                 "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
                 "hidden": false,
                 "name": "Ubuntu",
-                "icon": "file://C:/Users/parker/shared/etc/ubuntu-logo.png",
+                "icon": "file://C:/Users/parker/.share/etc/ubuntu-logo.png",
                 "scrollbarState": "hidden",
                 "source": "Windows.Terminal.Wsl",
                 "startingDirectory": "\\\\wsl$\\Ubuntu\\home\\parker",
@@ -67,7 +67,7 @@
                 "hidden": false,
                 //"icon": "ms-appx:///ProfileIcons/{9acb9455-ca41-5af7-950f-6bca1bc9722f}.png",
                 "name": "Arch",
-                "icon": "file://C:/Users/parker/shared/etc/arch-logo.png",
+                "icon": "file://C:/Users/parker/.share/etc/arch-logo.png",
                 "scrollbarState": "hidden",
                 "source": "Windows.Terminal.Wsl",
                 "useAcrylic": false
