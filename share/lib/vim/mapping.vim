@@ -10,8 +10,12 @@ function! s:CocPumVisible()
 endfunction
 
 function! s:AutoCompleteSelect()
-  if <SID>CocPumVisible()
-    return coc#pum#confirm()
+  if exists('*coc#pum#visible')
+    if coc#pum#visible()
+      return coc#pum#confirm()
+    "else
+    "  return "\<C-g>u\<CR>\<C-r>=coc#on_enter()\<CR>"
+    endif
   elseif pumvisible()
     if empty(v:completed_item)
       return "\<C-e>\<CR>"
@@ -74,14 +78,14 @@ function! s:ScrollUp()
   endif
 endfunction
 
-inoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
-snoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
-inoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
-snoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
-inoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
-snoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
-inoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
-snoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
+" inoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
+" snoremap <silent><expr> <Tab>   <SID>AutoCompleteJumpForwards()
+" inoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
+" snoremap <silent><expr> <S-Tab> <SID>AutoCompleteJumpBackwards()
+" inoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
+" snoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
+" inoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
+" snoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
 inoremap <silent><expr> <C-d>   <SID>ScrollDown()
 snoremap <silent><expr> <C-d>   <SID>ScrollDown()
 inoremap <silent><expr> <C-u>   <SID>ScrollUp()
@@ -105,6 +109,7 @@ snoremap <silent><expr> <C-u>   <SID>ScrollUp()
 "  inoremap <silent> <M-Space> <C-o>:call deoplete#complete_common_string()<CR>
 " endif
 
+" For nvim-lsp see lsp.lua.
 if $VIM_LANGCLIENT ==? 'ale'
   nnoremap K <Cmd>ALEHover<CR>
   nnoremap gd <Cmd>ALEGoToDefinition<CR>

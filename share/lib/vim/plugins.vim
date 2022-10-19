@@ -32,6 +32,7 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   let g:vista_default_executive = 'coc'
 elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
   Plug 'neovim/nvim-lspconfig'
+  " See also https://github.com/hrsh7th/nvim-cmp/
 endif
 
 " Debugger
@@ -45,6 +46,12 @@ let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3rd-party/\)\@!.*'
 Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
 
+" Autocomplete
+let g:coq_settings = { 'auto_start': 'shut-up' }
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion
+Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'} " Snippets
+Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'} " Extras
+
 " Editing
 " Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
@@ -52,9 +59,9 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 Plug 'mg979/vim-visual-multi'
+Plug 'windwp/nvim-autopairs'
 
 let g:rainbow_active = 1
-
 " Colors = blue, green, yellow, orange, red, violet, indigo
 let g:rainbow_conf = {
       \ 'guifgs': ['#2590fa', 'chartreuse3', 'gold', 'orange2',
@@ -81,7 +88,6 @@ Plug 'liuchengxu/vista.vim' " Symbol browser
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 "Plug 'scrooloose/nerdtree'
-Plug 'kyazdani42/nvim-web-devicons'
 if has("nvim") || has("lua")
   Plug 'nvim-lualine/lualine.nvim'
 else
@@ -137,5 +143,9 @@ Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 if has('nvim') || has('lua')
+  if $VIM_LANGCLIENT ==? 'lsp'
+    source $HOME/.share/lib/vim/lsp.lua
+  endif
+  lua require'nvim-autopairs'.setup{}
   lua require'nvim-tree'.setup { open_on_setup = true }
 endif

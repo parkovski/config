@@ -54,7 +54,9 @@ if exists('&cryptmethod')
   set cryptmethod=blowfish2
 endif
 
-let $VIM_LANGCLIENT='coc'
+if empty($VIM_LANGCLIENT)
+  let $VIM_LANGCLIENT='lsp'
+endif
 
 source $HOME/.share/lib/vim/platform.vim
 source $HOME/.share/lib/vim/headerguard.vim
