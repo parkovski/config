@@ -1,0 +1,2 @@
+- Disable 'Match Group Administrators' in C:\ProgramData\ssh\sshd_config
+- Change shell HKLM:\SOFTWARE\OpenSSH\DefaultShell -> C:\Program Files\PowerShell\7\pwsh.exe
