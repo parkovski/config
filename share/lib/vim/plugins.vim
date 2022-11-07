@@ -36,7 +36,9 @@ elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
 endif
 
 " Debugger
-" Plug 'puremourning/vimspector'
+let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
+let g:vimspector_enable_mappings = 'HUMAN'
+Plug 'puremourning/vimspector'
 
 " Config
 let g:localvimrc_persistent = 1
@@ -115,6 +117,7 @@ Plug 'sainnhe/everforest'
 " Plug 'jaredgorski/spacecamp'
 " Plug 'marcopaganini/termschool-vim-theme'
 Plug 'sainnhe/edge'
+Plug 'preservim/vim-colors-pencil'
 
 " Syntaxes
 " let g:cpp_class_scope_highlight = 1

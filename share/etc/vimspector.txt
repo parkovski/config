@@ -1,0 +1,1 @@
+[F3 Stop] [F4 Restart] [F5 Cont] [F6 Pause] [F8 +FnBkpt] [_F8 RunToCur] [F9 ToggleBkpt] [_F9 ToggleCondBkpt] [F10 StepOver] [F11 StepInto] [F12 StepOut]

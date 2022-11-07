@@ -6,7 +6,7 @@ set backspace=indent,eol,start
 set noerrorbells visualbell t_vb= belloff=all
 set incsearch hlsearch
 set ignorecase smartcase
-set number relativenumber signcolumn=yes
+set number relativenumber signcolumn=number
 set colorcolumn=80,100,120
 set textwidth=79
 set cursorline
@@ -90,5 +90,6 @@ augroup VimrcAutoCommands
   endif
 
   autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
-  "autocmd TermOpen * startinsert
+  autocmd TermOpen * setlocal nonumber norelativenumber signcolumn=no foldcolumn=0
+  autocmd TermEnter * startinsert
 augroup END

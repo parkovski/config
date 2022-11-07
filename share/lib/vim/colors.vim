@@ -62,6 +62,7 @@ endfunction
 " name, or 1 or more string arguments where all are options.
 function! SetColorOptions(...) abort
   if a:0 == 0
+    echo g:colors_opts
     return
   endif
 
@@ -106,6 +107,18 @@ function! SetColorOptions(...) abort
     call TryToFixColorScheme()
   endif
 endfunction
+
+" Without args: Prints g:colors_opts.
+" With args: Sets color options.
+command! -bang -bar -nargs=* ColorOptions
+      \ if !empty("<bang>") | let g:colors_opts = {} | endif |
+      \ call SetColorOptions(<f-args>)
+
+" Without args: Reloads current color scheme.
+" With args: Sets color scheme and options.
+command! -bang -bar -nargs=* -complete=color ColorScheme
+      \ if !empty("<bang>") | let g:colors_opts = {} | endif |
+      \ call SetColorOptions([<f-args>])
 
 augroup VimrcColors
   autocmd!

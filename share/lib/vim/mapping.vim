@@ -3,7 +3,8 @@ noremap! <NUL> <C-Space>
 noremap  <Char-0x7F> <BS>
 noremap! <Char-0x7F> <BS>
 
-tnoremap <M-Esc> <C-\><C-n>
+tnoremap <C-a> <C-\><C-n>
+tnoremap <C-a><C-a> <C-a>
 
 function! s:CocPumVisible()
   return exists('*coc#pum#visible') && coc#pum#visible()
@@ -200,6 +201,9 @@ noremap! <M-w> <S-Right>
 noremap! <C-a> <Home>
 noremap! <C-e> <End>
 
+" Insert a line above this one.
+imap <C-_> O
+
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P
 
@@ -209,9 +213,7 @@ nnoremap Y y$
 
 " Keep the last thing copied when we paste.
 xnoremap <expr> P 'Pgv"'.v:register.'y'
-
-" Hmm...
-" xmap p Pg`]
+xmap p Pg`]
 
 " System clipboard
 noremap  +     "+
