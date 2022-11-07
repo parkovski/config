@@ -8,7 +8,7 @@ function in {
 function mkcd {
   local cmd
   local dir
-  if [[ "$1" == "-p" ]]; then
+  if [[ "$1" == "-p" || "$1" == "--push" ]]; then
     cmd="pushd"
     dir="$2"
   else
@@ -19,10 +19,18 @@ function mkcd {
   $cmd $dir
 }
 
+function swapd {
+  local dir1="$PWD"
+  popd
+  local dir2="$PWD"
+  cd "$dir1"
+  pushd "$dir2"
+}
+
 function up {
   local amt=$1
   local cmd=cd
-  if [[ $amt == "-p" ]]; then
+  if [[ "$amt" == "-p" || "$amt" == "--push" ]]; then
     cmd=pushd
     amt=$2
   fi

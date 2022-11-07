@@ -18,6 +18,7 @@ endif()
 add_compile_options(
   $<$<OR:$<C_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:GNU>>:-fdiagnostics-color=always>
   $<$<OR:$<C_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:Clang>>:-fcolor-diagnostics>
+  $<$<OR:$<C_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:AppleClang>>:-fcolor-diagnostics>
   $<$<OR:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>:/diagnostics:caret>
 )
 
