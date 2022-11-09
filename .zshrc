@@ -5,10 +5,8 @@
 # - .zlogin   (login shells only)
 # - .zlogout  (before exit)
 
-local starttime=$(date "+%s%4N")
-
 setopt cbases
-setopt histignorealldups sharehistory appendhistory
+setopt histignorealldups extendedhistory incappendhistorytime
 setopt noflowcontrol
 setopt promptsubst
 setopt longlistjobs notify
@@ -25,14 +23,16 @@ HISTFILE=$HOME/.zsh_history
 
 export COLORTERM=truecolor
 
-if which vivid >/dev/null; then
-  export LS_COLORS=$(vivid generate iceberg-dark)
+# List themes with `vivid themes`
+# Generate new theme with `vivid generate <name> > ~/.local/etc/lscolors.txt`
+if [[ -f $HOME/.local/etc/lscolors.txt ]] then
+  export LS_COLORS=$(cat $HOME/.local/etc/lscolors.txt)
 elif [[ -f "$HOME/.share/etc/lscolors.txt" ]]; then
   export LS_COLORS=$(cat $HOME/.share/etc/lscolors.txt)
 fi
 
 if ! [[ -z "$GH" ]]; then
-  if ! [[ -e $GH/3rd-party/antidote ]]; then
+  if ! [[ -e "$GH/3rd-party/antidote" ]]; then
     git clone https://github.com/mattmc3/antidote.git $GH/3rd-party/antidote
   fi
 
@@ -81,9 +81,4 @@ if [[ -d $HOME/.share/lib/sh ]]; then
   source $HOME/.share/lib/sh/gh.sh
   source $HOME/.share/lib/sh/os-alias.sh
   #source $HOME/.share/lib/sh/chcl.sh
-fi
-
-if [[ -t 0 ]]; then
-  local totaltime=$[$(date "+%s%4N")-$starttime]
-  echo "\e[G\e[2KProfile loaded in \e[32m$[$totaltime/1000].$[$totaltime%1000]s\e[m."
 fi
