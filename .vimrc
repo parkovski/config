@@ -16,7 +16,7 @@ set wildmenu wildmode=longest:full,full
 set complete=. completeopt=menu,preview,noselect
 set laststatus=2
 set noswapfile backupdir-=.
-set foldmethod=marker nofoldenable foldcolumn=1 foldopen-=block foldlevel=99
+set foldmethod=marker nofoldenable foldcolumn=auto:1 foldopen-=block foldlevel=99
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
@@ -64,10 +64,10 @@ if g:vimrc_platform.status_plugin ==? 'lightline'
   source $HOME/.share/lib/vim/lightline.vim
 endif
 source $HOME/.share/lib/vim/plugins.vim
+source $HOME/.share/lib/vim/colors.vim
 if g:vimrc_platform.status_plugin ==? 'lualine'
   source $HOME/.share/lib/vim/lualine.vim
 endif
-source $HOME/.share/lib/vim/colors.vim
 source $HOME/.share/lib/vim/mapping.vim
 
 augroup VimrcAutoCommands

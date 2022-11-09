@@ -35,15 +35,20 @@ elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
   " See also https://github.com/hrsh7th/nvim-cmp/
 endif
 
+Plug 'nvim-treesitter/nvim-treesitter'
+
 " Debugger
 let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
 let g:vimspector_enable_mappings = 'HUMAN'
 Plug 'puremourning/vimspector'
 
+" Org mode
+Plug 'nvim-orgmode/orgmode'
+
 " Config
 let g:localvimrc_persistent = 1
 let g:localvimrc_persistence_file = fnamemodify("~/.local/etc/localvimrc_persistent", ":p")
-let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3rd-party/\)\@!.*'
+let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3rd-party\)\/\@!.*'
 " let g:localvimrc_sandbox = 0
 Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
@@ -62,12 +67,22 @@ Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 Plug 'mg979/vim-visual-multi'
 Plug 'windwp/nvim-autopairs'
+Plug 'ap/vim-css-color'
 
 let g:rainbow_active = 1
 " Colors = blue, green, yellow, orange, red, violet, indigo
+let g:vimrc_platform.rainbow_colors = {
+      \   'dark': [
+      \     '#2590fa', 'chartreuse3', 'gold', 'orange2',
+      \     'firebrick', 'palevioletred1', '#8840f8'
+      \   ],
+      \   'light': [
+      \     '#0040a0', '#008020', '#e0c010', '#d07000',
+      \     '#c01000', '#d000a0', '#8020c0'
+      \   ]
+      \ }
 let g:rainbow_conf = {
-      \ 'guifgs': ['#2590fa', 'chartreuse3', 'gold', 'orange2',
-      \   'firebrick', 'palevioletred1', '#8840f8'],
+      \ 'guifgs': [],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
 Plug 'luochen1990/rainbow'
@@ -151,4 +166,11 @@ if has('nvim') || has('lua')
   endif
   lua require'nvim-autopairs'.setup{}
   lua require'nvim-tree'.setup { open_on_setup = true }
+  lua <<EOF
+    require'orgmode'.setup_ts_grammar()
+    require'orgmode'.setup{
+      org_agenda_files = '~/Documents/Sync/org',
+      org_default_notes_file = '~/Documents/Sync/org/default.org',
+    }
+EOF
 endif

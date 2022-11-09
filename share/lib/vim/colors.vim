@@ -1,4 +1,5 @@
 let g:colors_opts = {}
+
 function! TryToFixColorScheme() abort
   if has_key(g:, 'colors_name')
     " if has_key(g:, 'lightline#colorscheme#'.g:colors_name.'#palette')
@@ -58,17 +59,29 @@ function! TryToFixColorScheme() abort
   endif
 endfunction
 
-" Arguments are either a single list where the first item is the color scheme
-" name, or 1 or more string arguments where all are options.
+" Possible invocations:
+" - No args         -> Print color options.
+" - Empty array     -> Load options from ~/.local/etc/vimcolor.
+" - Non-empty array -> Apply options and change color scheme to a:1[0].
+" - Other           -> Apply options and reload current color scheme.
 function! SetColorOptions(...) abort
   if a:0 == 0
     echo g:colors_opts
     return
   endif
 
+  " Fix args so that l:opts is an array of [color scheme, options, ...]
   if type(a:1) == v:t_list && a:0 == 1
-    " Called with list: First arg is the color scheme.
-    let l:opts = a:1
+    " Single list argument.
+    if len(a:1) == 0
+      try
+        let l:opts = readfile(glob('~/.local/etc/vimcolor'))
+      catch
+        return
+      endtry
+    else
+      let l:opts = a:1
+    endif
     let l:len = len(l:opts)
   else
     " Called with args: Don't set color scheme - all args are options.
@@ -99,12 +112,17 @@ function! SetColorOptions(...) abort
     let l:i += 1
   endwhile
 
+  if has_key(g:, 'rainbow_conf')
+    let g:rainbow_conf.guifgs = g:vimrc_platform.rainbow_colors[&background]
+    "RainbowToggleOn
+  endif
+
   if !empty(l:opts[0])
+    " New color scheme in l:opts[0].
     exe 'silent! colorscheme '.l:opts[0]
-  elseif l:len > 1 && has_key(g:, 'colors_name')
-    exe 'silent! colorscheme '.g:colors_name
   else
-    call TryToFixColorScheme()
+    " Reload current color scheme.
+    exe 'silent! colorscheme '.g:colors_name
   endif
 endfunction
 
@@ -114,7 +132,7 @@ command! -bang -bar -nargs=* ColorOptions
       \ if !empty("<bang>") | let g:colors_opts = {} | endif |
       \ call SetColorOptions(<f-args>)
 
-" Without args: Reloads current color scheme.
+" Without args: Reloads default color scheme.
 " With args: Sets color scheme and options.
 command! -bang -bar -nargs=* -complete=color ColorScheme
       \ if !empty("<bang>") | let g:colors_opts = {} | endif |
@@ -128,5 +146,5 @@ augroup VimrcColors
 augroup END
 
 if !v:vim_did_enter
-  silent! call SetColorOptions(readfile(glob('~/.local/etc/vimcolor')))
+  call SetColorOptions([])
 endif
