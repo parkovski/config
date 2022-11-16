@@ -192,6 +192,7 @@ map!    <M-V> <C-o><M-V>
 noremap <M-^> <C-w>5+
 map!    <M-^> <C-o><M-^>
 
+noremap! <M-BS> x
 noremap! <M-h> <Left>
 noremap! <M-j> <Down>
 noremap! <M-k> <Up>
@@ -202,7 +203,7 @@ noremap! <C-a> <Home>
 noremap! <C-e> <End>
 
 " Insert a line above this one.
-imap <C-_> O
+imap <C-\> O
 
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P

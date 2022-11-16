@@ -24,17 +24,27 @@ function! TryToFixColorScheme() abort
     hi Normal guibg=NONE
     hi EndOfBuffer guibg=NONE
     hi! link VertSplit LineNr
+  else
+    hi! link VertSplit NONE
   endif
 
   if has_key(g:colors_opts, 'linenrtocursor')
     hi! link CursorLine LineNr
+    hi! link LineNr NONE
   elseif has_key(g:colors_opts, 'cursortolinenr')
+    hi! link CursorLine NONE
     hi! link LineNr CursorLine
+  else
+    hi! link CursorLine NONE
+    hi! link LineNr NONE
   endif
 
   if has_key(g:colors_opts, 'linenrtoleft')
     hi! link SignColumn LineNr
     hi! link FoldColumn LineNr
+  else
+    hi! link SignColumn NONE
+    hi! link FoldColumn NONE
   endif
 
   if has_key(g:colors_opts, 'linenrtoactive')
@@ -45,6 +55,10 @@ function! TryToFixColorScheme() abort
     hi! link CursorLineNr CursorLine
     hi! link CursorLineSign CursorLine
     hi! link CursorLineFold CursorLine
+  else
+    hi! link CursorLineNr NONE
+    hi! link CursorLineSign NONE
+    hi! link CursorLineFold NONE
   endif
 
   if has_key(g:colors_opts, 'setindentguides')
@@ -119,7 +133,17 @@ function! SetColorOptions(...) abort
 
   if !empty(l:opts[0])
     " New color scheme in l:opts[0].
-    exe 'silent! colorscheme '.l:opts[0]
+    " If it contains a '/', the left side is light mode and the right side is
+    " dark mode.
+    let l:slash = stridx(l:opts[0], "/")
+    if l:slash == -1
+      let l:scheme = l:opts[0]
+    elseif &background ==# "light"
+      let l:scheme = strpart(l:opts[0], 0, l:slash)
+    else
+      let l:scheme = strpart(l:opts[0], l:slash + 1)
+    endif
+    exe 'silent! colorscheme ' . l:scheme
   else
     " Reload current color scheme.
     exe 'silent! colorscheme '.g:colors_name

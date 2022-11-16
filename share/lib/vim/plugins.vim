@@ -77,12 +77,13 @@ let g:vimrc_platform.rainbow_colors = {
       \     'firebrick', 'palevioletred1', '#8840f8'
       \   ],
       \   'light': [
-      \     '#0040a0', '#008020', '#e0c010', '#d07000',
-      \     '#c01000', '#d000a0', '#8020c0'
+      \     '#2860d8', '#108a28', '#e0a800', '#f86800',
+      \     '#d82820', '#e830a8', '#663399'
       \   ]
       \ }
 let g:rainbow_conf = {
       \ 'guifgs': [],
+      \ 'guis': ['bold'],
       \ 'operators': '_,\|;_',
       \ 'separately': { 'cmake': 0 } }
 Plug 'luochen1990/rainbow'
@@ -139,6 +140,7 @@ Plug 'preservim/vim-colors-pencil'
 " let g:cpp_member_variable_highlight = 1
 " let g:cpp_class_decl_highlight = 1
 " let g:cpp_concepts_highlight = 1
+let g:c_autodoc = 1
 Plug 'sheerun/vim-polyglot'
 " Plug 'bfrg/vim-cpp-modern'
 " Plug 'leafgarland/typescript-vim'
