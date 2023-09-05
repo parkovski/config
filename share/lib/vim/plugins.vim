@@ -32,6 +32,7 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   let g:vista_default_executive = 'coc'
 elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
   Plug 'neovim/nvim-lspconfig'
+  let g:vista_default_executive = 'nvim_lsp'
   " See also https://github.com/hrsh7th/nvim-cmp/
 endif
 
@@ -141,6 +142,7 @@ Plug 'preservim/vim-colors-pencil'
 " let g:cpp_class_decl_highlight = 1
 " let g:cpp_concepts_highlight = 1
 let g:c_autodoc = 1
+let g:vim_svelte_plugin_use_typescript = 1
 Plug 'sheerun/vim-polyglot'
 " Plug 'bfrg/vim-cpp-modern'
 " Plug 'leafgarland/typescript-vim'
@@ -167,7 +169,7 @@ if has('nvim') || has('lua')
     source $HOME/.share/lib/vim/lsp.lua
   endif
   lua require'nvim-autopairs'.setup{}
-  lua require'nvim-tree'.setup { open_on_setup = true }
+  lua require'nvim-tree'.setup{}
   lua <<EOF
     require'orgmode'.setup_ts_grammar()
     require'orgmode'.setup{

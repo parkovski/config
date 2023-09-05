@@ -32,11 +32,11 @@ elif [[ -f "$HOME/.share/etc/lscolors.txt" ]]; then
 fi
 
 if ! [[ -z "$GH" ]]; then
-  if ! [[ -e "$GH/3rd-party/antidote" ]]; then
-    git clone https://github.com/mattmc3/antidote.git $GH/3rd-party/antidote
+  if ! [[ -e "$GH/3p/antidote" ]]; then
+    git clone https://github.com/mattmc3/antidote.git $GH/3p/antidote
   fi
 
-  source $GH/3rd-party/antidote/antidote.zsh
+  source $GH/3p/antidote/antidote.zsh
   antidote load
 fi
 
@@ -82,3 +82,13 @@ if [[ -d $HOME/.share/lib/sh ]]; then
   source $HOME/.share/lib/sh/os-alias.sh
   #source $HOME/.share/lib/sh/chcl.sh
 fi
+
+. /opt/asdf-vm/asdf.sh
+
+# pnpm
+export PNPM_HOME="/home/parker/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
