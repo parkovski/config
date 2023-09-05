@@ -203,7 +203,7 @@ noremap! <C-a> <Home>
 noremap! <C-e> <End>
 
 " Insert a line above this one.
-imap <C-\> O
+imap <C-J> O
 
 " Swap with deleted text
 xnoremap <C-s> <Esc>`.``gvP``P

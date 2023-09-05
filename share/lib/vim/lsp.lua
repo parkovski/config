@@ -74,7 +74,7 @@ setup 'cmake'
 setup 'gdscript'
 
 -- lua-language-server
-setup 'sumneko_lua'
+setup 'lua_ls'
 
 -- vim-language-server
 setup 'vimls'

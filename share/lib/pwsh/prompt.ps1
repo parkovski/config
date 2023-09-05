@@ -58,26 +58,26 @@ function prompt {
     }
   }
 
-  $c = 92
+  $c = 32
   if ($ProVar.admin) {
-    $c = 91
+    $c = 31
   }
   Write-Host -NoNewLine (
     "`e[${c}m$([System.Environment]::UserName)" +
-    "`e[30m@" +
-    "`e[${c}m$($ProVar.hostname)`e[30m:`e[m "
+    "`e[90m@" +
+    "`e[${c}m$($ProVar.hostname)`e[90m:`e[m "
   )
 
   # Git
   if ($isgit) {
     Write-Host -NoNewLine "`e[33m$branch"
     if ($ahead -gt 0) {
-      Write-Host -NoNewLine "`e[30m: `e[34m+$ahead"
+      Write-Host -NoNewLine "`e[90m: `e[34m+$ahead"
       if ($behind -gt 0) {
-        Write-Host -NoNewLine "`e[30m/`e[35m-$behind"
+        Write-Host -NoNewLine "`e[90m/`e[35m-$behind"
       }
     } elseif ($behind -gt 0) {
-      Write-Host -NoNewLine "`e[30m: `e[35m-$behind"
+      Write-Host -NoNewLine "`e[90m: `e[35m-$behind"
     }
 
     $colors = @{
@@ -86,12 +86,12 @@ function prompt {
       "?" = "`e[38;5;202m"; # Orange
     }
     if ($gitfiles.keys.Count -ne 0) {
-      Write-Host -NoNewLine "`e[30m:"
+      Write-Host -NoNewLine "`e[90m:"
       foreach ($k in $gitfiles.keys) {
         Write-Host -NoNewLine (" " + $colors["" + $k[1]] + $k[0] + $gitfiles[$k])
       }
     }
-    Write-Host -NoNewLine "`e[30m: "
+    Write-Host -NoNewLine "`e[90m: "
   }
 
   if ($components[0] -match ':$') {
@@ -101,14 +101,22 @@ function prompt {
   if ($components.Length -gt 1 -and $components[-1] -eq "") {
     $components = $components[0..($components.Length - 2)]
   }
-  for ($i = 0; $i -lt $components.Length - 1; $i++) {
-    Write-Host -NoNewLine (
-      "`e[94m" +
-      $components[$i][0] +
-      ([System.IO.Path]::DirectorySeparatorChar)
-    )
+  if ($ProVar.PromptOpts.CondensePath) {
+    for ($i = 0; $i -lt $components.Length - 1; $i++) {
+      Write-Host -NoNewLine (
+        "`e[34m" +
+        $components[$i][0] +
+        ([System.IO.Path]::DirectorySeparatorChar)
+      )
+    }
+  } else {
+    for ($i = 0; $i -lt $components.Length - 1; $i++) {
+      Write-Host -NoNewLine (
+      "`e[34m" + $components[$i] + [System.IO.Path]::DirectorySeparatorChar
+      )
+    }
   }
-  Write-Host "`e[94m$($components[-1])"
+  Write-Host "`e[34m$($components[-1])"
 
   [string]$ec = ""
   if ($exitCode -eq -1) {
@@ -123,7 +131,7 @@ function prompt {
     $ec = "$exitCode"
   }
   if (-not ([string]::IsNullOrEmpty($ec))) {
-    $ec = "`e[30m[`e[31m$ec`e[30m] "
+    $ec = "`e[90m[`e[31m$ec`e[90m] "
     Write-Host -NoNewline $ec
   }
   $prompt = "`e[33m> `e[0m"

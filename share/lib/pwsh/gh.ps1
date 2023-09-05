@@ -14,7 +14,7 @@ function gh {
         $Dir = $GH2
       }
       if ($ThirdParty) {
-        $Dir = "$Dir\3rd-party"
+        $Dir = "$Dir\3p"
       }
       $Projects = $(Get-ChildItem $Dir | ForEach-Object Name)
     }
@@ -45,7 +45,7 @@ function gh {
       $Dir = $GH
     }
     if ($ThirdParty) {
-      $Dir = "$Dir\3rd-party"
+      $Dir = "$Dir\3p"
     }
 
     $Project = $PSBoundParameters.Project

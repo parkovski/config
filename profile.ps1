@@ -1,8 +1,6 @@
 using namespace System
 using namespace System.Collections.Generic
 
-$time__ = [DateTime]::UtcNow
-
 # Base config
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
 $PSDefaultParameterValues['In-File:Encoding'] = 'utf8'
@@ -108,7 +106,7 @@ if (($OS -ne $OS_BASE) -and (Test-Path "$GH/config/Profile.$OS.ps1")) {
 . $HOME/.share/lib/pwsh/prompt.ps1
 
 Set-PSReadlineOption -BellStyle None
-Set-PSReadlineOption -EditMode vi 
+Set-PSReadlineOption -EditMode vi
 Set-PSReadlineOption -ViModeIndicator Cursor
 Set-PSReadlineOption -ViModeIndicator Script -ErrorAction Ignore
 Set-PSReadlineOption -ViModeChangeHandler {
@@ -160,49 +158,7 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Insert -Function ViCommandMode
 # Set-PSReadlineKeyHandler -Key 'z,z' -ViMode Command -Function ScrollToMiddle
 # Set-PSReadlineKeyHandler -Key 'z,t' -ViMode Command -Function ScrollToTop
 
-if ($IsWindows) {
-  Add-Type -TypeDefinition '
-  public class JimmyJimmy {
-    private const int STD_INPUT_HANDLE = -10;
-    private const int STD_OUTPUT_HANDLE = -11;
-    private const int STD_ERROR_HANDLE = -12;
-    private const uint FILE_TYPE_CHAR = 2;
-    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-    private static extern System.IntPtr GetStdHandle(int handleId);
-    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-    private static extern uint GetFileType(System.IntPtr handle);
-    public static bool IsTtyIn() {
-      return GetFileType(GetStdHandle(STD_INPUT_HANDLE)) == FILE_TYPE_CHAR;
-    }
-    public static bool IsTtyOut() {
-      return GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_CHAR;
-    }
-    public static bool IsTtyErr() {
-      return GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_CHAR;
-    }
-  }
-  '
-} else {
-  Add-Type -TypeDefinition '
-  public class JimmyJimmy {
-    private const int STDIN_FILENO = 0;
-    private const int STDOUT_FILENO = 1;
-    private const int STDERR_FILENO = 2;
-    [System.Runtime.InteropServices.DllImport("libc")]
-    private static extern int isatty(int fileno);
-    public static bool IsTtyIn() {
-      return isatty(STDIN_FILENO) == 1;
-    }
-    public static bool IsTtyOut() {
-      return isatty(STDOUT_FILENO) == 1;
-    }
-    public static bool IsTtyErr() {
-      return isatty(STDERR_FILENO) == 1;
-    }
-  }
-  '
-}
-
+if (0) {
 Remove-Alias -Force -ea Ignore ls
 function ls {
   $thestuff = Get-ChildItem @args
@@ -249,9 +205,4 @@ function ls {
   @("`e[2F", $thestuff, "`e[2F")
 }
 Set-Alias ll Get-ChildItem
-
-$time__ = [DateTime]::UtcNow - $time__
-if ([JimmyJimmy]::IsTtyOut()) {
-  Write-Output "`e[G`e[2KProfile loaded in `e[32m$($time__.Seconds).$($time__.Milliseconds)s`e[m."
 }
-Remove-Item Variable:\time__

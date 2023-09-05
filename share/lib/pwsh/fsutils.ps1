@@ -59,10 +59,14 @@ function Enter-AlternateDirectory {
 
 function Invoke-InDirectory {
   $curdir = Get-Location
-  $pargs = $args[2..($args.Length - 1)]
   Set-Location $args[0]
   try {
-    $result = &$args[1] @pargs
+    if ($args.Length -gt 2) {
+      $pargs = $args[2..($args.Length - 1)]
+      $result = &$args[1] @pargs
+    } else {
+      $result = &$args[1]
+    }
   } finally {
     Set-Location $curdir
   }

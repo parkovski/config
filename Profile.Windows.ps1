@@ -61,7 +61,7 @@ Set-Alias which where.exe
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
 $ProVar.vcvars = @{
-  Base = "C:\Program Files (x86)\Microsoft Visual Studio";
+  Base = "C:\Program Files\Microsoft Visual Studio";
   Toolsets = @{
     # 32 bit compiler
     cpp32host32 = "VC\Auxiliary\Build\vcvars32.bat";
@@ -82,7 +82,7 @@ $ProVar.vcvars = @{
   }
   IsSet = $false;
   Env = @{};
-  DefaultVersion = '2019';
+  DefaultVersion = '2022';
 }
 
 if ([System.Environment]::Is64BitOperatingSystem) {

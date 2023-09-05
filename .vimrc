@@ -78,6 +78,8 @@ augroup VimrcAutoCommands
         \ setl cinoptions-=(0 cinoptions+=(s
 
   autocmd BufNewFile,BufRead *.S set filetype=asm
+  autocmd BufNewFile,BufRead *.rml set filetype=html
+  autocmd BufNewFile,BufRead *.rcss set filetype=css
 
   autocmd StdinReadPre * let s:std_in=1
   if exists("b:NERDTree")
