@@ -5,7 +5,7 @@ function gh {
   while [[ "$1" != "" ]]; do
     case "$1" in
       "-a") basevar=GH2;;
-      "-t") dir="/3rd-party$subdir";;
+      "-t") dir="/3p";;
          *) dir="$dir/$1";;
     esac
     shift

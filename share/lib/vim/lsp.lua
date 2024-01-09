@@ -95,6 +95,8 @@ if not configs.markdownls then
 end
 setup 'markdownls'
 
+setup 'svelte'
+
 -- setup 'cssmodules_ls'
 -- setup 'glslls'
 -- setup 'jedi_language_server'

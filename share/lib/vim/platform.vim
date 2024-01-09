@@ -98,12 +98,12 @@ augroup VimrcPlatform
     command! Conflags exe "!".
           \ $GH."/conutils/isvt.exe -p".
           \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)"
-    if has('nvim')
+    " if has('nvim')
       " Fix some nvim glitches
-      autocmd VimEnter * exe "silent !".
-            \ $GH."/conutils/isvt.exe -p".
-            \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)".
-            \ " o=_+DISABLE_NEWLINE_AUTO_RETURN"
-    endif
+      " autocmd VimEnter * exe "silent !".
+      "     \ $GH."/conutils/isvt.exe -p".
+      "     \ " $([System.Diagnostics.Process]::GetCurrentProcess().Parent.Id)".
+      "     \ " o=_+DISABLE_NEWLINE_AUTO_RETURN"
+    " endif
   endif
 augroup END

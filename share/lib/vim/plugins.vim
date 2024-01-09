@@ -49,7 +49,7 @@ Plug 'nvim-orgmode/orgmode'
 " Config
 let g:localvimrc_persistent = 1
 let g:localvimrc_persistence_file = fnamemodify("~/.local/etc/localvimrc_persistent", ":p")
-let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3rd-party\)\/\@!.*'
+let g:localvimrc_whitelist = fnamemodify($GH, ":p").'\%(3p\)\/\@!.*'
 " let g:localvimrc_sandbox = 0
 Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
@@ -69,6 +69,7 @@ Plug 'bronson/vim-visual-star-search'
 Plug 'mg979/vim-visual-multi'
 Plug 'windwp/nvim-autopairs'
 Plug 'ap/vim-css-color'
+Plug 'chrisgrieser/nvim-spider'
 
 let g:rainbow_active = 1
 " Colors = blue, green, yellow, orange, red, violet, indigo
@@ -117,6 +118,7 @@ endif
 " Color schemes
 " Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
+Plug 'bluz71/vim-nightfly-colors'
 Plug 'cocopon/iceberg.vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'rhysd/vim-color-spring-night'
@@ -125,16 +127,19 @@ Plug 'cormacrelf/vim-colors-github'
 Plug 'ajmwagar/vim-deus'
 Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'savq/melange'
-Plug 'keith/parsec.vim'
+" Plug 'keith/parsec.vim'
 Plug 'mhartington/oceanic-next'
 " Plug 'nightsense/snow'
-" Plug 'rakr/vim-two-firewatch'
+Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/everforest'
 " Plug 'jacoborus/tender.vim'
 " Plug 'jaredgorski/spacecamp'
 " Plug 'marcopaganini/termschool-vim-theme'
 Plug 'sainnhe/edge'
+let g:sonokai_style = 'atlantis'
+Plug 'sainnhe/sonokai'
 Plug 'preservim/vim-colors-pencil'
+Plug 'rebelot/kanagawa.nvim'
 
 " Syntaxes
 " let g:cpp_class_scope_highlight = 1

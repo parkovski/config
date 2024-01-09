@@ -12,7 +12,7 @@ _gh() {
   local basedir=$GH
   local subdir=
   case $state in
-   (third) subdir="/3rd-party" ;;
+   (third) subdir="/3p" ;;
    (alt) basedir=$GH2 ;;
   esac
   compadd "$@" $(ls "$basedir$subdir")

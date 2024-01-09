@@ -183,6 +183,10 @@ elseif $VIM_LANGCLIENT ==? 'coc'
   endfunction
 endif
 
+map <M-w> <Cmd>lua require('spider').motion('w')<CR>
+map <M-e> <Cmd>lua require('spider').motion('e')<CR>
+map <M-b> <Cmd>lua require('spider').motion('b')<CR>
+
 noremap <M-lt> <C-w>5<
 map!    <M-lt> <C-o><M-lt>
 noremap <M->> <C-w>5>
