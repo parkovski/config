@@ -118,7 +118,7 @@ function vcvars {
     [switch]$Unset = $false,
     [switch]$ShowEnv = $false,
     [Alias('v')]
-    [ValidateSet('2017', '2019')]
+    [ValidateSet('2017', '2019', '2022')]
     [string]
     $Version
   )
