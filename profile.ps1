@@ -128,7 +128,8 @@ Set-PSReadlineOption -Colors @{
   number = "green";
   member = "blue";
   error = "darkred";
-  continuationprompt = "darkgray"
+  continuationprompt = "darkgray";
+  default = "gray";
 }
 
 Set-PSReadlineOption -PromptText @("`e[33m> `e[5 q`e[0m", "`e[31m> `e[0m")
