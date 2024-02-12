@@ -55,7 +55,10 @@ Plug 'embear/vim-localvimrc'
 Plug 'sgur/vim-editorconfig'
 
 " Autocomplete
-let g:coq_settings = { 'auto_start': 'shut-up' }
+let g:coq_settings = {
+      \   'auto_start': 'shut-up',
+      \   'clients': { 'tmux': { 'enabled': v:false } }
+      \ }
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'} " Snippets
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'} " Extras
