@@ -169,6 +169,7 @@ Plug 'sheerun/vim-polyglot'
 " Plug 'pboettch/vim-cmake-syntax'
 " Plug 'condy0919/docom.vim'
 " Plug 'cstrahan/vim-capnp'
+" Plug 'OmniSharp/omnisharp-vim'
 
 call plug#end()
 

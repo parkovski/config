@@ -1,9 +1,11 @@
+-- https://github.com/neovim/nvim-lspconfig/tree/master/lua/lspconfig/server_configurations
+
 local lspconfig = require'lspconfig'
 local coq = require'coq'
 local configs = require'lspconfig.configs'
 
 vim.diagnostic.config{
-  virtual_text = { prefix = '❗' }
+  virtual_text = { prefix = '<' }
 }
 
 local on_attach = function(client, bufnr)
@@ -56,9 +58,11 @@ local on_attach = function(client, bufnr)
 end
 
 local setup = function(name, settings)
+  settings = settings or {}
+  settings.on_attach = on_attach
   lspconfig[name].setup(
     coq.lsp_ensure_capabilities(
-      { on_attach = on_attach, settings = settings }
+      settings
     )
   )
 end
@@ -96,6 +100,10 @@ end
 setup 'markdownls'
 
 setup 'svelte'
+
+-- setup('omnisharp', {
+--     cmd = { "dotnet", "C:\\Users\\parker\\Downloads\\omnisharp-win-x64\\OmniSharp.dll" }
+-- })
 
 -- setup 'cssmodules_ls'
 -- setup 'glslls'
