@@ -27,7 +27,7 @@ namespace Utilities {
       IntPtr lParam
     );
 
-    private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
+    //private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
     private static readonly UInt32 WM_SYSCOMMAND = 0x0112;
     private static readonly IntPtr SC_MONITORPOWER = (IntPtr)0xf170;
 
