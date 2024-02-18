@@ -1,4 +1,4 @@
-function gh {
+function dev {
   [CmdletBinding()]
   param(
     [Alias('t')][switch]$ThirdParty,

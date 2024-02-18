@@ -1,4 +1,4 @@
-function gh {
+function dev {
   local basevar=GH
   local dir=
 

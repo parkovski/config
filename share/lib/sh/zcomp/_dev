@@ -1,6 +1,6 @@
-#compdef gh
+#compdef dev
 
-_gh() {
+_dev() {
   local state
 
   local -a args
