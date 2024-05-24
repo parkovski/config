@@ -101,7 +101,7 @@ setup 'markdownls'
 
 setup 'svelte'
 
-if vim.fn.has('win32') then
+if vim.fn.has('win32') == 1 then
   setup('omnisharp', {
       cmd = { "dotnet", "C:\\Users\\parker\\.local\\etc\\OmniSharp\\OmniSharp.dll" }
   })
