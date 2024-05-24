@@ -101,9 +101,15 @@ setup 'markdownls'
 
 setup 'svelte'
 
--- setup('omnisharp', {
---     cmd = { "dotnet", "C:\\Users\\parker\\Downloads\\omnisharp-win-x64\\OmniSharp.dll" }
--- })
+if vim.fn.has('win32') then
+  setup('omnisharp', {
+      cmd = { "dotnet", "C:\\Users\\parker\\.local\\etc\\OmniSharp\\OmniSharp.dll" }
+  })
+else
+  setup('omnisharp', {
+      cmd = { "dotnet", "/usr/lib/omnisharp-roslyn/OmniSharp.dll" }
+  })
+end
 
 -- setup 'cssmodules_ls'
 -- setup 'glslls'

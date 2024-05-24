@@ -180,7 +180,6 @@ if has('nvim') || has('lua')
   lua require'nvim-autopairs'.setup{}
   lua require'nvim-tree'.setup{}
   lua <<EOF
-    require'orgmode'.setup_ts_grammar()
     require'orgmode'.setup{
       org_agenda_files = '~/Documents/Sync/org',
       org_default_notes_file = '~/Documents/Sync/org/default.org',
