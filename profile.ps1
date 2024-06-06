@@ -61,7 +61,7 @@ if (![string]::IsNullOrEmpty($env:GH)) {
   }
   . $HOME/.share/lib/pwsh/gh.ps1
 } else {
-  function gh {
+  function dev {
     Write-Error "`$env:GH is not defined"
   }
 }
