@@ -7,14 +7,15 @@ function install {
   param([string]$link, [string]$target)
 
   if (test-path $link) {
+    Write-Output "skip $link; already exists"
     return
   }
   if ([string]::IsNullOrWhiteSpace($target)) {
-    Write-Output "make $target"
-    mkdir $target -ErrorAction Ignore
+    Write-Output "make $link"
+    mkdir $link -ErrorAction Ignore
   } else {
-    Write-Output "link $target --> $link"
-    New-Item -Path $target -ItemType SymbolicLink -Value $link
+    Write-Output "link $link --> $target"
+    New-Item -Path $link -ItemType SymbolicLink -Value $target
   }
 }
 
@@ -34,8 +35,8 @@ install $home\vimfiles $home\.vim
 install $home\AppData\Local\nvim
 install $home\AppData\Local\nvim\init.vim $pwd\init.vim
 
-install $home\Documents\WindowsPowerShell
-install $home\Documents\WindowsPowerShell\profile.ps1 $pwd\profile.ps1
+#install $home\Documents\WindowsPowerShell
+#install $home\Documents\WindowsPowerShell\profile.ps1 $pwd\profile.ps1
 
 install $home\Documents\PowerShell
 install $home\Documents\PowerShell\profile.ps1 $pwd\profile.ps1
@@ -61,12 +62,12 @@ if (!$isadmin) {
   return
 }
 
-&"$PSScriptRoot\.share\scripts\Windows\Enable-LongPaths.ps1"
-&"$PSScriptRoot\.share\scripts\Windows\verbose-boot.ps1" -v $true
+#&"$PSScriptRoot\.share\scripts\Windows\Enable-LongPaths.ps1"
+#&"$PSScriptRoot\.share\scripts\Windows\verbose-boot.ps1" -v $true
 
 if (test-path HKLM:\SOFTWARE\WOW6432Node\WinFsp) {
   Set-ItemProperty HKLM:\SOFTWARE\WOW6432Node\WinFsp DistinctPermsForSameOwnerGroup -Type DWord -Value 1
 }
-if (test-path HKLM:\SOFTWARE\OpenSSH) {
-  Set-ItemProperty HKLM:\SOFTWARE\OpenSSH DefaultShell 'C:\Program Files\PowerShell\7\pwsh.exe'
-}
+#if (test-path HKLM:\SOFTWARE\OpenSSH) {
+#  Set-ItemProperty HKLM:\SOFTWARE\OpenSSH DefaultShell 'C:\Program Files\PowerShell\7\pwsh.exe'
+#}
