@@ -1,2 +1,2 @@
 ael-code/zsh-colored-man-pages
-zdharma-continuum/fast-syntax-highlighting
+# zdharma-continuum/fast-syntax-highlighting

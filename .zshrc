@@ -83,7 +83,7 @@ if [[ -d $HOME/.share/lib/sh ]]; then
   #source $HOME/.share/lib/sh/chcl.sh
 fi
 
-. /opt/asdf-vm/asdf.sh
+# . /opt/asdf-vm/asdf.sh
 
 # pnpm
 export PNPM_HOME="/home/parker/.local/share/pnpm"
@@ -92,3 +92,5 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
