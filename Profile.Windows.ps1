@@ -82,7 +82,7 @@ $ProVar.vcvars = @{
   }
   IsSet = $false;
   Env = @{};
-  DefaultVersion = '2022';
+  DefaultVersion = '18';
 }
 
 if ([System.Environment]::Is64BitOperatingSystem) {
@@ -118,7 +118,7 @@ function vcvars {
     [switch]$Unset = $false,
     [switch]$ShowEnv = $false,
     [Alias('v')]
-    [ValidateSet('2017', '2019', '2022')]
+    [ValidateSet('18')]
     [string]
     $Version
   )
