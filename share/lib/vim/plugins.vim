@@ -39,9 +39,9 @@ endif
 Plug 'nvim-treesitter/nvim-treesitter'
 
 " Debugger
-let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
-let g:vimspector_enable_mappings = 'HUMAN'
-Plug 'puremourning/vimspector'
+"let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
+"let g:vimspector_enable_mappings = 'HUMAN'
+"Plug 'puremourning/vimspector'
 
 " Org mode
 Plug 'nvim-orgmode/orgmode'
@@ -56,7 +56,6 @@ Plug 'sgur/vim-editorconfig'
 
 " Autocomplete
 let g:coq_settings = {
-      \   'auto_start': 'shut-up',
       \   'clients': { 'tmux': { 'enabled': v:false } }
       \ }
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion

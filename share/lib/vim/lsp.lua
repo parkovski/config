@@ -1,7 +1,5 @@
 -- https://github.com/neovim/nvim-lspconfig/tree/master/lua/lspconfig/server_configurations
 
-local lspconfig = require'lspconfig'
-local coq = require'coq'
 local configs = require'lspconfig.configs'
 
 vim.diagnostic.config{
@@ -9,8 +7,8 @@ vim.diagnostic.config{
 }
 
 local on_attach = function(client, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr')
+  -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  -- vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr')
 
   -- vim.keymap.set('i', '<C-Space>', '<C-x><C-o>', { silent=true, buffer=bufnr })
 
@@ -20,7 +18,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufopts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+  --vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
   vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, bufopts)
   vim.keymap.set('n', '<space>L', vim.diagnostic.setloclist, bufopts)
@@ -41,7 +39,7 @@ local on_attach = function(client, bufnr)
     vim.keymap.set('n', 'gh', ':ClangdSwitchSourceHeader<CR>', bufopts)
   end
 
-  vim.api.nvim_create_autocmd("CursorHold", {
+  --[[vim.api.nvim_create_autocmd("CursorHold", {
     buffer = bufnr,
     callback = function()
       local opts = {
@@ -54,17 +52,13 @@ local on_attach = function(client, bufnr)
       }
       vim.diagnostic.open_float(nil, opts)
     end
-  })
+  })]]
 end
 
 local setup = function(name, settings)
   settings = settings or {}
   settings.on_attach = on_attach
-  lspconfig[name].setup(
-    coq.lsp_ensure_capabilities(
-      settings
-    )
-  )
+  vim.lsp.config(name, settings)
 end
 
 -- typescript-language-server
@@ -103,7 +97,7 @@ setup 'svelte'
 
 if vim.fn.has('win32') == 1 then
   setup('omnisharp', {
-      cmd = { "dotnet", "C:\\Users\\parker\\.local\\etc\\OmniSharp\\OmniSharp.dll" }
+      cmd = { "dotnet", "C:\\Users\\parke\\.local\\etc\\OmniSharp\\OmniSharp.dll" }
   })
 else
   setup('omnisharp', {
