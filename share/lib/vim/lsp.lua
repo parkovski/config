@@ -59,6 +59,7 @@ local setup = function(name, settings)
   settings = settings or {}
   settings.on_attach = on_attach
   vim.lsp.config(name, settings)
+  vim.lsp.enable(name)
 end
 
 -- typescript-language-server
