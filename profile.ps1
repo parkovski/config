@@ -150,6 +150,8 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+y' -ViMode Insert -Function ScrollDisplayUpL
 Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function ScrollDisplayDownLine
 Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Insert -Function ViCommandMode
 Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Insert -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Command -Function ViCommandMode
+Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Command -Function ViCommandMode
 
 # Set-PSReadlineKeyHandler -Key 'Ctrl+]' -Function CopyScreen
 # Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function Left
