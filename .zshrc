@@ -93,4 +93,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+export PATH="$HOME/.local/bin:$PATH"
+
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
