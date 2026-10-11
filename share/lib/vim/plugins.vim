@@ -13,28 +13,9 @@ call plug#begin(g:vimrc_platform.dotvim . '/bundle')
 "Plug 'junegunn/fzf'
 "Plug 'junegunn/fzf.vim'
 
-if $VIM_LANGCLIENT ==? 'lcn'
-  Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': g:vimrc_platform.lcinstall,
-    \ }
-  let s:sources = []
-  let g:vista_default_executive = 'lcn'
-elseif $VIM_LANGCLIENT ==? 'ale'
-  " let g:ale_completion_enabled = 1
-  let g:ale_set_balloons = 1
-  Plug 'w0rp/ale'
-  let s:sources = ['ale']
-  let g:vista_default_executive = 'ale'
-elseif $VIM_LANGCLIENT ==? 'coc'
-  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  "Plug 'antoinemadec/coc-fzf'
-  let g:vista_default_executive = 'coc'
-elseif has('nvim') && $VIM_LANGCLIENT ==? 'lsp'
-  Plug 'neovim/nvim-lspconfig'
-  let g:vista_default_executive = 'nvim_lsp'
-  " See also https://github.com/hrsh7th/nvim-cmp/
-endif
+Plug 'neovim/nvim-lspconfig'
+let g:vista_default_executive = 'nvim_lsp'
+" See also https://github.com/hrsh7th/nvim-cmp/
 
 Plug 'nvim-treesitter/nvim-treesitter'
 
@@ -56,7 +37,8 @@ Plug 'sgur/vim-editorconfig'
 
 " Autocomplete
 let g:coq_settings = {
-      \   'clients': { 'tmux': { 'enabled': v:false } }
+      \   'clients': { 'tmux': { 'enabled': v:false } },
+      \   'keymap': { 'recommended': v:false }
       \ }
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'} " Snippets
@@ -173,12 +155,10 @@ Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 if has('nvim') || has('lua')
-  if $VIM_LANGCLIENT ==? 'lsp'
-    source $HOME/.share/lib/vim/lsp.lua
-  endif
-  lua require'nvim-autopairs'.setup{}
-  lua require'nvim-tree'.setup{}
-  lua <<EOF
+  source $HOME/.share/lib/vim/lsp.lua
+lua <<EOF
+  require'nvim-autopairs'.setup{}
+  require'nvim-tree'.setup{}
     require'orgmode'.setup{
       org_agenda_files = '~/Documents/Sync/org',
       org_default_notes_file = '~/Documents/Sync/org/default.org',

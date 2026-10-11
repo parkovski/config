@@ -54,10 +54,6 @@ if exists('&cryptmethod')
   set cryptmethod=blowfish2
 endif
 
-if empty($VIM_LANGCLIENT)
-  let $VIM_LANGCLIENT='lsp'
-endif
-
 source $HOME/.share/lib/vim/platform.vim
 source $HOME/.share/lib/vim/headerguard.vim
 if g:vimrc_platform.status_plugin ==? 'lightline'

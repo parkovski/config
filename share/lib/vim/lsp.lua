@@ -10,7 +10,8 @@ local on_attach = function(client, bufnr)
   -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   -- vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr')
 
-  -- vim.keymap.set('i', '<C-Space>', '<C-x><C-o>', { silent=true, buffer=bufnr })
+  vim.keymap.set('i', '<C-Space>', '<C-x><C-u>', { silent=true, buffer=bufnr })
+  vim.keymap.set('i', '<C-_>', '<C-x><C-u>', { silent=true, buffer=bufnr })
 
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
@@ -33,7 +34,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', '<F12>', vim.lsp.buf.code_action, bufopts)
   -- vim.keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, bufopts)
 
-  -- vim.keymap.set('n', '<M-f>', function () vim.lsp.buf.code_action({ only = 'quickfix' }) end, bufopts)
+  vim.keymap.set('n', '<M-f>', function () vim.lsp.buf.code_action({ only = 'quickfix' }) end, bufopts)
 
   if vim.fn.exists(':ClangdSwitchSourceHeader') then
     vim.keymap.set('n', 'gh', ':ClangdSwitchSourceHeader<CR>', bufopts)
