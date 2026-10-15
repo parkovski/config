@@ -221,7 +221,6 @@ function vcvars {
       return;
     }
     $oldVcpkgRoot = $env:VCPKG_ROOT
-    echo "VCPKG_ROOT=" $oldVcpkgRoot
     # I hate you guys
     $env:VSCMD_SKIP_SENDTELEMETRY=1
     $output = cmd /c "`"$dir`" & set"
