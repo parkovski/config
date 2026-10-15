@@ -220,6 +220,8 @@ function vcvars {
       Write-Host "Aw dawg you savin like 3 to 4 seconds cuz its already set!"
       return;
     }
+    $oldVcpkgRoot = $env:VCPKG_ROOT
+    echo "VCPKG_ROOT=" $oldVcpkgRoot
     # I hate you guys
     $env:VSCMD_SKIP_SENDTELEMETRY=1
     $output = cmd /c "`"$dir`" & set"
@@ -238,6 +240,9 @@ function vcvars {
         $ProVar.vcvars.Env[$key] = $old
         Set-Content "Env:\$key" "$val"
       }
+    }
+    if (-not [string]::IsNullOrEmpty($oldVcpkgRoot)) {
+      Set-EnvironmentVariable VCPKG_ROOT $oldVcpkgRoot
     }
     $ProVar.vcvars.IsSet = $true
     Write-Host "Dawg, vcvars is r-r-r-ready to roll!"
