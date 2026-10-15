@@ -63,8 +63,7 @@ local setup = function(name, settings)
   vim.lsp.enable(name)
 end
 
--- typescript-language-server
-setup 'tsserver'
+setup 'tsc'
 
 setup 'clangd'
 
