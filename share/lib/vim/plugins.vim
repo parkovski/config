@@ -1,13 +1,13 @@
-if !filereadable(g:vimrc_platform.dotvim . '/autoload/plug.vim')
-  exe 'silent !curl -fLo ' . g:vimrc_platform.dotvim . '/autoload/plug.vim ' .
+if !filereadable($HOME . '/.vim/autoload/plug.vim')
+  exe 'silent !curl -fLo ' . $HOME . '/.vim/autoload/plug.vim ' .
     \ '--create-dirs ' .
     \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  source g:vimrc_platform.dotvim . '/autoload/plug.vim'
+  source $HOME . '/.vim/autoload/plug.vim'
   echo "Needs PlugInstall"
   " PlugInstall --sync
 endif
 
-call plug#begin(g:vimrc_platform.dotvim . '/bundle')
+call plug#begin($HOME . '/.vim/bundle')
 
 " General
 "Plug 'junegunn/fzf'
@@ -124,6 +124,7 @@ let g:sonokai_style = 'atlantis'
 Plug 'sainnhe/sonokai'
 Plug 'preservim/vim-colors-pencil'
 Plug 'rebelot/kanagawa.nvim'
+Plug 'rose-pine/neovim', { 'dir': $HOME . '/.vim/bundle/rose-pine' }
 
 " Syntaxes
 " let g:cpp_class_scope_highlight = 1
