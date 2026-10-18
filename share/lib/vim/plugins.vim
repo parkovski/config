@@ -151,7 +151,11 @@ Plug 'sheerun/vim-polyglot'
 " Plug 'pboettch/vim-cmake-syntax'
 " Plug 'condy0919/docom.vim'
 " Plug 'cstrahan/vim-capnp'
-" Plug 'OmniSharp/omnisharp-vim'
+
+if has('win32')
+  let g:OmniSharp_server_path = $HOME . '/.local/etc/OmniSharp/OmniSharp.exe'
+endif
+Plug 'OmniSharp/omnisharp-vim'
 
 call plug#end()
 

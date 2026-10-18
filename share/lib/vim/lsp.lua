@@ -98,11 +98,11 @@ setup 'svelte'
 
 if vim.fn.has('win32') == 1 then
   setup('omnisharp', {
-      cmd = { "dotnet", vim.env.HOME .. "\\.local\\etc\\OmniSharp\\OmniSharp.dll" }
+      cmd = { vim.env.HOME .. "\\.local\\etc\\OmniSharp\\OmniSharp.exe" }
   })
 else
   setup('omnisharp', {
-      cmd = { "dotnet", "/usr/lib/omnisharp-roslyn/OmniSharp.dll" }
+      cmd = { "/usr/lib/omnisharp-roslyn/OmniSharp" }
   })
 end
 
