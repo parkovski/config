@@ -15,6 +15,7 @@ function setup {
 
 setup $HOME/.gitconfig $PWD/linux.gitconfig
 setup $HOME/.zshrc $PWD/.zshrc
+setup $HOME/.zsh_plugins.txt $PWD/.zsh_plugins.txt
 setup $HOME/.tmux.conf $PWD/.tmux.conf
 
 setup $HOME/.local/bin
