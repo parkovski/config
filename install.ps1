@@ -32,6 +32,8 @@ install $home\.gvimrc $pwd\.gvimrc
 install $home\.vim\colors
 install $home\vimfiles $home\.vim
 
+install $home\.psmux.conf $pwd\.psmux.conf
+
 install $home\AppData\Local\nvim
 install $home\AppData\Local\nvim\init.vim $pwd\init.vim
 
@@ -51,7 +53,7 @@ if ($userenv -inotcontains "$Home\.local\bin") {
 }
 
 if (-not (test-path Env:\VCPKG_DEFAULT_TRIPLET)) {
-  [System.Environment]::SetEnvironmentVariable('VCPKG_DEFAULT_TRIPLET', 'x64-windows', 'User')
+  [System.Environment]::SetEnvironmentVariable('VCPKG_DEFAULT_TRIPLET', 'x64-windows-static-md', 'User')
 }
 
 [System.Environment]::SetEnvironmentVariable('EDITOR', 'nvim.exe', 'User')
