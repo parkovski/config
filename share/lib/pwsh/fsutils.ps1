@@ -62,11 +62,10 @@ function Invoke-InDirectory {
   Set-Location $args[0]
   try {
     if ($args.Length -gt 2) {
-      $program = $args[1]
       $pargs = $args[2..($args.Length - 1)]
-      &$program @pargs
+      & $args[1] @pargs
     } else {
-      &$program
+      & $args[1]
     }
   } finally {
     Set-Location $curdir
