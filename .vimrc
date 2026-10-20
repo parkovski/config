@@ -79,6 +79,8 @@ augroup VimrcAutoCommands
   autocmd BufNewFile,BufRead *.rml set filetype=html
   autocmd BufNewFile,BufRead *.rcss set filetype=css
 
+  autocmd FileType xml,html RainbowToggleOff
+
   autocmd StdinReadPre * let s:std_in=1
   if exists("b:NERDTree")
     autocmd VimEnter *
