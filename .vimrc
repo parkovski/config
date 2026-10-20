@@ -25,7 +25,9 @@ set cinoptions=:0,g0,N-s,E-s,t0,is,(0,U1,w1,Ws,ks,m1,j1,J1
 set list listchars=tab:⇥\ ,nbsp:␣,trail:‣,precedes:«,extends:»
 let &showbreak="⇒  "
 let mapleader="\<space>"
-
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+		  \,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
+		  \,sm:block-blinkwait175-blinkoff150-blinkon175
 "set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:↲,precedes:«,extends:»
 
 if exists('&termguicolors')
