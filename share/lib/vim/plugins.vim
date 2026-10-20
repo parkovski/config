@@ -10,12 +10,16 @@ endif
 call plug#begin($HOME . '/.vim/bundle')
 
 " General
-"Plug 'junegunn/fzf'
-"Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 
 Plug 'neovim/nvim-lspconfig'
 let g:vista_default_executive = 'nvim_lsp'
-" See also https://github.com/hrsh7th/nvim-cmp/
+" Plug 'hrsh7th/cmp-nvim-lsp'
+" Plug 'hrsh7th/cmp-buffer'
+" Plug 'hrsh7th/cmp-path'
+" Plug 'hrsh7th/cmp-cmdline'
+" Plug 'hrsh7th/nvim-cmp'
 
 Plug 'nvim-treesitter/nvim-treesitter'
 
@@ -152,10 +156,10 @@ Plug 'sheerun/vim-polyglot'
 " Plug 'condy0919/docom.vim'
 " Plug 'cstrahan/vim-capnp'
 
-if has('win32')
-  let g:OmniSharp_server_path = $HOME . '/.local/etc/OmniSharp/OmniSharp.exe'
-endif
-Plug 'OmniSharp/omnisharp-vim'
+" if has('win32')
+"   let g:OmniSharp_server_path = $HOME . '/.local/etc/OmniSharp/OmniSharp.exe'
+" endif
+" Plug 'OmniSharp/omnisharp-vim'
 
 call plug#end()
 
@@ -164,9 +168,9 @@ if has('nvim') || has('lua')
 lua <<EOF
   require'nvim-autopairs'.setup{}
   require'nvim-tree'.setup{}
-    require'orgmode'.setup{
-      org_agenda_files = '~/Documents/Sync/org',
-      org_default_notes_file = '~/Documents/Sync/org/default.org',
-    }
+  require'orgmode'.setup{
+    org_agenda_files = '~/Documents/Sync/org',
+    org_default_notes_file = '~/Documents/Sync/org/default.org',
+  }
 EOF
 endif
