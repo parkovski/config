@@ -8,20 +8,20 @@ tnoremap <C-a><C-a> <C-a>
 
 lua <<EOF
 function AutoCompleteTab()
-  if vim.snippet.active({ direction = 1 }) then
-    return '<Cmd>lua vim.snippet.jump(1)<CR>'
-  elseif vim.fn.pumvisible() ~= 0 then
+  if vim.fn.pumvisible() ~= 0 then
     return '<C-n>'
+  elseif vim.snippet.active({ direction = 1 }) then
+    return '<Cmd>lua vim.snippet.jump(1)<CR>'
   else
     return '<Tab>'
   end
 end
 
 function AutoCompleteShiftTab()
-  if vim.snippet.active({ direction = -1 }) then
-    return '<Cmd>lua vim.snippet.jump(-1)<CR>'
-  elseif vim.fn.pumvisible() ~= 0 then
+  if vim.fn.pumvisible() ~= 0 then
     return '<C-p>'
+  elseif vim.snippet.active({ direction = -1 }) then
+    return '<Cmd>lua vim.snippet.jump(-1)<CR>'
   else
     return '<S-Tab>'
   end

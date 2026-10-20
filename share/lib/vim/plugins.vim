@@ -42,7 +42,8 @@ Plug 'sgur/vim-editorconfig'
 " Autocomplete
 let g:coq_settings = {
       \   'clients': { 'tmux': { 'enabled': v:false } },
-      \   'keymap': { 'recommended': v:false }
+      \   'keymap': { 'recommended': v:false },
+      \   'autostart': v:true
       \ }
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'} " Snippets
