@@ -96,15 +96,7 @@ setup 'markdownls'
 
 setup 'svelte'
 
-if vim.fn.has('win32') == 1 then
-  setup('omnisharp', {
-      cmd = { vim.env.HOME .. "\\.local\\etc\\OmniSharp\\OmniSharp.exe" }
-  })
-else
-  setup('omnisharp', {
-      cmd = { "/usr/lib/omnisharp-roslyn/OmniSharp" }
-  })
-end
+setup 'omnisharp'
 
 -- setup 'cssmodules_ls'
 -- setup 'glslls'
