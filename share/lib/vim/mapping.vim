@@ -27,8 +27,25 @@ function AutoCompleteShiftTab()
   end
 end
 
+function AutoCompleteCancel()
+  if vim.fn.pumvisible() ~= 0 then
+    if vim.v.completed_item == nil or not next(vim.v.completed_item) then
+      if vim.snippet.active() then
+        return '<C-e>'
+      else
+        return '<C-e><Esc>'
+      end
+    else
+      return '<C-e>'
+    end
+  else
+    return '<Esc>'
+  end
+end
+
 vim.keymap.set('i', '<Tab>', AutoCompleteTab, { noremap = true, silent = true, expr = true })
 vim.keymap.set('i', '<S-Tab>', AutoCompleteShiftTab, { noremap = true, silent = true, expr = true })
+vim.keymap.set('i', '<Esc>', AutoCompleteCancel, { noremap = true, silent = true, expr = true })
 EOF
 
 function s:Backspace()
@@ -57,18 +74,6 @@ function! s:AutoCompleteJumpBackwards()
   return "\<S-Tab>"
 endfunction
 
-function! s:AutoCompleteCancel()
-  if pumvisible()
-    if empty(v:completed_item)
-      return "\<C-e>\<Esc>"
-    else
-      return "\<C-e>"
-    endif
-  endif
-
-  return "\<Esc>"
-endfunction
-
 function! s:ScrollDown()
   if pumvisible()
     return "\<PageDown>"
@@ -89,8 +94,6 @@ inoremap <silent><expr> <BS>    <SID>Backspace()
 snoremap <silent><expr> <BS>    <SID>Backspace()
 inoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
 snoremap <silent><expr> <CR>    <SID>AutoCompleteSelect()
-inoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
-snoremap <silent><expr> <Esc>   <SID>AutoCompleteCancel()
 inoremap <silent><expr> <C-d>   <SID>ScrollDown()
 snoremap <silent><expr> <C-d>   <SID>ScrollDown()
 inoremap <silent><expr> <C-u>   <SID>ScrollUp()
