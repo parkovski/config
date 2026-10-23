@@ -13,7 +13,7 @@ set cursorline
 set showcmd noshowmode showtabline=2
 set splitright splitbelow
 set wildmenu wildmode=longest:full,full
-set complete=. completeopt=menu,preview,noselect
+set complete=. completeopt=menu,preview,noselect,fuzzy
 set laststatus=2
 set noswapfile backupdir-=.
 set foldmethod=marker nofoldenable foldcolumn=auto:1 foldopen-=block foldlevel=99

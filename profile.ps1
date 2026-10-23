@@ -52,7 +52,6 @@ Set-Alias genv Get-EnvironmentVariable
 Set-Alias ^ Invoke-HistoryRecent
 
 function dirs { Get-Location -Stack }
-function touch { New-Item -Path $args[0] -ItemType File }
 
 if (![string]::IsNullOrEmpty($env:GH)) {
   $global:GH = $env:GH
@@ -161,7 +160,6 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Command -Function ViCommandMod
 # Set-PSReadlineKeyHandler -Key 'z,z' -ViMode Command -Function ScrollToMiddle
 # Set-PSReadlineKeyHandler -Key 'z,t' -ViMode Command -Function ScrollToTop
 
-if (0) {
 Remove-Alias -Force -ea Ignore ls
 function ls {
   $thestuff = Get-ChildItem @args
@@ -208,4 +206,3 @@ function ls {
   @("`e[2F", $thestuff, "`e[2F")
 }
 Set-Alias ll Get-ChildItem
-}

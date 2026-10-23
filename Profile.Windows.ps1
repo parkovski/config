@@ -23,7 +23,6 @@ TryToImport "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 function Restart-Explorer {
   Stop-Process -Name explorer
 }
-Set-Alias rsex Restart-Explorer
 
 function Open-PowerShell {
   param([switch]$Admin)
@@ -34,29 +33,12 @@ function Open-PowerShell {
   }
 }
 
-function Restore-ConsoleWindow {
-  [Console]::SetWindowSize(100, 50)
-}
-
 function wslpath {
   param([string]$Path)
   wsl.exe -e wslpath -u ($Path -replace '\\','\\\\')
 }
 
-# Fix missing Set-Clipboard.
-if (-not (Get-Command Set-Clipboard -ErrorAction Ignore)) {
-  function Set-Clipboard {
-    param(
-      [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-      [string]$Text
-    )
-
-    $Text += [char]0
-    $Text | clip.exe
-  }
-}
-
-Set-Alias which where.exe
+Set-Alias which Get-Command
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
@@ -118,7 +100,7 @@ function vcvars {
     [switch]$Unset = $false,
     [switch]$ShowEnv = $false,
     [Alias('v')]
-    [ValidateSet('18')]
+    [ValidateSet('2022', '18')]
     [string]
     $Version
   )
