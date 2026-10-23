@@ -83,6 +83,8 @@ if [[ -d $HOME/.share/lib/sh ]]; then
   #source $HOME/.share/lib/sh/chcl.sh
 fi
 
+export PROMPT_GIT=1
+
 # . /opt/asdf-vm/asdf.sh
 
 # pnpm
