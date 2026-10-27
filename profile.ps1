@@ -176,13 +176,13 @@ Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Insert -Function ViCommandMode
 Set-PSReadlineKeyHandler -Key 'Ctrl+[' -ViMode Command -Function ViCommandMode
 Set-PSReadlineKeyHandler -Key 'Ctrl+Oem4' -ViMode Command -Function ViCommandMode
 
-# Set-PSReadlineKeyHandler -Key 'Ctrl+]' -Function CopyScreen
-# Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function Left
-# Set-PSReadlineKeyHandler -Key 'Alt+l' -ViMode Insert -Function Right
-# Set-PSReadlineKeyHandler -Key 'Alt+w' -ViMode Insert -Function NextWord
-# Set-PSReadlineKeyHandler -Key 'Alt+b' -ViMode Insert -Function PreviousWord
-# Set-PSReadlineKeyHandler -Key 'z,z' -ViMode Command -Function ScrollToMiddle
-# Set-PSReadlineKeyHandler -Key 'z,t' -ViMode Command -Function ScrollToTop
+Set-PSReadlineKeyHandler -Key 'Alt+h' -ViMode Insert -Function BackwardChar
+Set-PSReadlineKeyHandler -Key 'Alt+l' -ViMode Insert -Function ForwardChar
+Set-PSReadlineKeyHandler -Key 'Alt+w' -ViMode Insert -Function ForwardWord
+Set-PSReadlineKeyHandler -Key 'Alt+b' -ViMode Insert -Function BackwardWord
+Set-PSReadlineKeyHandler -Key 'Ctrl+a' -ViMode Insert -Function BeginningOfLine
+Set-PSReadlineKeyHandler -Key 'Ctrl+e' -ViMode Insert -Function EndOfLine
+Set-PSReadlineKeyHandler -Key 'Alt+c' -ScriptBlock { Refresh-Colors }
 
 Remove-Alias -Force -ea Ignore ls
 function ls {

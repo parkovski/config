@@ -194,6 +194,7 @@ nnoremap <leader>l <Cmd>noh<CR>
 nnoremap <leader>b <Cmd>NvimTreeToggle<CR>
 nnoremap <leader>v <Cmd>Vista!!<CR>
 nnoremap <leader>r <Cmd>set relativenumber!<CR>
+nnoremap <leader>c <Cmd>ColorScheme<CR>
 
 nnoremap <leader><Tab> <Cmd>tabnext<CR>
 nnoremap <leader><S-Tab> <Cmd>tabprevious<CR>
