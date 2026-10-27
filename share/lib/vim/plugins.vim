@@ -15,9 +15,9 @@ let g:vista_default_executive = 'nvim_lsp'
 Plug 'nvim-treesitter/nvim-treesitter'
 
 " Debugger
-let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
-let g:vimspector_enable_mappings = 'HUMAN'
-Plug 'puremourning/vimspector'
+" let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
+" let g:vimspector_enable_mappings = 'HUMAN'
+" Plug 'puremourning/vimspector'
 
 " Org mode
 Plug 'nvim-orgmode/orgmode'
@@ -120,8 +120,12 @@ let g:sonokai_style = 'atlantis'
 Plug 'sainnhe/sonokai'
 Plug 'preservim/vim-colors-pencil'
 Plug 'rebelot/kanagawa.nvim'
-Plug 'rose-pine/neovim', { 'dir': $HOME . '/.vim/bundle/rose-pine' }
+Plug 'rose-pine/neovim', { 'as': 'rose-pine' }
 Plug 'cocopon/iceberg.vim'
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plug 'Shatur/neovim-ayu'
+Plug 'uloco/bluloco.nvim'
+Plug 'miikanissi/modus-themes.nvim'
 
 " Syntaxes
 " let g:cpp_class_scope_highlight = 1

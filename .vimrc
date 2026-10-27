@@ -68,6 +68,8 @@ if g:vimrc_platform.status_plugin ==? 'lualine'
 endif
 source $HOME/.share/lib/vim/mapping.vim
 
+command! Reload source $HOME/.vimrc
+
 augroup VimrcAutoCommands
   autocmd!
   autocmd FileType cpp set commentstring=//%s
@@ -80,6 +82,7 @@ augroup VimrcAutoCommands
   autocmd BufNewFile,BufRead *.rcss set filetype=css
 
   autocmd FileType xml,html RainbowToggleOff
+  autocmd BufNewFile,BufRead *.xml,*.xaml,*.axaml,*.html,*.svelte setlocal textwidth=0
 
   autocmd StdinReadPre * let s:std_in=1
   if exists("b:NERDTree")
@@ -91,7 +94,7 @@ augroup VimrcAutoCommands
       \ q | endif
   endif
 
-  autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+  " autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
   autocmd TermOpen * setlocal nonumber norelativenumber signcolumn=no foldcolumn=0
   autocmd TermEnter * startinsert
 augroup END

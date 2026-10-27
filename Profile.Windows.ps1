@@ -40,6 +40,36 @@ function wslpath {
 
 Set-Alias which Get-Command
 
+# Start-Job {
+#   Write-Output "Starting PipeClient"
+#   $client = [System.IO.Pipes.NamedPipeClientStream]::new("pipesrv_theme_pipe")
+#   $client.Connect()
+#   $reader = [System.IO.StreamReader]::new($client)
+#   $writer = [System.IO.StreamWriter]::new($client)
+#   $buffer = [char[]]::new(256)
+#   $writer.Write("wait`0")
+#   $writer.Flush()
+#   while ($true) {
+#     $chars = $reader.Read($buffer, 0, 256)
+#     if ($chars -eq 0) {
+#       return
+#     }
+#     $buffer2 = [char[]]::new($chars - 1)
+#     [System.Array]::Copy($buffer, $buffer2, $chars - 1)
+#     $message = [string]::new($buffer2)
+#     if ($message -eq "exit") {
+#       return
+#     }
+#     if ($message -eq "dark") {
+#       Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
+#       Write-Output "Set default color to white"
+#     } elseif ($message -eq "light") {
+#       Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
+#       Write-Output "Set default color to black"
+#     }
+#   }
+# }
+
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
 $ProVar.vcvars = @{

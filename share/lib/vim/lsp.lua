@@ -7,9 +7,6 @@ vim.diagnostic.config{
 }
 
 local on_attach = function(client, bufnr)
-  -- vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  -- vim.api.nvim_buf_set_option(bufnr, 'formatexpr', 'v:lua.vim.lsp.formatexpr')
-
   vim.keymap.set('i', '<C-Space>', '<C-x><C-u>', { silent=true, buffer=bufnr })
   vim.keymap.set('i', '<C-_>', '<C-x><C-u>', { silent=true, buffer=bufnr })
 
@@ -39,21 +36,6 @@ local on_attach = function(client, bufnr)
   if vim.fn.exists(':ClangdSwitchSourceHeader') then
     vim.keymap.set('n', 'gh', ':ClangdSwitchSourceHeader<CR>', bufopts)
   end
-
-  --[[vim.api.nvim_create_autocmd("CursorHold", {
-    buffer = bufnr,
-    callback = function()
-      local opts = {
-        focusable = false,
-        close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-        border = 'rounded',
-        source = 'always',
-        prefix = ' ',
-        scope = 'cursor',
-      }
-      vim.diagnostic.open_float(nil, opts)
-    end
-  })]]
 end
 
 local setup = function(name, settings)
@@ -68,38 +50,81 @@ setup 'tsc'
 setup 'clangd'
 
 -- pip cmake-language-server
-setup 'cmake'
+-- setup 'cmake'
 
-setup 'gdscript'
+-- setup 'gdscript'
 
 -- lua-language-server
-setup 'lua_ls'
+setup('lua_ls', {
+  on_init = function(client)
+    if client.workspace_folders then
+      local path = client.workspace_folders[1].name
+      if
+        path ~= vim.fn.stdpath('config')
+        and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc'))
+      then
+        return
+      end
+    end
+
+    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+      runtime = {
+        -- Tell the language server which version of Lua you're using (most
+        -- likely LuaJIT in the case of Neovim)
+        version = 'LuaJIT',
+        -- Tell the language server how to find Lua modules same way as Neovim
+        -- (see `:h lua-module-load`)
+        path = {
+          'lua/?.lua',
+          'lua/?/init.lua',
+        },
+      },
+      -- Make the server aware of Neovim runtime files
+      workspace = {
+        checkThirdParty = false,
+        library = {
+          vim.env.VIMRUNTIME,
+          -- For LSP Settings Type Annotations: https://github.com/neovim/nvim-lspconfig#lsp-settings-type-annotations
+          vim.api.nvim_get_runtime_file("lua/lspconfig", false)[1],
+        },
+        -- Or pull in all of 'runtimepath'.
+        -- NOTE: this is a lot slower and will cause issues when working on
+        -- your own configuration.
+        -- See https://github.com/neovim/nvim-lspconfig/issues/3189
+        -- library = vim.api.nvim_get_runtime_file('', true),
+      },
+    })
+  end,
+  settings = {
+    Lua = {},
+  },
+})
 
 -- vim-language-server
 setup 'vimls'
 
 -- bash-language-server
-setup 'bashls'
+-- setup 'bashls'
 
 -- vscode-langservers-extracted
 setup 'cssls'
 setup 'html'
 setup 'jsonls'
-if not configs.markdownls then
+--[[if not configs.markdownls then
   -- TODO import path
   local oldpath = package.path
   package.path = vim.env.HOME .. '/.share/lib/vim/?.lua'
+  setup 'markdownls'
   configs.markdownls = require'markdownls'
   package.path = oldpath
-end
-setup 'markdownls'
+end]]
 
 setup 'svelte'
 
 setup 'omnisharp'
 
--- setup 'cssmodules_ls'
--- setup 'glslls'
--- setup 'jedi_language_server'
--- setup 'powershell_es'
+-- setup('powershell_es', {
+--   bundle_path = vim.env.HOME .. '/.local/etc'
+-- })
+
 -- setup 'rust_analyzer'

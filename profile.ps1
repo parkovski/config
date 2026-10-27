@@ -51,6 +51,10 @@ Set-Alias genv Get-EnvironmentVariable
 . $HOME/.share/lib/pwsh/history.ps1
 Set-Alias ^ Invoke-HistoryRecent
 
+function Reload-Profile {
+  . $PROFILE.CurrentUserAllHosts
+}
+
 function dirs { Get-Location -Stack }
 
 if (![string]::IsNullOrEmpty($env:GH)) {
@@ -115,20 +119,44 @@ Set-PSReadlineOption -ViModeChangeHandler {
     [System.Console]::Out.Write("`e[5 q")
   }
 } -ErrorAction Ignore
-Set-PSReadlineOption -Colors @{
-  comment = "darkgray";
-  keyword = "cyan";
-  string = "yellow";
-  operator = "darkyellow";
-  variable = "magenta";
-  command = "darkblue";
-  parameter = "darkgreen";
-  type = "darkcyan";
-  number = "green";
-  member = "blue";
-  error = "darkred";
-  continuationprompt = "darkgray";
-  default = "gray";
+
+function Refresh-Colors {
+  if (Get-Command yinyang -EA Ignore) {
+    if ($(yinyang) -eq "light") {
+      Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
+    } else {
+      Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
+    }
+  }
+}
+
+$local:DefaultColor = "`e[37m"
+if (Get-Command yinyang -EA Ignore) {
+  if ($(yinyang) -eq "light") {
+    $DefaultColor = "`e[30m"
+  }
+}
+
+Set-PSReadLineOption -Colors @{
+  Command                           = "`e[34m";
+  Comment                           = "`e[90m";
+  ContinuationPrompt                = "`e[90m";
+  Default                           = $DefaultColor;
+  Emphasis                          = "`e[96m";
+  Error                             = "`e[31m";
+  InlinePrediction                  = "`e[97;2;3m";
+  Keyword                           = "`e[96m";
+  ListPrediction                    = "`e[33m";
+  ListPredictionSelected            = "`e[30;107m";
+  ListPredictionTooltip             = "`e[97;2;3m";
+  Member                            = "`e[94m";
+  Number                            = "`e[92m";
+  Operator                          = "`e[33m";
+  Parameter                         = "`e[32m";
+  Selection                         = "`e[30;47m";
+  String                            = "`e[93m";
+  Type                              = "`e[36m";
+  Variable                          = "`e[95m";
 }
 
 Set-PSReadlineOption -PromptText @("`e[33m> `e[5 q`e[0m", "`e[31m> `e[0m")

@@ -1,8 +1,6 @@
 [user]
   email = parkersnell@gmail.com
   name = Parker Snell
-[color]
-  ui = true
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
@@ -12,6 +10,7 @@
   symlinks = true
   autocrlf = input
   filemode = false
+  eol = lf
 [pull]
   rebase = true
 [init]
