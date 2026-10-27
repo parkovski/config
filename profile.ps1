@@ -51,10 +51,6 @@ Set-Alias genv Get-EnvironmentVariable
 . $HOME/.share/lib/pwsh/history.ps1
 Set-Alias ^ Invoke-HistoryRecent
 
-function Reload-Profile {
-  . $PROFILE.CurrentUserAllHosts
-}
-
 function dirs { Get-Location -Stack }
 
 if (![string]::IsNullOrEmpty($env:GH)) {

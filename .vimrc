@@ -67,6 +67,7 @@ if g:vimrc_platform.status_plugin ==? 'lualine'
   source $HOME/.share/lib/vim/lualine.vim
 endif
 source $HOME/.share/lib/vim/mapping.vim
+source $HOME/.share/lib/vim/editfile.lua
 
 command! Reload source $HOME/.vimrc
 
