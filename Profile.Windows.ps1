@@ -41,6 +41,7 @@ function wslpath {
 Set-Alias which Get-Command
 
 # Start-Job {
+#   Register-EngineEvent -SourceIdentifier ThemeChanged -Forward
 #   Write-Output "Starting PipeClient"
 #   $client = [System.IO.Pipes.NamedPipeClientStream]::new("pipesrv_theme_pipe")
 #   $client.Connect()
@@ -60,12 +61,9 @@ Set-Alias which Get-Command
 #     if ($message -eq "exit") {
 #       return
 #     }
-#     if ($message -eq "dark") {
-#       Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
-#       Write-Output "Set default color to white"
-#     } elseif ($message -eq "light") {
-#       Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
-#       Write-Output "Set default color to black"
+#     if ($message -eq "dark" -or $message -eq "light") {
+#       # Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
+#       New-Event -SourceIdentifier "ThemeChanged" -Sender $PSItem -MessageData $message
 #     }
 #   }
 # }
