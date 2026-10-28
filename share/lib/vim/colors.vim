@@ -15,6 +15,7 @@ function! TryToFixColorScheme() abort
 
   if has_key(g:colors_opts, 'transparent')
     hi Normal guibg=NONE
+    hi NormalNC guibg=NONE
     hi EndOfBuffer guibg=NONE
     hi LineNr guibg=NONE
     hi SignColumn guibg=NONE
@@ -22,6 +23,7 @@ function! TryToFixColorScheme() abort
     hi! link VertSplit LineNr
   elseif has_key(g:colors_opts, 'transparentsrc')
     hi Normal guibg=NONE
+    hi NormalNC guibg=NONE
     hi EndOfBuffer guibg=NONE
     hi! link VertSplit LineNr
   else
