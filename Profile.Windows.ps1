@@ -40,33 +40,19 @@ function wslpath {
 
 Set-Alias which Get-Command
 
-# Start-Job {
-#   Register-EngineEvent -SourceIdentifier ThemeChanged -Forward
-#   Write-Output "Starting PipeClient"
-#   $client = [System.IO.Pipes.NamedPipeClientStream]::new("pipesrv_theme_pipe")
-#   $client.Connect()
-#   $reader = [System.IO.StreamReader]::new($client)
-#   $writer = [System.IO.StreamWriter]::new($client)
-#   $buffer = [char[]]::new(256)
-#   $writer.Write("wait`0")
-#   $writer.Flush()
-#   while ($true) {
-#     $chars = $reader.Read($buffer, 0, 256)
-#     if ($chars -eq 0) {
-#       return
-#     }
-#     $buffer2 = [char[]]::new($chars - 1)
-#     [System.Array]::Copy($buffer, $buffer2, $chars - 1)
-#     $message = [string]::new($buffer2)
-#     if ($message -eq "exit") {
-#       return
-#     }
-#     if ($message -eq "dark" -or $message -eq "light") {
-#       # Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
-#       New-Event -SourceIdentifier "ThemeChanged" -Sender $PSItem -MessageData $message
-#     }
-#   }
-# }
+$local:fs_watch = [System.IO.FileSystemWatcher]::new()
+$fs_watch.Path = ($HOME + "\.local\etc")
+$fs_watch.EnableRaisingEvents = $true
+Register-ObjectEvent $fs_watch Changed -SourceIdentifier LocalEtcChanged -Action {
+  if ($args[1].Name -eq "vimcolor") {
+    $lines = $(cat $args[1].FullPath) -split '`n'
+    if ($lines[1] -eq "dark") {
+      Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
+    } else {
+      Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
+    }
+  }
+} | Out-Null
 
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
