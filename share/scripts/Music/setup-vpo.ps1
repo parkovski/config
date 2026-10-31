@@ -17,5 +17,5 @@ Get-ChildItem "$Dest\Virtual-Playing-Orchestra3" | `
   ForEach-Object { Move-Item -Force $_ "$Dest\Virtual-Playing-Orchestra3\Performance" }
 
 if (-not $NoFix) {
-  node "$PSScriptRoot\vpo.js" -CPpi "$Dest\Virtual-Playing-Orchestra3"
+  node "$PSScriptRoot\vpo.js" -CPkpi "$Dest\Virtual-Playing-Orchestra3"
 }
