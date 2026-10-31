@@ -40,20 +40,6 @@ function wslpath {
 
 Set-Alias which Get-Command
 
-$local:fs_watch = [System.IO.FileSystemWatcher]::new()
-$fs_watch.Path = ($HOME + "\.local\etc")
-$fs_watch.EnableRaisingEvents = $true
-Register-ObjectEvent $fs_watch Changed -SourceIdentifier LocalEtcChanged -Action {
-  if ($args[1].Name -eq "vimcolor") {
-    $lines = $(cat $args[1].FullPath) -split '`n'
-    if ($lines[1] -eq "dark") {
-      Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
-    } else {
-      Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
-    }
-  }
-} | Out-Null
-
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
 $ProVar.vcvars = @{

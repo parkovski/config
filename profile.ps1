@@ -117,42 +117,21 @@ Set-PSReadlineOption -ViModeChangeHandler {
 } -ErrorAction Ignore
 
 function Refresh-Colors {
-  if (Get-Command yinyang -EA Ignore) {
-    if ($(yinyang) -eq "light") {
-      Set-PSReadLineOption -Colors @{ Default = "`e[30m" }
-    } else {
-      Set-PSReadLineOption -Colors @{ Default = "`e[37m" }
+  $local:colors = ConvertFrom-Json -AsHashtable $((cat ($HOME + "/.local/etc/pwshcolor.json")) -join "`n")
+  Set-PSReadLineOption -Colors $colors
+}
+
+Refresh-Colors
+
+if ((Get-Job -Name LocalEtcChanged -EA Ignore) -eq $null) {
+  $local:fs_watch = [System.IO.FileSystemWatcher]::new()
+  $fs_watch.Path = ($HOME + "\.local\etc")
+  $fs_watch.EnableRaisingEvents = $true
+  Register-ObjectEvent $fs_watch Changed -SourceIdentifier LocalEtcChanged -Action {
+    if ($args[1].Name -eq "pwshcolor.json") {
+      Refresh-Colors
     }
-  }
-}
-
-$local:DefaultColor = "`e[37m"
-if (Get-Command yinyang -EA Ignore) {
-  if ($(yinyang) -eq "light") {
-    $DefaultColor = "`e[30m"
-  }
-}
-
-Set-PSReadLineOption -Colors @{
-  Command                           = "`e[34m";
-  Comment                           = "`e[90m";
-  ContinuationPrompt                = "`e[90m";
-  Default                           = $DefaultColor;
-  Emphasis                          = "`e[96m";
-  Error                             = "`e[31m";
-  InlinePrediction                  = "`e[97;2;3m";
-  Keyword                           = "`e[96m";
-  ListPrediction                    = "`e[33m";
-  ListPredictionSelected            = "`e[30;107m";
-  ListPredictionTooltip             = "`e[97;2;3m";
-  Member                            = "`e[94m";
-  Number                            = "`e[92m";
-  Operator                          = "`e[33m";
-  Parameter                         = "`e[32m";
-  Selection                         = "`e[30;47m";
-  String                            = "`e[93m";
-  Type                              = "`e[36m";
-  Variable                          = "`e[95m";
+  } | Out-Null
 }
 
 Set-PSReadlineOption -PromptText @("`e[33m> `e[5 q`e[0m", "`e[31m> `e[0m")
