@@ -134,8 +134,8 @@ if ((Get-Job -Name LocalEtcChanged -EA Ignore) -eq $null) {
   } | Out-Null
 }
 
-Set-PSReadlineOption -PromptText @("`e[33m> `e[5 q`e[0m", "`e[31m> `e[0m")
-Set-PSReadlineOption -ContinuationPrompt "`e[33m-> `e[0m"
+Set-PSReadlineOption -PromptText @("`e[m> ", "`e[31m> `e[0m")
+Set-PSReadlineOption -ContinuationPrompt "-> "
 
 Set-PSReadlineKeyHandler -Key 'Shift+Tab' -Function Complete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete

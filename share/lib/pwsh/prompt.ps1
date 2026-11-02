@@ -134,7 +134,7 @@ function prompt {
     $ec = "`e[90m[`e[31m$ec`e[90m] "
     Write-Host -NoNewline $ec
   }
-  $prompt = "`e[33m> `e[0m"
+  $prompt = "`e[m> "
   $global:LastExitCode = $exitCode
   $prompt
 }
