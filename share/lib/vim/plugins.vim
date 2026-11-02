@@ -32,9 +32,13 @@ Plug 'sgur/vim-editorconfig'
 
 " Autocomplete
 let g:coq_settings = {
-      \   'clients': { 'tmux': { 'enabled': v:false } },
+      \   'clients': {
+      \     'tmux': { 'enabled': v:false },
+      \     'buffer': { 'weight_adjust': 0.25 },
+      \     'lsp': { 'weight_adjust': 1.5 },
+      \     'treesitter': { 'weight_adjust': 1.25 },
+      \   },
       \   'keymap': { 'recommended': v:false },
-      \   'autostart': v:true
       \ }
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'} " Completion
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'} " Snippets
