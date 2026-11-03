@@ -1,4 +1,3 @@
-lua << END
 require('lualine').setup {
   sections = {
     lualine_a = {
@@ -35,4 +34,3 @@ require('lualine').setup {
     lualine_z = {{'tabs', max_length = 32}},
   },
 }
-END

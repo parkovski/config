@@ -68,7 +68,7 @@ endif
 source $HOME/.share/lib/vim/plugins.vim
 source $HOME/.share/lib/vim/colors.vim
 if g:vimrc_platform.status_plugin ==? 'lualine'
-  source $HOME/.share/lib/vim/lualine.vim
+  source $HOME/.share/lib/vim/lualine.lua
 endif
 source $HOME/.share/lib/vim/mapping.vim
 source $HOME/.share/lib/vim/editfile.lua
