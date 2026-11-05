@@ -37,7 +37,7 @@ if has('win32')
 endif
 
 if exists('&guifont')
-  set guifont=Iosevka\ Medium:h12
+  set guifont=Iosevka:h10
 endif
 
 if exists('+pyxversion')
