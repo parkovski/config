@@ -14,11 +14,6 @@ let g:vista_default_executive = 'nvim_lsp'
 
 Plug 'nvim-treesitter/nvim-treesitter'
 
-" Debugger
-" let g:vimspector_base_dir = $HOME . '/.vim/bundle/vimspector'
-" let g:vimspector_enable_mappings = 'HUMAN'
-" Plug 'puremourning/vimspector'
-
 " Org mode
 Plug 'nvim-orgmode/orgmode'
 
@@ -52,12 +47,13 @@ Plug 'tpope/vim-abolish'
 Plug 'bronson/vim-visual-star-search'
 Plug 'mg979/vim-visual-multi'
 Plug 'windwp/nvim-autopairs'
-Plug 'ap/vim-css-color'
+Plug 'uga-rosa/ccc.nvim'
 Plug 'chrisgrieser/nvim-spider'
+Plug 'lewis6991/gitsigns.nvim'
 
-let g:rainbow_active = 1
+let g:rainbow_active = 0 " Enabled in colors.vim.
 " Colors = blue, green, yellow, orange, red, violet, indigo
-let g:vimrc_platform.rainbow_colors = {
+let g:rainbow_colors = {
       \   'dark': [
       \     '#2590fa', 'chartreuse3', 'gold', 'orange2',
       \     'firebrick', 'palevioletred1', '#8840f8'
@@ -81,26 +77,17 @@ let g:indent_guides_auto_colors = 1
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_start_level = 2
-" hi link IndentGuidesOdd CursorLine
-" hi link IndentGuidesEven CursorLine
-hi link ColorColumn CursorLine
-hi link EchoDocFloat Pmenu
+"hi link ColorColumn CursorLine
+"hi link EchoDocFloat Pmenu
 Plug 'nathanaelkane/vim-indent-guides'
 
 " Panes
 Plug 'liuchengxu/vista.vim' " Symbol browser
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
-"Plug 'scrooloose/nerdtree'
-if has("nvim") || has("lua")
-  Plug 'nvim-lualine/lualine.nvim'
-else
-  Plug 'itchyny/lightline.vim'
-  Plug 'mgee/lightline-bufferline'
-endif
+Plug 'nvim-lualine/lualine.nvim'
 
 " Color schemes
-" Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'bluz71/vim-nightfly-colors'
 Plug 'cocopon/iceberg.vim'
@@ -111,14 +98,9 @@ Plug 'cormacrelf/vim-colors-github'
 Plug 'ajmwagar/vim-deus'
 Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'savq/melange'
-" Plug 'keith/parsec.vim'
 Plug 'mhartington/oceanic-next'
-" Plug 'nightsense/snow'
 Plug 'rakr/vim-two-firewatch'
 Plug 'sainnhe/everforest'
-" Plug 'jacoborus/tender.vim'
-" Plug 'jaredgorski/spacecamp'
-" Plug 'marcopaganini/termschool-vim-theme'
 Plug 'sainnhe/edge'
 let g:sonokai_style = 'atlantis'
 Plug 'sainnhe/sonokai'
@@ -130,37 +112,12 @@ Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'Shatur/neovim-ayu'
 Plug 'uloco/bluloco.nvim'
 Plug 'miikanissi/modus-themes.nvim'
+Plug 'uhs-robert/oasis.nvim'
+Plug 'datsfilipe/vesper.nvim'
 
 " Syntaxes
-" let g:cpp_class_scope_highlight = 1
-" let g:cpp_member_variable_highlight = 1
-" let g:cpp_class_decl_highlight = 1
-" let g:cpp_concepts_highlight = 1
-let g:c_autodoc = 1
 let g:vim_svelte_plugin_use_typescript = 1
 Plug 'sheerun/vim-polyglot'
-" Plug 'bfrg/vim-cpp-modern'
-" Plug 'leafgarland/typescript-vim'
-" Plug 'peitalin/vim-jsx-typescript'
-" Plug 'Quramy/vim-js-pretty-template'
-" Plug 'jason0x43/vim-js-indent'
-" Plug 'Quramy/tsuquyomi'
-" Plug 'ixm-one/vim-cmake'
-" Plug 'cespare/vim-toml'
-" Plug 'rust-lang/rust.vim'
-" Plug 'plasticboy/vim-markdown'
-" Plug 'ilyachur/cmake4vim'
-" Plug 'PProvost/vim-ps1'
-" Plug 'habamax/vim-godot'
-" Plug 'neoclide/jsonc.vim'
-" Plug 'pboettch/vim-cmake-syntax'
-" Plug 'condy0919/docom.vim'
-" Plug 'cstrahan/vim-capnp'
-
-" if has('win32')
-"   let g:OmniSharp_server_path = $HOME . '/.local/etc/OmniSharp/OmniSharp.exe'
-" endif
-" Plug 'OmniSharp/omnisharp-vim'
 
 call plug#end()
 
@@ -172,6 +129,10 @@ lua <<EOF
   require'orgmode'.setup{
     org_agenda_files = '~/Documents/Sync/org',
     org_default_notes_file = '~/Documents/Sync/org/default.org',
+  }
+  require'gitsigns'.setup{
+    signcolumn = false,
+    numhl = true,
   }
 EOF
 endif

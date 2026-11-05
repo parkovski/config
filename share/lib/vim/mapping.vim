@@ -3,8 +3,8 @@ noremap! <NUL> <C-Space>
 noremap  <Char-0x7F> <BS>
 noremap! <Char-0x7F> <BS>
 
-tnoremap <C-a> <C-\><C-n>
-tnoremap <C-a><C-a> <C-a>
+tnoremap <C-x> <C-\><C-n>
+tnoremap <C-x><C-x> <C-x>
 
 lua <<EOF
 function AutoCompleteTab()
@@ -126,7 +126,7 @@ noremap! <C-e> <End>
 imap <C-J> O
 
 " Swap with deleted text
-xnoremap <C-s> <Esc>`.``gvP``P
+xnoremap <C-s> <Esc>`.``gvp``P
 
 " Make D/Y like C
 nnoremap D d$
@@ -148,42 +148,6 @@ map!     <M-'> <M-">
 " Null clipboard
 noremap  _    "_
 
-" Statement
-"map (
-"map )
-
-" Block
-"map {
-"map }
-
-" Inner indent up/down
-"map []
-"map ][
-
-" Outer indent up/down
-"map [[
-"map ]]
-
-" Top level block that there is more than one of
-" E.g. C# class, cpp function.
-"map [{
-"map ]}
-
-" Should do? g[, g], g{, g}
-
-function! Align(col, start, end) abort
-  for line in range(a:start, a:end)
-    let l:curcol = col('.')
-    if a:col < l:curcol
-      exe l:line.'normal 0'.(l:curcol-1).'l'.(l:curcol - a:col).'X'
-    elseif a:col > l:curcol
-      exe l:line.'normal 0'.(l:curcol-1).'l'.(a:col - l:curcol).'i '
-    endif
-  endfor
-endfunction
-
-command! -bar -range -nargs=1 Align call Align(<args>, <line1>, <line2>)
-
 nnoremap <expr> <leader>T "\<Cmd>".v:count."bp\<CR>"
 nnoremap <expr> <leader>t "\<Cmd>".v:count."bn\<CR>"
 nnoremap <leader>p <Cmd>b#<CR>
@@ -194,7 +158,6 @@ nnoremap <leader>l <Cmd>noh<CR>
 nnoremap <leader>b <Cmd>NvimTreeToggle<CR>
 nnoremap <leader>v <Cmd>Vista!!<CR>
 nnoremap <leader>r <Cmd>set relativenumber!<CR>
-nnoremap <leader>c <Cmd>ColorScheme<CR>
 
 nnoremap <leader><Tab> <Cmd>tabnext<CR>
 nnoremap <leader><S-Tab> <Cmd>tabprevious<CR>
@@ -230,11 +193,7 @@ function! s:GoToBuffer(nr) abort
     let l:inp = 0+l:inp
   endif
 
-  if g:vimrc_platform.status_plugin ==? 'lightline'
-    let l:num = lightline#bufferline#get_buffer_for_ordinal_number(l:inp)
-  elseif g:vimrc_platform.status_plugin ==? 'lualine'
-    let l:num = <SID>GetBufferLineNumber(l:inp)
-  endif
+  let l:num = <SID>GetBufferLineNumber(l:inp)
   if (l:num != -1)
     exe l:num."b"
   else
@@ -243,14 +202,7 @@ function! s:GoToBuffer(nr) abort
 endfunction
 nnoremap <leader>= <Cmd>call <SID>GoToBuffer(v:count)<CR>
 
-if g:vimrc_platform.status_plugin ==? 'lightline'
-  for nr in range(1, 9)
-    exe 'nnoremap <leader>' . nr . ' <Plug>lightline#bufferline#go(' . nr . ')'
-  endfor
-  nnoremap <leader>0 <Plug>lightline#bufferline#go(10)
-elseif g:vimrc_platform.status_plugin ==? 'lualine'
-  for nr in range(1, 9)
-    exe 'nnoremap <leader>' . nr . ' <Cmd>call <SID>GoToBuffer(' . nr . ')<CR>'
-  endfor
-  nnoremap <leader>0 <Cmd>call <SID>GoToBuffer(10)<CR>
-endif
+for nr in range(1, 9)
+  exe 'nnoremap <leader>' . nr . ' <Cmd>call <SID>GoToBuffer(' . nr . ')<CR>'
+endfor
+nnoremap <leader>0 <Cmd>call <SID>GoToBuffer(10)<CR>

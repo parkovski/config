@@ -2,11 +2,6 @@ let g:colors_opts = {}
 
 function! TryToFixColorScheme() abort
   if has_key(g:, 'colors_name')
-    " if has_key(g:, 'lightline#colorscheme#'.g:colors_name.'#palette')
-    "   let g:lightline.colorscheme = g:colors_name
-    "   silent! call lightline#enable()
-    " endif
-
     let l:fn = glob('~/.share/etc/fix-' . g:colors_name . '.vim')
     if filereadable(fn)
       exe 'source ' . l:fn
@@ -128,9 +123,9 @@ function! SetColorOptions(...) abort
     let l:i += 1
   endwhile
 
-  if has_key(g:, 'rainbow_conf')
-    let g:rainbow_conf.guifgs = g:vimrc_platform.rainbow_colors[&background]
-    "RainbowToggleOn
+  if has_key(g:, 'rainbow_conf') && has_key(g:, 'rainbow_colors')
+    let g:rainbow_conf.guifgs = g:rainbow_colors[&background]
+    exe 'silent! RainbowToggleOn'
   endif
 
   if !empty(l:opts[0])
