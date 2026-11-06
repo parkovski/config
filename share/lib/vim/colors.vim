@@ -1,6 +1,6 @@
 let g:colors_opts = {}
 
-function! TryToFixColorScheme() abort
+function! s:TryToFixColorScheme() abort
   if has_key(g:, 'colors_name')
     let l:fn = glob('~/.share/etc/fix-' . g:colors_name . '.vim')
     if filereadable(fn)
@@ -75,7 +75,7 @@ endfunction
 " - Empty array     -> Load options from ~/.local/etc/vimcolor.
 " - Non-empty array -> Apply options and change color scheme to a:1[0].
 " - Other           -> Apply options and reload current color scheme.
-function! SetColorOptions(...) abort
+function! s:SetColorOptions(...) abort
   if a:0 == 0
     echo g:colors_opts
     return
@@ -123,11 +123,6 @@ function! SetColorOptions(...) abort
     let l:i += 1
   endwhile
 
-  if has_key(g:, 'rainbow_conf') && has_key(g:, 'rainbow_colors')
-    let g:rainbow_conf.guifgs = g:rainbow_colors[&background]
-    exe 'silent! RainbowToggleOn'
-  endif
-
   if !empty(l:opts[0])
     " New color scheme in l:opts[0].
     " If it contains a '/', the left side is light mode and the right side is
@@ -147,25 +142,33 @@ function! SetColorOptions(...) abort
   endif
 endfunction
 
+function! s:EnableRainbow()
+  if has_key(g:, 'rainbow_conf') && has_key(g:, 'rainbow_colors')
+    let g:rainbow_conf.guifgs = g:rainbow_colors[&background]
+    exe 'silent! RainbowToggleOn'
+  endif
+endfunction
+
 " Without args: Prints g:colors_opts.
 " With args: Sets color options.
 command! -bang -bar -nargs=* ColorOptions
       \ if !empty("<bang>") | let g:colors_opts = {} | endif |
-      \ call SetColorOptions(<f-args>)
+      \ call <SID>SetColorOptions(<f-args>)
 
 " Without args: Reloads default color scheme.
 " With args: Sets color scheme and options.
 command! -bang -bar -nargs=* -complete=color ColorScheme
       \ if !empty("<bang>") | let g:colors_opts = {} | endif |
-      \ call SetColorOptions([<f-args>])
+      \ call <SID>SetColorOptions([<f-args>])
 
 augroup VimrcColors
   autocmd!
 
   autocmd ColorSchemePre * silent! call remove(g:, 'colors_name')
-  autocmd ColorScheme * call TryToFixColorScheme()
+  autocmd ColorScheme * call <SID>TryToFixColorScheme()
+  autocmd BufNewFile,BufRead,ColorScheme * call <SID>EnableRainbow()
 augroup END
 
 if !v:vim_did_enter
-  call SetColorOptions([])
+  call <SID>SetColorOptions([])
 endif
