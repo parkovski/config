@@ -85,12 +85,14 @@ function! s:SetColorOptions(...) abort
   if type(a:1) == v:t_list && a:0 == 1
     " Single list argument.
     if len(a:1) == 0
+      " Empty list
       try
         let l:opts = readfile(glob('~/.local/etc/vimcolor'))
       catch
         return
       endtry
     else
+      " List of strings
       let l:opts = a:1
     endif
     let l:len = len(l:opts)
@@ -123,7 +125,7 @@ function! s:SetColorOptions(...) abort
     let l:i += 1
   endwhile
 
-  if !empty(l:opts[0])
+  if len(opts) > 0 && !empty(l:opts[0])
     " New color scheme in l:opts[0].
     " If it contains a '/', the left side is light mode and the right side is
     " dark mode.
