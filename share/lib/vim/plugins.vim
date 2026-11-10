@@ -29,9 +29,9 @@ Plug 'sgur/vim-editorconfig'
 let g:coq_settings = {
       \   'clients': {
       \     'tmux': { 'enabled': v:false },
-      \     'buffer': { 'weight_adjust': 0.25 },
+      \     'buffer': { 'weight_adjust': -0.25 },
       \     'lsp': { 'weight_adjust': 1.5 },
-      \     'treesitter': { 'weight_adjust': 1.25 },
+      \     'treesitter': { 'weight_adjust': 1.0 },
       \   },
       \   'keymap': { 'recommended': v:false },
       \ }

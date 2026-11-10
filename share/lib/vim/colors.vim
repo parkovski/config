@@ -146,8 +146,12 @@ endfunction
 
 function! s:EnableRainbow()
   if has_key(g:, 'rainbow_conf') && has_key(g:, 'rainbow_colors')
-    let g:rainbow_conf.guifgs = g:rainbow_colors[&background]
-    exe 'silent! RainbowToggleOn'
+    if &ft ==? 'xml' || &ft ==? 'html' || &ft ==? 'svelte'
+      exe 'silent! RainbowToggleOff'
+    else
+      let g:rainbow_conf.guifgs = g:rainbow_colors[&background]
+      exe 'silent! RainbowToggleOn'
+    endif
   endif
 endfunction
 
