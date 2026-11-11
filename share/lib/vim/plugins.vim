@@ -50,6 +50,7 @@ Plug 'windwp/nvim-autopairs'
 Plug 'uga-rosa/ccc.nvim'
 Plug 'chrisgrieser/nvim-spider'
 Plug 'lewis6991/gitsigns.nvim'
+Plug 'chrisgrieser/nvim-origami'
 
 let g:rainbow_active = 0 " Enabled in colors.vim.
 " Colors = blue, green, yellow, orange, red, violet, indigo
@@ -133,6 +134,14 @@ lua <<EOF
   require'gitsigns'.setup{
     signcolumn = false,
     numhl = true,
+  }
+  require'origami'.setup{
+    autofold = {
+      enabled = false,
+    },
+    foldKeymaps = {
+      setup = false,
+    },
   }
 EOF
 endif

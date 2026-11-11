@@ -18,7 +18,8 @@ set wildmenu wildmode=longest:full,full
 set complete=. completeopt=menu,preview,noselect,fuzzy
 set laststatus=2
 set noswapfile backupdir-=.
-set foldmethod=marker nofoldenable foldcolumn=auto:1 foldopen-=block foldlevel=99
+set foldmethod=manual nofoldenable foldcolumn=auto:1 foldopen-=block
+      \ foldlevel=99 foldlevelstart=99
 set autoread
 set encoding=utf8 fileformats=unix,dos
 set mouse=a
