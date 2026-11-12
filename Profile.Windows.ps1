@@ -102,7 +102,9 @@ function vcvars {
     [Alias('v')]
     [ValidateSet('2022', '18')]
     [string]
-    $Version
+    $Version,
+    [string]
+    $VCVersion = ''
   )
   dynamicparam {
     if ([string]::IsNullOrEmpty($Version)) {
@@ -205,7 +207,12 @@ function vcvars {
     $oldVcpkgRoot = $env:VCPKG_ROOT
     # I hate you guys
     $env:VSCMD_SKIP_SENDTELEMETRY=1
-    $output = cmd /c "`"$dir`" & set"
+    if (-not [string]::IsNullOrEmpty($VCVersion)) {
+      Write-Host "Using VC version $VCVersion"
+      $output = cmd /c "`"$dir`" -vcvars_ver=$VCVersion & set"
+    } else {
+      $output = cmd /c "`"$dir`" & set"
+    }
     if ($LASTEXITCODE -ne 0) {
       Write-Host "Aw hell nah dawg stuff didn't work!"
       return
